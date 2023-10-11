@@ -47,22 +47,43 @@ function startTable(data, callback) {
 		rowHeaders: true,
 		stretchH: "all",
 		rowHeights: 40,
-		colHeaders: ["Harcama Detayı", "Harcama Tutarı", "Tarih"],
+		className: 'htCenter htMiddle my-custom-header',  // Buraya eklenen sınıfı kullanarak özelleştireceğiz
+		colHeaders: function (col) {
+			switch (col) {
+				case 0:
+					return '<b>Harcama Detayı</b>';
+				case 1:
+					return '<b>Harcama Tutarı</b>';
+				case 2:
+					return '<b>Tarih</b>';
+			}
+		},
 		fixedRowsBottom: 1,
 		contextMenu: true,
 		modifyColWidth: function (width, col) {
-			if (width > 250) return 250
+			if (width > 100) return 250;
 		},
 		columns: [
-			{ data: "name" },
+			{
+				data: "name",
+				editor: "text"
+			},
 			{
 				data: "amount",
 				type: "numeric",
 				numericFormat: { pattern: "$0,0.00", culture: "tr-TR" },
+				editor: "text"
 			},
-			{ data: "date", type: "text" },
-		],
+			{
+				data: "date",
+				type: "date",
+				dateFormat: "DD/MM/YYYY",
+				correctFormat: true,
+				defaultDate: new Date().toDateString()
+			}
+		]
 	});
+
 	$('#hot-display-license-info').remove();
 	callback(table);
 }
@@ -77,7 +98,7 @@ function init(callback) {
 				fireData = response;
 				let countriesData = {};
 				let keys = Object.keys(response);
-				keys =  keys.sort(compareDates);
+				keys = keys.sort(compareDates);
 				for (const element of keys) {
 					let key = "".concat(element)
 					let temp = {}
@@ -152,8 +173,8 @@ function calculateStatistics(callback) {
 	statisticsData = statisticsData.sort(comparePeriodDates);
 	setTimeout(() => {
 		statisticTableCallback(statisticsData, () => {
-			document.getElementById("popup-info-period-msg-count").innerHTML = "Toplam Dönem: "+statisticsData.length.toString() +" Ay";
-			document.getElementById("popup-info-period-msg-amount").innerHTML = "Toplam Harcama: "+new Intl.NumberFormat('en-US').format(statisticsData.map(i=>i.amount).reduce((acc, current) => acc + current, 0))+" ₺";
+			document.getElementById("popup-info-period-msg-count").innerHTML = "Toplam Dönem: " + statisticsData.length.toString() + " Ay";
+			document.getElementById("popup-info-period-msg-amount").innerHTML = "Toplam Harcama: " + new Intl.NumberFormat('en-US').format(statisticsData.map(i => i.amount).reduce((acc, current) => acc + current, 0)) + " ₺";
 		})
 	}, 1);
 
@@ -200,38 +221,51 @@ function fundsTableCallback(data, callback) {
 		colHeaders: ["Döviz Türü", "Miktar", "Kur Endexi", "TL Karşılığı"],
 		contextMenu: true,
 		modifyColWidth: function (width, col) {
-			if (width > 250) return 250
+			if (width > 250) return 250;
 		},
 		columns: [
-			{ data: "currencyType" },
+			{ data: "currencyType", className: "htCenter" },
 			{
 				data: "amount",
 				type: "numeric",
 				numericFormat: { pattern: "$0,0.00", culture: "tr-TR" },
+				className: "htCenter"
 			},
 			{
 				data: "endex",
 				type: "numeric",
 				numericFormat: { pattern: "$0,0.00", culture: "tr-TR" },
+				className: "htCenter"
 			},
 			{
 				data: "forTl",
 				type: "numeric",
 				numericFormat: { pattern: "$0,0.00", culture: "tr-TR" },
+				className: "htCenter"
 			}
 		],
+		className: "htCenter" // Hücre içeriklerini ortala
 	});
+
 	$('#hot-display-license-info').remove();
 	callback(fundsTable)
 }
 
 function calculateFunds(params) {
 	let fundsTableData = [];
-	Object.values(params).filter(field => field.currencyType == 'Gram-Altın').map(i => i.forTl = (parseFloat(i.amount).toFixed(2) * parseFloat(i.endex.replace(/[^0-9]/g, ''))/ 100))[0].toFixed(2)
+	Object.values(params).filter(field => field.currencyType == 'Gram-Altın').map(i => i.forTl = (parseFloat(i.amount).toFixed(2) * parseFloat(i.endex.replace(/[^0-9]/g, '')) / 100))[0].toFixed(2)
 	fundsTableData.push(Object.values(params));
 	setTimeout(() => {
 		fundsTableCallback(fundsTableData, () => {
-
+			function formatCurrency(value) {
+				return new Intl.NumberFormat('tr-TR', {
+					style: 'decimal',
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2
+				}).format(value);
+			}
+			let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
+			document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
 		})
 	}, 1);
 }
@@ -253,54 +287,287 @@ function setButtonReadOnly(value) {
 
 }
 let payments = [
-    // ... (verdiğiniz JSON dizisi)
+	// ... (verdiğiniz JSON dizisi)
 ];
 
 function convertDate(str) {
-    const months = {
-        "Oca": 0,
-        "Şub": 1,
-        "Mar": 2,
-        "Nis": 3,
-        "May": 4,
-        "Haz": 5,
-        "Tem": 6,
-        "Ağu": 7,
-        "Eyl": 8,
-        "Eki": 9,
-        "Kas": 10,
-        "Ara": 11
-    };
+	const months = {
+		"Oca": 0,
+		"Şub": 1,
+		"Mar": 2,
+		"Nis": 3,
+		"May": 4,
+		"Haz": 5,
+		"Tem": 6,
+		"Ağu": 7,
+		"Eyl": 8,
+		"Eki": 9,
+		"Kas": 10,
+		"Ara": 11
+	};
 
-    const parts = str.split(' ');
-    const day = parseInt(parts[0], 10);
-    const month = months[parts[1]];
-    const year = parseInt(parts[2], 10);
-    const timeParts = parts[4].split(':');
-    const hour = parseInt(timeParts[0], 10);
-    const minute = parseInt(timeParts[1], 10);
-    const second = parseInt(timeParts[2], 10);
+	const parts = str.split(' ');
+	const day = parseInt(parts[0], 10);
+	const month = months[parts[1]];
+	const year = parseInt(parts[2], 10);
+	const timeParts = parts[4].split(':');
+	const hour = parseInt(timeParts[0], 10);
+	const minute = parseInt(timeParts[1], 10);
+	const second = parseInt(timeParts[2], 10);
 
-    return new Date(year, month, day, hour, minute, second);
+	return new Date(year, month, day, hour, minute, second);
 }
 const months_tr = ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"];
 
 function compareDates(a, b) {
-    const [monthA, yearA] = a.split('-');
-    const [monthB, yearB] = b.split('-');
+	const [monthA, yearA] = a.split('-');
+	const [monthB, yearB] = b.split('-');
 
-    if(yearA === yearB) {
-        return months_tr.indexOf(monthB) - months_tr.indexOf(monthA); // Aynı yıl içinde aylara göre sırala
-    }
-    return parseInt(yearB) - parseInt(yearA); // Farklı yıllarsa yıllara göre sırala
+	if (yearA === yearB) {
+		return months_tr.indexOf(monthB) - months_tr.indexOf(monthA); // Aynı yıl içinde aylara göre sırala
+	}
+	return parseInt(yearB) - parseInt(yearA); // Farklı yıllarsa yıllara göre sırala
 }
 
 function comparePeriodDates(a, b) {
-    const [monthA, yearA] = a.period.split('-');
-    const [monthB, yearB] = b.period.split('-');
+	const [monthA, yearA] = a.period.split('-');
+	const [monthB, yearB] = b.period.split('-');
 
-    if(yearA === yearB) {
-        return months_tr.indexOf(monthB) - months_tr.indexOf(monthA); // Aynı yıl içinde aylara göre sırala
-    }
-    return parseInt(yearB) - parseInt(yearA); // Farklı yıllarsa yıllara göre sırala
+	if (yearA === yearB) {
+		return months_tr.indexOf(monthB) - months_tr.indexOf(monthA); // Aynı yıl içinde aylara göre sırala
+	}
+	return parseInt(yearB) - parseInt(yearA); // Farklı yıllarsa yıllara göre sırala
+}
+
+function renderInstallmentsTable(installmentData) {
+	const tbody = document.getElementById('taksitler');
+	document.querySelector(".btn-installments").disabled = false;
+	document.getElementById("deleteButton").style.display = "none";
+	tbody.innerHTML = '';
+	const monthsInTurkish = [
+		"Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+		"Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
+	];
+
+	// Toplam kalan tutar hesabı için değişken
+	let totalRemaining = 0;
+	function formatCurrency(value) {
+		return new Intl.NumberFormat('tr-TR', {
+			style: 'decimal',
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2
+		}).format(value);
+	}
+	let rowColorCounter = 0;
+	let totalMontlyInstallmentAmount = 0;
+	// JSON verisini dolaşıp tabloya ekliyoruz
+	for (let key in installmentData) {
+
+		const data = installmentData[key];
+		const remainingAmount = (data.totalMonths - data.currentMonth) * data.installmentAmount;
+		totalRemaining += remainingAmount;
+		totalMontlyInstallmentAmount += data.installmentAmount;
+
+		// Yeni satır oluşturma
+		const row = tbody.insertRow();
+		row.style.backgroundColor = rowColorCounter % 2 == 0 ? "#dedcdc" : "white";
+		rowColorCounter++;
+		row.style.fontSize = "smaller";
+
+
+		const checkboxCell = row.insertCell(0);
+		const checkboxInput = document.createElement('input');
+		checkboxInput.type = 'checkbox';
+		checkboxInput.className = 'installmentCheckbox';
+		checkboxInput.dataset.key = key; // Seçilen satırın anahtarını saklayın
+		checkboxCell.appendChild(checkboxInput);
+
+		// Sütunlar
+		row.insertCell(1).innerText = data.item;
+
+		// İlerleme çubuğunu ekleme
+		const progressCell = row.insertCell(2);
+		const progressContainer = document.createElement('div');
+		progressContainer.classList.add('progress-bar-container');
+
+		const progressBarFill = document.createElement('div');
+		progressBarFill.classList.add('progress-fill');
+
+		const progressLabel = document.createElement('span');
+		progressLabel.classList.add('progress-bar-label');
+		progressLabel.style.fontWeight = "bolder";
+		progressLabel.innerText = `${data.currentMonth} / ${data.totalMonths}`;
+
+		const progressPercentage = (data.currentMonth / data.totalMonths) * 100;
+		progressBarFill.style.width = `${progressPercentage}%`;
+
+		progressContainer.appendChild(progressBarFill);
+		progressContainer.appendChild(progressLabel);
+		progressCell.appendChild(progressContainer);
+
+		row.insertCell(3).innerText = `${formatCurrency(data.installmentAmount.toFixed(2))}₺`;
+		row.insertCell(4).innerText = `${formatCurrency(remainingAmount.toFixed(2))}₺`;
+
+
+		// Ödeme butonunu oluşturma
+		const currentYear = new Date().getFullYear();
+		const currentMonthIndex = new Date().getMonth(); // Ay 0'dan başladığı için ekstra +1'e gerek yok
+
+		// Ödeme butonunu oluşturma
+		const paymentButton = document.createElement('button');
+		paymentButton.classList.add('payment-button');
+		paymentButton.innerText = `Ödendi olarak İşaretle`;
+		paymentButton.dataset.key = key; // Tıklama olayında hangi taksitin güncellendiğini belirlemek için
+
+		if (data.lastPaidMonth >= currentMonthIndex + 1) { // Ay 0'dan başladığı için +1 eklememiz gerekiyor
+			paymentButton.disabled = true;
+			paymentButton.innerText = `${monthsInTurkish[currentMonthIndex]}-${currentYear} Ödendi`;
+		}
+
+		// Taksit ekle eventi
+		paymentButton.addEventListener('click', function () {
+			const itemKey = this.dataset.key;
+			installmentData[itemKey].lastPaidMonth++;
+			installmentData[itemKey].currentMonth++;
+			const selectedInstallment = { ...installmentData[itemKey] };
+			this.innerText = `${monthsInTurkish[currentMonthIndex]}-${currentYear} Ödendi`;
+			this.disabled = true;
+			tbody.innerHTML = '';
+			PocketRealtime.updateInstallments({
+				params: selectedInstallment,
+				where: { "key": itemKey },
+				done: (response) => {
+					if (response) {
+						renderInstallmentsTable(installmentData);
+					}
+				},
+				fail: (error) => {
+					throw new Error(error);
+				}
+			})
+		});
+		const paymentCell = row.insertCell(5);
+		paymentCell.appendChild(paymentButton);
+
+		const checkboxes = document.querySelectorAll('.installmentCheckbox');
+		checkboxes.forEach(cb => {
+			cb.addEventListener('change', function () {
+				checkboxes.forEach(innerCb => {
+					if (innerCb !== this) {
+						innerCb.disabled = this.checked;
+					}
+				});
+
+				const deleteButton = document.getElementById('deleteButton');
+				if (this.checked) {
+					deleteButton.style.display = 'inline-block';
+					document.querySelector(".btn-installments").disabled = true
+				} else {
+					deleteButton.style.display = 'none';
+					document.querySelector(".btn-installments").disabled = false;
+				}
+
+				deleteButton.onclick = () => {
+					const selectedKey = this.dataset.key;
+					console.log(`Silinmek istenen veri anahtarı: ${selectedKey}`);
+					PocketRealtime.deleteInstallments({
+						where: { "key": selectedKey },
+						done: (response) => {
+							if (response) {
+								alert("Taksit silindi.");
+							}
+						},
+						fail: (error) => {
+							throw new Error(error);
+						}
+					})
+					// Gerçek silme işlemi için burada kod ekleyebilirsiniz
+				};
+			});
+		});
+	}
+
+	// Toplam kalan tutarı güncelleme
+	document.getElementById('toplamKalan').innerText = `${formatCurrency(totalRemaining.toFixed(2))} ₺`;
+	// Toplam aylık tutarı güncelleme
+	document.getElementById('toplamAylık').innerText = `${formatCurrency(totalMontlyInstallmentAmount.toFixed(2))} ₺`;
+
+}
+
+function collectaNewInstallmentData() {
+	const itemName = document.getElementById("itemName").value;
+	const installmentAmount = document.getElementById("installmentAmount").valueAsNumber;
+	const currentInstallment = document.getElementById("currentInstallment").valueAsNumber;
+	const lastPaidMonth = document.getElementById("lastPaidMonth").value;
+	const totalInstallment = document.getElementById("totalInstallment").value;
+
+	// Alanların dolu olup olmadığını kontrol ediyoruz
+	if (!itemName ||
+		isNaN(installmentAmount) ||
+		isNaN(currentInstallment) ||
+		!lastPaidMonth ||
+		!totalInstallment) {
+		alert("Lütfen tüm alanları doldurun!");
+		return;  // Eğer herhangi bir alan boşsa fonksiyonu burada sonlandırıyoruz
+	}
+
+	const jsonData = {
+		item: itemName,
+		installmentAmount: installmentAmount,
+		currentMonth: currentInstallment,
+		lastPaidMonth: parseInt(lastPaidMonth),
+		totalMonths: parseInt(totalInstallment)
+	};
+
+	PocketRealtime.pushInstallments({
+		params: jsonData,
+		done: (response) => {
+			if (response) {
+				alert("Taksit Eklendi");
+			}
+		},
+		fail: (error) => {
+			alert("Taksit eklenirken hata oluştu.");
+			throw new Error(error);
+		}
+	})
+	console.log(jsonData); // Bu satırda JSON verisini konsolda görebilirsiniz.
+}
+
+
+
+function formatCurrency(value) {
+	return new Intl.NumberFormat('tr-TR', {
+		style: 'decimal',
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	}).format(value);
+}
+function hesapla() {
+	const anaPara = parseFloat(document.getElementById('anaPara').value);
+	const faizOrani = parseFloat(document.getElementById('faizOrani').value) / 100;
+	const toplamAy = parseInt(document.getElementById('toplamAy').value);
+	const stopajOrani = 0.20;
+
+	let tablo = '<thead><tr><th>Ay</th><th>Net Ana Para (₺)</th><th>Brüt Faiz Tutarı (₺)</th><th>Stopaj (₺)</th><th>Net Faiz Getirisi (₺)</th></tr></thead><tbody>';
+	let mevcutAnaPara = anaPara;
+
+	for (let i = 1; i <= toplamAy; i++) {
+		const brutFaizTutari = (mevcutAnaPara * faizOrani) / 12;
+		const stopajTutari = brutFaizTutari * stopajOrani;
+		const netFaiz = brutFaizTutari - stopajTutari;
+
+		mevcutAnaPara += netFaiz;
+
+		tablo += `<tr>
+		<td>${i}. Ay</td>
+		<td>${formatCurrency(mevcutAnaPara.toFixed(2))} ₺</td>
+		<td>${formatCurrency(brutFaizTutari.toFixed(2))} ₺</td>
+		<td class="negative">-${formatCurrency(stopajTutari.toFixed(2))} ₺</td>
+		<td class="positive">${formatCurrency(netFaiz.toFixed(2))} ₺</td>
+	  </tr>`;
+	}
+
+	tablo += '</tbody>';
+	document.getElementById('sonucTablosu').innerHTML = tablo;
 }

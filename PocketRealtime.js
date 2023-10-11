@@ -8,23 +8,22 @@ firebase.initializeApp({
     "measurementId": "G-Q6D9DPXLYL"
 });
 let PocketRealtime = (
-    function(){
+    function () {
         /**
          * @param {Object} args
          */
-        function getValue(args){
+        function getValue(args) {
             let fail = args.fail;
-            try
-            {
+            try {
                 let path = args.path;
                 let done = args.done;
-                if(path == "root"){
-                    firebase.database().ref("Odemeler/").on("value",(snapshot)=>{
+                if (path == "root") {
+                    firebase.database().ref("Odemeler/").on("value", (snapshot) => {
                         done(snapshot.val())
                     })
                 }
-                else if(path.trim() != "root"){
-                    firebase.database().ref("Odemeler/"+path+"/").on("value",(snapshot)=>{
+                else if (path.trim() != "root") {
+                    firebase.database().ref("Odemeler/" + path + "/").on("value", (snapshot) => {
                         done(snapshot.val())
                     })
                 }
@@ -34,53 +33,48 @@ let PocketRealtime = (
             }
 
         }
-        function setValue(args){
-           let fail = args.fail;
-           try
-           {
+        function setValue(args) {
+            let fail = args.fail;
+            try {
                 let path = args.path;
                 let done = args.done;
                 let params = args.params;
-                firebase.database().ref("Odemeler/"+path).set(params, (error) => {
+                firebase.database().ref("Odemeler/" + path).set(params, (error) => {
                     if (error) {
                         fail(error);
                     } else {
                         done(true);
                     }
                 })
-           }
-           catch (error)
-           {
+            }
+            catch (error) {
                 throw new Error(error).stack;
-           }
+            }
         }
 
         function deleteValue(args) {
             let fail = args.fail;
-            try
-            {
-                    let path = args.path;
-                    let done = args.done;
-                    firebase.database().ref("Odemeler/"+path).remove((error) => {
-                        if (error) {
-                            fail(error);
-                        } else {
-                            done(true);
-                        }
-                    })
+            try {
+                let path = args.path;
+                let done = args.done;
+                firebase.database().ref("Odemeler/" + path).remove((error) => {
+                    if (error) {
+                        fail(error);
+                    } else {
+                        done(true);
+                    }
+                })
             }
-            catch (error)
-            {
-                    throw new Error(error).stack;
+            catch (error) {
+                throw new Error(error).stack;
             }
         }
 
         function getFunds(args) {
             let fail = args.fail;
-            try
-            {
+            try {
                 let done = args.done;
-                firebase.database().ref("Fonlar/").on("value",(snapshot)=>{
+                firebase.database().ref("Fonlar/").on("value", (snapshot) => {
                     done(snapshot.val())
                 })
             }
@@ -91,30 +85,99 @@ let PocketRealtime = (
 
         function setFunds(args) {
             let fail = args.fail;
-            try
-            {
-                 let done = args.done;
-                 let params = args.params;
-                 firebase.database().ref("Fonlar/").set(params, (error) => {
-                     if (error) {
-                         fail(error);
-                     } else {
-                         done(true);
-                     }
-                 })
+            try {
+                let done = args.done;
+                let params = args.params;
+                firebase.database().ref("Fonlar/").set(params, (error) => {
+                    if (error) {
+                        fail(error);
+                    } else {
+                        done(true);
+                    }
+                })
             }
-            catch (error)
-            {
-                 throw new Error(error).stack;
+            catch (error) {
+                throw new Error(error).stack;
+            }
+        }
+
+        function getInstallments(args) {
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                firebase.database().ref("Installments/").on("value", (snapshot) => {
+                    done(snapshot.val())
+                })
+            }
+            catch (error) {
+                fail(error);
+            }
+        }
+        function pushInstallments(args) {
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                let params = args.params;
+                firebase.database().ref("Installments/").push().set(params, error => {
+                    if (error) {
+                        fail(error);
+                    }
+                    else {
+                        done(true);
+                    }
+                })
+            }
+            catch (error) {
+                throw new Error(error).stack;
+            }
+        }
+
+        function updateInstallments(args) {
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                let params = args.params;
+                let updateKey = args.where;
+                firebase.database().ref("Installments/" + updateKey.key).update(params, (error) => {
+                    if (error) {
+                        fail(error);
+                    } else {
+                        done(true);
+                    }
+                })
+            }
+            catch (error) {
+                throw new Error(error).stack;
+            }
+        }
+        function deleteInstallments(args) {
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                let updateKey = args.where;
+                firebase.database().ref("Installments/" + updateKey.key).remove()
+                    .then(function () {
+                        done(true);
+                    })
+                    .catch(function (error) {
+                        fail(false);
+                    });
+            }
+            catch (error) {
+                throw new Error(error).stack;
             }
         }
 
         return {
-            getValue:getValue,
-            setValue:setValue,
-            deleteValue:deleteValue,
-            getFunds:getFunds,
-            setFunds:setFunds
+            getValue: getValue,
+            setValue: setValue,
+            deleteValue: deleteValue,
+            getFunds: getFunds,
+            setFunds: setFunds,
+            getInstallments: getInstallments,
+            pushInstallments: pushInstallments,
+            updateInstallments: updateInstallments,
+            deleteInstallments:deleteInstallments
         }
     }
 )();

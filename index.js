@@ -193,7 +193,7 @@ $('.deletePeriod').click(function () {
 	}
 })
 
-$('.btn-close').click(function(){
+$('.btn-close').click(function(arg){
 	console.log("kapatıldı")
 })
 
@@ -249,6 +249,17 @@ $(".btn-saveFunds").click(function(){
 		params:senderFunds,
 		done:(response)=>{
 			console.log("Kaydetme Sonucu: "+response);
+		},
+		fail:(error)=>{
+			throw new Error(error).stack;
+		}
+	})
+});
+
+$('.installments').click(function(){
+	PocketRealtime.getInstallments({
+		done:(response)=>{
+			renderInstallmentsTable(response);
 		},
 		fail:(error)=>{
 			throw new Error(error).stack;

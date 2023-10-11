@@ -3,15 +3,19 @@
 
 <head>
 	<script>
-        document.cookie.split(";").forEach(function(c) {
-            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-        });
-    </script>
+		document.cookie.split(";").forEach(function (c) {
+			document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+		});
+	</script>
+	<link rel="icon" href="https://static-00.iconduck.com/assets.00/loan-money-icon-2048x2048-o516fb1v.png"
+		type="image/png">
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>GLGD INFORMATION</title>
+	<title>Money Operation</title>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.3/axios.min.js" integrity="sha512-L4lHq2JI/GoKsERT8KYa72iCwfSrKYWEyaBxzJeeITM9Lub5vlTj8tufqYk056exhjo2QDEipJrg6zen/DDtoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.3/axios.min.js"
+		integrity="sha512-L4lHq2JI/GoKsERT8KYa72iCwfSrKYWEyaBxzJeeITM9Lub5vlTj8tufqYk056exhjo2QDEipJrg6zen/DDtoQ=="
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<link href="index.css" rel="stylesheet">
 	<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
@@ -35,39 +39,56 @@
 		media="screen">
 
 	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Bungee+Hairline&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
+
+
 </head>
 
-<body style="background-color: #433c24;">
-	<h1>
-		<center style="color:rgb(201, 197, 197) ;">Genel Ödeme Periyotları</center>
+<body>
+	<h1 class="generalTitle">
+		Genel Ödeme
 	</h1>
+
 	<div class="container">
 		<!--<div class="loading">Loading&#8230;</div>-->
 		<div class="row">
-			<div style="margin-left: 15px; display: flex; align-items: flex-start; flex:1">
-				<select id="periodDropDown" , name="History" style="    background-color: #7c7c7c;
-				color: whitesmoke; width: 120px; height: 30px;">
-				</select>
+			<div>
+				<select id="periodDropDown" name="History"></select>
 			</div>
-
-			<div style="margin-right: 15px;display: flex;  align-items: flex-end; flex:1;justify-content: end;">
+			<div>
 				<button type="button" class="periodButton newPeriod" id="newPeriod" data-toggle="modal"
-					data-target="#addPeriod" style="background-color: #7c7c7c; color: whitesmoke; border: none;" readonly>Yeni Dönem</button>
-
-				<button type="button" class="periodButton deletePeriod" id="deletePeriod"
-					style="background-color: #e41c1c; color: whitesmoke; margin-left: 2px; border:none">Dönemi Sil</button>
+					data-target="#addPeriod">Yeni Dönem</button>
+				<button type="button" class="periodButton deletePeriod" id="deletePeriod">Dönemi Sil</button>
 			</div>
 		</div>
+
 		<br><br>
 		<div class="handsontable-container" id="grid-table"></div><br>
 		<span style="display: flex; justify-content: center;" id="infoSpan"></span>
 		<div class="deleteInfo" id="deleteInfo"></div><br>
-		<button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect" data-toggle="modal"
-			data-target="#registerModal">Yeni</button>
-		<button type="button" class="mdl-button save" id="save">Kaydet</button>
-		<button type="button" class="mdl-button backup" style="color:whitesmoke;background-color: rgb(23, 23, 39);" id="backup">Get BackUp</button>
-		<button type="button" class="mdl-button statistics" style="color:whitesmoke;background-color: rgb(23, 23, 39);" id="statistics" data-target="#statisticsModal" data-toggle="modal">İstatistikler</button>
-		<button type="button" class="mdl-button funds" style="color:whitesmoke;background-color: rgb(109, 88, 61);" id="funds" data-target="#fundsModal" data-toggle="modal">Birikim Fonları</button>
+		<div class="dropdown">
+			<button class="btn btn-primary dropdown-toggle" type="button" id="menuButton" data-toggle="dropdown"
+				aria-haspopup="true" aria-expanded="false">
+				Menü
+			</button>
+			<div class="dropdown-menu" aria-labelledby="menuButton">
+				<button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect" data-toggle="modal"
+					data-target="#registerModal">Yeni</button>
+				<button type="button" class="mdl-button save" id="save">Kaydet</button>
+				<button type="button" class="mdl-button backup button-color-2" id="backup">Get BackUp</button>
+				<button type="button" class="mdl-button statistics button-color-2" id="statistics"
+					data-target="#statisticsModal" data-toggle="modal">İstatistikler</button>
+				<button type="button" class="mdl-button funds button-color-1" id="funds" data-target="#fundsModal"
+					data-toggle="modal">Birikim Fonları</button>
+				<button type="button" class="mdl-button installments button-color-1" id="Installments"
+					data-target="#simulationModal" data-toggle="modal">Taksitler</button>
+				<button type="button" class="mdl-button simulation button-color-1" id="simulation"
+					data-target="#simulationModal" data-toggle="modal">Mevduat Simulasyon</button>
+			</div>
+
+		</div>
 		<div class="modal registerModal" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
@@ -99,7 +120,7 @@
 						<div>
 							<div style="margin: 5px;">
 								<label for="file">Toplu dönem yükle</label><br>
-								<input type="file" id="file" name="file" onchange="readURL(this.value)"/>
+								<input type="file" id="file" name="file" onchange="readURL(this.value)" />
 								<button type="button" class="importFile" id="importFile">Yükle</button>
 							</div>
 							<div class="row" style="display: flex; align-items: center; justify-content: center;">
@@ -146,15 +167,18 @@
 			</div>
 		</div>
 
-		<div class="modal statisticsModal" id="statisticsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal statisticsModal" id="statisticsModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<h4 class="modal-title modal-title-centered" id="myModalLabel">İstatistikler</h4>
 
 					</div>
-					<p id="popup-info-period-msg-count" style="display: flex; justify-content: center; text-align: center;"></p>
-					<p id="popup-info-period-msg-amount" style="display: flex; justify-content: center; text-align: center;"></p>
+					<p id="popup-info-period-msg-count"
+						style="display: flex; justify-content: center; text-align: center;"></p>
+					<p id="popup-info-period-msg-amount"
+						style="display: flex; justify-content: center; text-align: center;"></p>
 					<div class="modal-body">
 						<div class="handsontable-container-statistics" id="grid-table"></div>
 					</div>
@@ -175,7 +199,18 @@
 
 					<div class="modal-body">
 						<div class="handsontable-container-funds" id="grid-table"></div>
+
+						<div class="text-center mt-4">
+							<button type="button" class="btn btn-primary btn-addFundType" data-toggle="dropdown">Fon
+								Ekle</button>
+							<div class="dropdown-menu dropdown-menu-center">
+								<!-- Diğer döviz kurlarını buraya ekleyebilirsiniz -->
+							</div>
+						</div>
+
+						<div id="sumFundsInfo"></div>
 					</div>
+
 					<div class="modal-footer">
 						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
 						<button type="button" class="btn btn-reCalculate">Yeniden Hesapla</button>
@@ -184,6 +219,129 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="modal creditCardInstallmentModal" id="creditCardInstallmentModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Taksitler</h4>
+					</div>
+
+					<div class="modal-body" style="padding: 0rem;">
+						<div class="container mt-5">
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>Seç</th>
+										<th>Taksit İsmi</th>
+										<th>Taksit Durumu</th>
+										<th>Taksit Tutarı</th>
+										<th>Kalan Tutar</th>
+										<th>İşlem</th>
+									</tr>
+								</thead>
+								<tbody id="taksitler">
+								</tbody>
+							</table>
+							<div class="mt-3 total-amount-container">
+								<strong>Toplam Kalan Tutar:</strong> <span id="toplamKalan" class="amount">0 ₺</span>
+							</div>
+							<div class="mt-3 total-amount-container">
+								<strong>Toplam Aylık Tutar:</strong> <span id="toplamAylık" class="amount">0 ₺</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
+						<button type="button" class="btn btn-installments installments" data-target="#addNewInstallment"
+							data-toggle="modal">Taksit Ekle</button>
+						<button type="button" class="btn" id="deleteButton" style="display:none;">Sil</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal addNewInstallment" id="addNewInstallment" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Taksit Ekle</h4>
+
+					</div>
+					<div class="add-installment-container">
+						<div class="form-group">
+							<label for="itemName">Taksit İsmi:</label>
+							<input type="text" id="itemName" placeholder="Örn: EnPara İhtiyaç Kredisi">
+						</div>
+						<div class="form-group">
+							<label for="installmentAmount">Aylık Ödeme Tutarı (TL):</label>
+							<input type="number" id="installmentAmount" placeholder="Örn: 5000.00">
+						</div>
+						<div class="form-group">
+							<label for="currentInstallment">En Son Ödenen Taksit Sırası:</label>
+							<input type="number" id="currentInstallment" placeholder="Örn: 5">
+						</div>
+						<div class="form-group">
+							<label for="totalInstallment">Toplam Taksit Sayısı:</label>
+							<input type="number" id="totalInstallment" placeholder="Örn: 12">
+						</div>
+						<div class="form-group">
+							<label for="lastPaidMonth">En Son Ödediği Ay:</label>
+							<select id="lastPaidMonth">
+								<option value="1">Ocak</option>
+								<option value="2">Şubat</option>
+								<option value="3">Mart</option>
+								<option value="4">Nisan</option>
+								<option value="5">Mayıs</option>
+								<option value="6">Haziran</option>
+								<option value="7">Temmuz</option>
+								<option value="8">Ağustos</option>
+								<option value="9">Eylül</option>
+								<option value="10">Ekim</option>
+								<option value="11">Kasım</option>
+								<option value="12">Aralık</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
+						<button class="btn-add-installment" onclick="collectaNewInstallmentData()">Taksit Ekle</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="modal simulation" id="simulationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Brikim Fonlarım</h4>
+						<p id="popup-info-period-msg"></p>
+					</div>
+
+					<div class="modal-body">
+						<div id="inputContainer">
+							<input type="number" id="anaPara" placeholder="Ana Para (₺)">
+							<input type="number" id="faizOrani" placeholder="Yıllık Faiz Oranı (%)">
+							<input type="number" id="toplamAy" placeholder="Toplam Hesaplanması İstenen Ay">
+							<button onclick="hesapla()">Hesapla</button>
+						</div>
+
+						<table id="sonucTablosu"></table>
+					</div>
+
+					<div class="modal-footer">
+					</div>
+				</div>
+			</div>
+		</div>
+
+
 	</div>
 
 	<script src="utility.js"></script>
@@ -191,7 +349,6 @@
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 	<script src="methods.js"></script>
 	<script src="index.js"></script>
-	<script src="index.css"></script>
 </body>
 
 </html>

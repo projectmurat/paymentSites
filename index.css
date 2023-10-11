@@ -1,7 +1,562 @@
-.mdl-button{
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    10% {
+        background-position: 25% 50%;
+    }
+
+    20% {
+        background-position: 50% 50%;
+    }
+
+    30% {
+        background-position: 75% 50%;
+    }
+
+    40% {
+        background-position: 100% 50%;
+    }
+
+    50% {
+        background-position: 75% 50%;
+    }
+
+    60% {
+        background-position: 50% 50%;
+    }
+
+    70% {
+        background-position: 25% 50%;
+    }
+
+    80% {
+        background-position: 0% 50%;
+    }
+
+    90% {
+        background-position: 25% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(90deg, #ab014a, #eb1c74, #0661ff, #bbc1f9);
+    background-size: 300% 300%;
+    /* Bu değeri artırdık */
+    animation: gradientAnimation 8s infinite;
+    /* Süreyi 10 saniyeye çıkardık */
+}
+
+.mdl-button {
     background-color: rgb(229, 240, 144);
     width: 150px;
     height: 50px;
     color: rgb(0, 0, 0);
     margin-top: 10px;
+}
+
+
+.modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow-x: auto;
+}
+
+.modal-dialog {
+    width: 80%;
+    max-width: 600px;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 1px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+    overflow-x: auto;
+    overflow-y: auto;
+    height: 400px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #e5e5e5;
+    margin-bottom: 15px;
+}
+
+.modal-title {
+    margin: 0;
+    color: #333;
+}
+
+.modal-footer {
+    border-top: 1px solid #e5e5e5;
+    margin-top: 15px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-add-installment,
+.btn-close {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn-add-installment,
+.btn-close:hover {
+    background-color: #c0392b;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: -60px;
+    vertical-align: inherit;
+}
+
+table,
+th,
+td {
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    vertical-align: inherit;
+}
+
+th,
+td {
+    padding: 10px 12px;
+    text-align: left;
+    width: 100%;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    vertical-align: inherit;
+}
+
+th {
+    background-color: #f5f5f5;
+}
+
+tbody tr:hover {
+    background-color: hsla(0, 0%, 91%, 0.673);
+}
+
+/* İlerleme çubuğu stili */
+.progress-bar-container {
+    width: 100%;
+    height: 20px;
+    /* İlerleme çubuğunun yüksekliği */
+    background-color: #5e6468;
+    /* Mavi: Arka plan */
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #0093f5;
+    /* Yeşil: Ödenmiş miktar */
+    transition: width 0.3s ease;
+    /* Düzgün geçiş için */
+}
+
+.progress-bar-label {
+    font-size: 0.8em;
+    text-align: center;
+    line-height: 20px;
+    color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+}
+
+.payment-button {
+    background: linear-gradient(90deg, #34e89e 0%, #0f3443 100%);
+    color: white;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 16px;
+    font-size: 0.9em;
+    cursor: pointer;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.payment-button:hover {
+    background: linear-gradient(90deg, #2dd084 0%, #0c2d39 100%);
+    transform: scale(1.05);
+}
+
+.payment-button:disabled {
+    background: #bbb;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.total-amount-container {
+    padding: 10px;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+    display: inline-block;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+}
+
+.amount {
+    color: #2c3e50;
+    /* Koyu mavi ton */
+    font-weight: 600;
+    margin-left: 10px;
+    padding: 5px 10px;
+    background-color: #ecf0f1;
+    /* Açık gri ton */
+    border-radius: 3px;
+}
+
+.add-installment-container {
+    padding: 20px;
+    background-color: #f8f8f8;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.add-installment-container h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.btn-add-installment {
+    display: inline-block;
+    background-color: #3498db;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+.btn-add-installment:hover {
+    background-color: #2980b9;
+}
+
+
+
+/* Dopdown Menu Genel Stil */
+.dropdown-menu {
+    width: 300px;
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    /* Açık gri arkaplan */
+}
+
+.dropdown-menu button {
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    /* Hafif gri sınır */
+    transition: all 0.2s;
+    font-size: 15px;
+    background-color: transparent;
+    /* Şeffaf arkaplan */
+    color: #333;
+
+    /* Koyu gri metin rengi */
+}
+
+.dropdown-menu button:last-child {
+    border-bottom: none;
+
+}
+
+.dropdown-menu button:hover {
+    background-color: rgba(23, 23, 39, 0.1);
+    /* Hafif renk değişimi */
+    color: #555;
+}
+
+/* Özelleştirilmiş renkler */
+.button-color-1:hover {
+    background-color: rgba(109, 88, 61, 0.1);
+    color: #6D583D;
+}
+
+.button-color-2:hover {
+    background-color: rgba(23, 23, 39, 0.1);
+    color: #171727;
+}
+/* Dopdown Menu Genel Stil */
+
+#menuButton{
+    width: 100%;
+    background-color: inherit;
+}
+
+/*ÜST BUTON TASARIMI*/
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: inherit; /* body'nin arka plan rengini miras al */
+    flex-wrap: wrap; /* ekstra genişlik olmadığında öğeleri alt alta dizme */
+}
+
+#periodDropDown {
+    background-color: #7c7c7c;
+    color: whitesmoke;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    transition: all 0.2s;
+    margin-bottom: 10px; /* mobilde butonlarla arasında boşluk oluşturma */
+    width: 100%; /* ekranın tam genişliğine yayılma */
+}
+
+.periodButton {
+    padding: 8px 16px;
+    margin-left: 8px;
+    border-radius: 8px;
+    font-size: 15px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 10px; /* mobilde bir sonraki butonla arasında boşluk oluşturma */
+    width: 100%; /* ekranın tam genişliğine yayılma */
+}
+
+/* Ekstra Stiller için Medya Sorgusu */
+@media (max-width: 768px) {
+    .row {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #periodDropDown {
+        margin-right: 0; /* margin'i kaldırma */
+        width: 100%; /* ekranın tam genişliğine yayılma */
+    }
+
+    .periodButton {
+        margin-left: 0; /* margin'i kaldırma */
+    }
+}
+/*ÜST BUTON TASARIMI*/
+
+.generalTitle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 32px;
+    color: rgb(201, 197, 197);
+    text-align: center;
+    padding: 20px 0;
+    background-color: transparent;  /* Eğer bir arka plan rengi isterseniz */
+    border-radius: 10px;     /* Kenarları yumuşatmak için */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);  /* Hafif bir gölge ekleyerek derinlik hissi katalım */
+}
+
+
+
+
+
+
+
+/* Handsontable Tema */
+@import 'handsontable/dist/handsontable.full.css';
+
+/* Özel Stil */
+.handsontable {
+    border: 1px solid #d1d1d1;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.htCore th {
+    background-color: #f7f7f7;
+    font-weight: bold;
+    color: #555;
+    border-right: 1px solid #d1d1d1;
+}
+
+.htCore td {
+    padding: 8px 12px;
+    border: 1px solid #d1d1d1;
+}
+
+.htNumeric .htAutocompleteArrow {
+    border: none;
+}
+
+
+
+
+#sumFundsInfo {
+    padding: 10px 20px;
+    background-color: #594f4f;
+    color: #FFF;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    font-family: 'Arial', sans-serif;
+}
+
+#sumFundsInfo:hover {
+    transform: scale(1.05);
+}
+
+
+
+
+
+/* Handsontable başlık hücrelerini stilize edin */
+.ht_clone_top .htCore thead th {
+    font-weight: bold;        /* başlıkları kalın yapma */
+    background-color: #f3f3f3; /* başlıklar için daha açık bir arka plan rengi */
+    padding-top: 0px;        /* üstten boşluk ekleyerek yükseklik hissi oluşturma */
+    padding-bottom: 0px;     /* alttan boşluk ekleyerek yükseklik hissi oluşturma */
+}
+
+/* Hücre içeriklerini daha estetik yapmak için */
+.htCore tbody td {
+    border-right: 1px solid #e2e2e2; /* sağ kenarlık ekleyerek hücreler arasında ayırıcı ekleyin */
+}
+
+.handsontable-container-statistics,
+.handsontable-container-funds,
+.handsontable-container {
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1); /* yumuşak bir gölge efekti */
+    border-radius: 10px; /* köşeleri yuvarlayarak daha yumuşak bir görünüm kazandırma */
+    overflow: hidden; /* yuvarlatılmış köşelerin dışına çıkan içerikleri gizle */
+    border: 1px solid #e2e2e2; /* ince bir sınır ekleyerek 3D etkisi verme */
+}
+
+/* Tablonuzun başlığını ve hücrelerini öne çıkarmak için bazı ek stiller */
+.ht_clone_top .htCore thead th {
+    background-color: #f6f6f6; /* başlıklara daha açık bir arka plan rengi ekleyin */
+}
+
+.htCore tbody td {
+    border-right: 1px solid #ebebeb; /* hücreler arasına daha hafif bir sınır ekleyin */
+    border-bottom: 1px solid #ebebeb; /* hücreler arasına daha hafif bir sınır ekleyin */
+}
+
+
+
+#mainContainer {
+    font-family: 'Arial', sans-serif;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+#inputContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#inputContainer input, #inputContainer button {
+    padding: 12px;
+    margin: 8px 0;
+    width: 90%;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+#inputContainer button {
+    background-color: #333;
+    color: #fff;
+    border: none;
+}
+
+#sonucTablosu {
+    width: 100%;
+    border-collapse: collapse;
+    overflow-x: auto;
+    display: block;
+    margin-top: auto;
+}
+
+#sonucTablosu th, #sonucTablosu td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    white-space: nowrap;
+}
+
+#sonucTablosu th {
+    background-color: #f2f2f2;
+}
+
+#sonucTablosu td.negative {
+    color: red;
+}
+
+#sonucTablosu td.positive {
+    font-weight: bold;
+    color: green;
+}
+
+@media only screen and (max-width: 600px) {
+    #mainContainer {
+        padding: 10px;
+    }
+
+    #inputContainer input, #inputContainer button {
+        font-size: 14px;
+    }
+
+    #sonucTablosu th, #sonucTablosu td {
+        padding: 5px;
+        font-size: 12px;
+    }
 }
