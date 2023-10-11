@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taksitler Modal</title>
+    <style>
+        /* General styles */
+
+
+        .modal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-x: auto;
+        }
+
+        .modal-dialog {
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+            overflow-x: auto;
+            overflow-y: auto;
+            height: 400px;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #e5e5e5;
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            margin: 0;
+            color: #333;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e5e5e5;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-close {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-close:hover {
+            background-color: #c0392b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #e5e5e5;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 10px 12px;
+            text-align: left;
+            width: 100%;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background-color: #f5f5f5;
+        }
+
+        tbody tr:hover {
+            background-color: hsla(0, 0%, 91%, 0.673);
+        }
+
+        /* İlerleme çubuğu stili */
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            /* İlerleme çubuğunun yüksekliği */
+            background-color: #5e6468;
+            /* Mavi: Arka plan */
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #0093f5;
+            /* Yeşil: Ödenmiş miktar */
+            transition: width 0.3s ease;
+            /* Düzgün geçiş için */
+        }
+
+        .progress-bar-label {
+            font-size: 0.8em;
+            text-align: center;
+            line-height: 20px;
+            color: #fff;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+        }
+
+        .payment-button {
+            background: linear-gradient(90deg, #34e89e 0%, #0f3443 100%);
+            color: white;
+            border-radius: 4px;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            cursor: pointer;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .payment-button:hover {
+            background: linear-gradient(90deg, #2dd084 0%, #0c2d39 100%);
+            transform: scale(1.05);
+        }
+
+        .payment-button:disabled {
+            background: #bbb;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .total-amount-container {
+            padding: 10px;
+            border: 1px solid #e5e5e5;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+            display: inline-block;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 5px;
+        }
+
+        .amount {
+            color: #2c3e50;
+            /* Koyu mavi ton */
+            font-weight: 600;
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #ecf0f1;
+            /* Açık gri ton */
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="modal creditCardInstallmentModal" id="creditCardInstallmentModal" tabindex="-1" role="dialog"
+        aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                </div>
+
+                <div class="modal-body">
+                    <div class="container mt-5">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Taksit İsmi</th>
+                                    <th>Taksit Durumu</th>
+                                    <th>Taksit Tutarı</th>
+                                    <th>Kalan Tutar</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="taksitler">
+                            </tbody>
+                        </table>
+                        <div class="mt-3 total-amount-container">
+                            <strong>Toplam Kalan Tutar:</strong> <span id="toplamKalan" class="amount">0 ₺</span>
+                        </div>
+                        <div class="mt-3 total-amount-container">
+                            <strong>Toplam Aylık Tutar:</strong> <span id="toplamAylık" class="amount">0 ₺</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Önceki HTML kodunuzun sonuna ekleyin -->
+
+    <script>
+        function renderInstallmentsTable(installmentData) {
+            const tbody = document.getElementById('taksitler');
+            const monthsInTurkish = [
+                "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+                "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
+            ];
+
+            // Toplam kalan tutar hesabı için değişken
+            let totalRemaining = 0;
+            function formatCurrency(value) {
+                return new Intl.NumberFormat('tr-TR', {
+                    style: 'decimal',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(value);
+            }
+            let rowColorCounter = 0;
+            let totalMontlyInstallmentAmount = 0;
+            // JSON verisini dolaşıp tabloya ekliyoruz
+            for (let key in installmentData) {
+
+                const data = installmentData[key];
+                const remainingAmount = (data.totalMonths - data.currentMonth) * data.installmentAmount;
+                totalRemaining += remainingAmount;
+                totalMontlyInstallmentAmount += data.installmentAmount;
+
+                // Yeni satır oluşturma
+                const row = tbody.insertRow();
+                row.style.backgroundColor = rowColorCounter % 2 == 0 ? "#dedcdc" : "white";
+                rowColorCounter++;
+                row.style.fontSize = "smaller";
+
+                // Sütunlar
+                row.insertCell(0).innerText = data.item;
+
+                // İlerleme çubuğunu ekleme
+                const progressCell = row.insertCell(1);
+                const progressContainer = document.createElement('div');
+                progressContainer.classList.add('progress-bar-container');
+
+                const progressBarFill = document.createElement('div');
+                progressBarFill.classList.add('progress-fill');
+
+                const progressLabel = document.createElement('span');
+                progressLabel.classList.add('progress-bar-label');
+                progressLabel.style.fontWeight = "bolder";
+                progressLabel.innerText = `${data.currentMonth} / ${data.totalMonths}`;
+
+                const progressPercentage = (data.currentMonth / data.totalMonths) * 100;
+                progressBarFill.style.width = `${progressPercentage}%`;
+
+                progressContainer.appendChild(progressBarFill);
+                progressContainer.appendChild(progressLabel);
+                progressCell.appendChild(progressContainer);
+
+                row.insertCell(2).innerText = `${formatCurrency(data.installmentAmount.toFixed(2))}₺`;
+                row.insertCell(3).innerText = `${formatCurrency(remainingAmount.toFixed(2))}₺`;
+
+
+                // Ödeme butonunu oluşturma
+                const currentYear = new Date().getFullYear();
+                const currentMonthIndex = new Date().getMonth(); // Ay 0'dan başladığı için ekstra +1'e gerek yok
+
+                // Ödeme butonunu oluşturma
+                const paymentButton = document.createElement('button');
+                paymentButton.classList.add('payment-button');
+                paymentButton.innerText = `Ödendi olarak İşaretle`;
+                paymentButton.dataset.key = key; // Tıklama olayında hangi taksitin güncellendiğini belirlemek için
+
+                if (data.lastPaidMonth >= currentMonthIndex + 1) { // Ay 0'dan başladığı için +1 eklememiz gerekiyor
+                    paymentButton.disabled = true;
+                    paymentButton.innerText = `${monthsInTurkish[currentMonthIndex]}-${currentYear} Ödendi`;
+                }
+
+                paymentButton.addEventListener('click', function () {
+                    const itemKey = this.dataset.key;
+                    installmentData[itemKey].lastPaidMonth++;
+                    installmentData[itemKey].currentMonth++;
+
+                    this.innerText = `${monthsInTurkish[currentMonthIndex]}-${currentYear} Ödendi`;
+                    this.disabled = true;
+                    tbody.innerHTML = '';
+                    renderTable(installmentData);
+
+                });
+                const paymentCell = row.insertCell(4);
+                paymentCell.appendChild(paymentButton);
+            }
+
+            // Toplam kalan tutarı güncelleme
+            document.getElementById('toplamKalan').innerText = `${formatCurrency(totalRemaining.toFixed(2))} ₺`;
+            // Toplam aylık tutarı güncelleme
+            document.getElementById('toplamAylık').innerText = `${formatCurrency(totalMontlyInstallmentAmount.toFixed(2))} ₺`;
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const installmentData = {
+                "-NercnBhZYVIaVVrm-OY": {
+                    "currentMonth": 5,
+                    "installmentAmount": 5020.33,
+                    "item": "Seher EnPara İhtiyaç Kredisi",
+                    "lastPaidMonth": 9,
+                    "totalMonths": 12
+                },
+                "-NerejI1E9-3oPnLkcK4": {
+                    "currentMonth": 12,
+                    "installmentAmount": 4040.79,
+                    "item": "murat en para",
+                    "lastPaidMonth": 8,
+                    "totalMonths": 18
+                },
+                "-Nf3dlNkdtJZa4IMxZFC": {
+                    "currentMonth": 5,
+                    "installmentAmount": 1494.5,
+                    "item": "Vivense Beyaz Koltuk",
+                    "lastPaidMonth": 9,
+                    "totalMonths": 9
+                },
+                "-Nf3e-E40_UFGXaDzTRv": {
+                    "currentMonth": 7,
+                    "installmentAmount": 566.95,
+                    "item": "Vivense Sarı Koltuk",
+                    "lastPaidMonth": 9,
+                    "totalMonths": 9
+                },
+                "-Nf3e8mBqIAOSDB-SdNx": {
+                    "currentMonth": 5,
+                    "installmentAmount": 354.3,
+                    "item": "Evkur Orta Sehpa",
+                    "lastPaidMonth": 10,
+                    "totalMonths": 9
+                },
+                "-Nf3eKkK3AUjge7ulFjM": {
+                    "currentMonth": 1,
+                    "installmentAmount": 128.71,
+                    "item": "Trendyol Katlanır Yemek Masası",
+                    "lastPaidMonth": 10,
+                    "totalMonths": 9
+                },
+                "-Nf3eV2dOJDDK0vblFoK": {
+                    "currentMonth": 1,
+                    "installmentAmount": 245.33,
+                    "item": "Trendyol Sandalye ve Minder",
+                    "lastPaidMonth": 10,
+                    "totalMonths": 9
+                },
+                "-Nf3ehO97dqF2cDRUNSQ": {
+                    "currentMonth": 1,
+                    "installmentAmount": 949.7,
+                    "item": "Vivense Kiler Dolap",
+                    "lastPaidMonth": 10,
+                    "totalMonths": 3
+                },
+                "-Nf3expL7u1KmbegPYeT": {
+                    "currentMonth": 1,
+                    "installmentAmount": 86.6,
+                    "item": "Trendyol Başlık ve 3lü Sehpa",
+                    "lastPaidMonth": 10,
+                    "totalMonths": 9
+                },
+                "-NgAEZLLvKm0YRdWe__d": {
+                    "currentMonth": 32,
+                    "installmentAmount": 500,
+                    "item": "Ziraat Murat",
+                    "lastPaidMonth": 10,
+                    "totalMonths": 48
+                },
+                "-NgAEgSucHTp_6IUIOA6": {
+                    "currentMonth": 12,
+                    "installmentAmount": 425,
+                    "item": "Ziraat Seher",
+                    "lastPaidMonth": 10,
+                    "totalMonths": 48
+                }
+            };
+            renderTable(installmentData);
+        });
+    </script>
+
+</body>
+
+</html>

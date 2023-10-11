@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mevduat Hesaplama</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input, button {
+            padding: 12px;
+            margin: 8px 0;
+            width: 90%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+            display: block;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        td.negative {
+            color: red;
+        }
+
+        td.positive {
+            font-weight: bold;
+            color: green;
+        }
+
+        @media only screen and (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            input, button {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 5px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div>
+        <input type="number" id="anaPara" placeholder="Ana Para (₺)">
+        <input type="number" id="faizOrani" placeholder="Yıllık Faiz Oranı (%)">
+        <input type="number" id="toplamAy" placeholder="Toplam Hesaplanması İstenen Ay">
+        <button onclick="hesapla()">Hesapla</button>
+    </div>
+
+    <table id="sonucTablosu"></table>
+
+    <script>
+        function formatCurrency(value) {
+				return new Intl.NumberFormat('tr-TR', {
+					style: 'decimal',
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2
+				}).format(value);
+			}
+        function hesapla() {
+            const anaPara = parseFloat(document.getElementById('anaPara').value);
+            const faizOrani = parseFloat(document.getElementById('faizOrani').value) / 100;
+            const toplamAy = parseInt(document.getElementById('toplamAy').value);
+            const stopajOrani = 0.20;
+
+            let tablo = '<thead><tr><th>Ay</th><th>Net Ana Para (₺)</th><th>Brüt Faiz Tutarı (₺)</th><th>Stopaj (₺)</th><th>Net Faiz Getirisi (₺)</th></tr></thead><tbody>';
+            let mevcutAnaPara = anaPara;
+
+            for (let i = 1; i <= toplamAy; i++) {
+                const brutFaizTutari = (mevcutAnaPara * faizOrani) / 12;
+                const stopajTutari = brutFaizTutari * stopajOrani;
+                const netFaiz = brutFaizTutari - stopajTutari;
+
+                mevcutAnaPara += netFaiz;
+
+                tablo += `<tr>
+                    <td>${i}. Ay</td>
+                    <td>${formatCurrency(mevcutAnaPara.toFixed(2))} ₺</td>
+                    <td>${formatCurrency(brutFaizTutari.toFixed(2))} ₺</td>
+                    <td class="negative">-${formatCurrency(stopajTutari.toFixed(2))} ₺</td>
+                    <td class="positive">${formatCurrency(netFaiz.toFixed(2))} ₺</td>
+                  </tr>`;
+            }
+
+            tablo += '</tbody>';
+            document.getElementById('sonucTablosu').innerHTML = tablo;
+        }
+
+    </script>
+</body>
+
+</html>
