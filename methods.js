@@ -61,7 +61,7 @@ function startTable(data, callback) {
 		fixedRowsBottom: 1,
 		contextMenu: true,
 		modifyColWidth: function (width, col) {
-			if (width > 100) return 250;
+			if (width > 200) return 250;
 		},
 		columns: [
 			{
