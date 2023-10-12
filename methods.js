@@ -1,15 +1,19 @@
 const degisken = "1";
-
 let table;
 let fundsTable;
 let fireData;
 let fundsData;
 let senderFunds = [];
-const INSERT_SUCCESS = "Kayıt işlemi başarılı";
-const INSERT_FAILED = "Kayıt Başarısız"
+let allProducts = [];
+let markets = [];
+let productInfo = {};
+const months_tr = ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"];
+const INSERT_SUCCESS = "Kayit işlemi başarili";
+const INSERT_FAILED = "Kayit Başarisiz"
+const DELETE_SUCCESS = "Silme İşlemi başarili";
+const DELETE_FAILED = "Silme İşlemi Başarisiz";
 
-const DELETE_SUCCESS = "Silme İşlemi başarılı";
-const DELETE_FAILED = "Silme İşlemi Başarısız";
+document.getElementById("marketDropdown").addEventListener("change", updateProductDropdown);
 
 function restoreData(tableData) {
 	let sumColumnAmount = 0;
@@ -20,6 +24,7 @@ function restoreData(tableData) {
 	tableData.reverse().push({ name: "TOPLAM", amount: sumColumnAmount, date: "" });
 	return tableData
 }
+
 function getAttribute(source, key, defaultValue) {
 	let snapshot = source;
 
@@ -28,15 +33,14 @@ function getAttribute(source, key, defaultValue) {
 			if (isObject(snapshot[element])) {
 				snapshot = snapshot[element];
 			}
-			else {
-				if (!isUndefined(snapshot[key])) return snapshot[key];
+			else if (!isUndefined(snapshot[key])) return snapshot[key];
 				else return defaultValue;
-			}
 		}
 		return snapshot;
 	}
 	return recursion(key.split('.'));
 }
+
 function startTable(data, callback) {
 	data.sort((a, b) => convertDate(b.date).getTime() - convertDate(a.date).getTime());
 	let container = document.querySelector(".handsontable-container");
@@ -187,7 +191,7 @@ function statisticTableCallback(data, callback) {
 	let statisticsTable = new Handsontable(container, {
 		data: data,
 		width: "100%",
-		height: "200px",
+		height: "300px",
 		rowHeaders: true,
 		stretchH: "all",
 		rowHeights: 40,
@@ -257,13 +261,6 @@ function calculateFunds(params) {
 	fundsTableData.push(Object.values(params));
 	setTimeout(() => {
 		fundsTableCallback(fundsTableData, () => {
-			function formatCurrency(value) {
-				return new Intl.NumberFormat('tr-TR', {
-					style: 'decimal',
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2
-				}).format(value);
-			}
 			let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
 			document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
 		})
@@ -286,9 +283,6 @@ function setButtonReadOnly(value) {
 	}
 
 }
-let payments = [
-	// ... (verdiğiniz JSON dizisi)
-];
 
 function convertDate(str) {
 	const months = {
@@ -317,7 +311,6 @@ function convertDate(str) {
 
 	return new Date(year, month, day, hour, minute, second);
 }
-const months_tr = ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"];
 
 function compareDates(a, b) {
 	const [monthA, yearA] = a.split('-');
@@ -351,13 +344,7 @@ function renderInstallmentsTable(installmentData) {
 
 	// Toplam kalan tutar hesabı için değişken
 	let totalRemaining = 0;
-	function formatCurrency(value) {
-		return new Intl.NumberFormat('tr-TR', {
-			style: 'decimal',
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2
-		}).format(value);
-	}
+
 	let rowColorCounter = 0;
 	let totalMontlyInstallmentAmount = 0;
 	// JSON verisini dolaşıp tabloya ekliyoruz
@@ -493,6 +480,88 @@ function renderInstallmentsTable(installmentData) {
 	document.getElementById('toplamAylık').innerText = `${formatCurrency(totalMontlyInstallmentAmount.toFixed(2))} ₺`;
 
 }
+function createCheckbox(key) {
+    const checkboxInput = document.createElement('input');
+    checkboxInput.type = 'checkbox';
+    checkboxInput.className = 'installmentCheckbox';
+    checkboxInput.dataset.key = key;
+    return checkboxInput;
+}
+
+function createPaymentButton(key, data, currentMonthIndex, monthsInTurkish) {
+    const paymentButton = document.createElement('button');
+    paymentButton.classList.add('payment-button');
+    paymentButton.innerText = `Ödendi olarak İşaretle`;
+    paymentButton.dataset.key = key;
+
+    if (data.lastPaidMonth >= currentMonthIndex + 1) {
+        paymentButton.disabled = true;
+        paymentButton.innerText = `${monthsInTurkish[currentMonthIndex]} Ödendi`;
+    }
+
+    paymentButton.addEventListener('click', function () {
+        handlePaymentButtonClick(this, key, data, currentMonthIndex, monthsInTurkish);
+    });
+
+    return paymentButton;
+}
+
+function handlePaymentButtonClick(button, key, data, currentMonthIndex, monthsInTurkish) {
+    data.lastPaidMonth++;
+    data.currentMonth++;
+    const selectedInstallment = { ...data };
+    button.innerText = `${monthsInTurkish[currentMonthIndex]} Ödendi`;
+    button.disabled = true;
+    updateInstallments(selectedInstallment, key);
+}
+
+function updateInstallments(selectedInstallment, key) {
+    // Gerçek güncelleme işlemlerinizi burada gerçekleştirin
+}
+
+function formatCurrency(value) {
+    // Paranızı biçimlendirme kodunuz...
+    return value;  // Örnek olarak değeri olduğu gibi döndürüyorum.
+}
+
+function renderInstallmentsTable(installmentData) {
+    const tbody = document.getElementById('taksitler');
+    tbody.innerHTML = '';
+
+    const monthsInTurkish = [
+        "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+        "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
+    ];
+
+    let totalRemaining = 0;
+    let totalMontlyInstallmentAmount = 0;
+    let rowColorCounter = 0;
+
+    for (let key in installmentData) {
+        const data = installmentData[key];
+        totalRemaining += (data.totalMonths - data.currentMonth) * data.installmentAmount;
+        totalMontlyInstallmentAmount += data.installmentAmount;
+
+        const row = tbody.insertRow();
+        row.style.backgroundColor = rowColorCounter % 2 == 0 ? "#dedcdc" : "white";
+        rowColorCounter++;
+        row.style.fontSize = "smaller";
+
+        row.insertCell(0).appendChild(createCheckbox(key));
+        row.insertCell(1).innerText = data.item;
+
+        // İlerleme çubuğu ve diğer hücreler için kodunuzu buraya ekleyebilirsiniz...
+
+        const currentYear = new Date().getFullYear();
+        const currentMonthIndex = new Date().getMonth();
+
+        const paymentButton = createPaymentButton(key, data, currentMonthIndex, monthsInTurkish);
+        row.insertCell(5).appendChild(paymentButton);
+    }
+
+    document.getElementById('toplamKalan').innerText = `${formatCurrency(totalRemaining.toFixed(2))} ₺`;
+    document.getElementById('toplamAylık').innerText = `${formatCurrency(totalMontlyInstallmentAmount.toFixed(2))} ₺`;
+}
 
 function collectaNewInstallmentData() {
 	const itemName = document.getElementById("itemName").value;
@@ -534,8 +603,6 @@ function collectaNewInstallmentData() {
 	console.log(jsonData); // Bu satırda JSON verisini konsolda görebilirsiniz.
 }
 
-
-
 function formatCurrency(value) {
 	return new Intl.NumberFormat('tr-TR', {
 		style: 'decimal',
@@ -543,6 +610,7 @@ function formatCurrency(value) {
 		maximumFractionDigits: 2
 	}).format(value);
 }
+
 function hesapla() {
 	const anaPara = parseFloat(document.getElementById('anaPara').value);
 	const faizOrani = parseFloat(document.getElementById('faizOrani').value) / 100;
@@ -572,12 +640,6 @@ function hesapla() {
 	document.getElementById('sonucTablosu').innerHTML = tablo;
 }
 
-
-
-let allProducts = [];
-let markets = [];
-let productInfo = {};
-
 function addProduct() {
 	const productInput = document.getElementById("productInput");
 	const productValue = productInput.value.trim();
@@ -597,6 +659,9 @@ function addProduct() {
 		const listItem = document.createElement("li");
 		listItem.className = "list-group-item";
 		listItem.innerText = productValue;
+		listItem.style.padding = "0";
+		listItem.style.border = "0";
+		listItem.style.display = "list-item";
 		addedProductsList.appendChild(listItem);
 
 		// Input değerini sıfırlayalım
@@ -611,6 +676,7 @@ function addMarket() {
 	if (market && !markets.includes(market)) {
 		markets.push(market);
 		updateMarketDropdown();
+		document.getElementById("marketInput").value=''
 	}
 }
 
@@ -623,12 +689,10 @@ function updateProductDropdown() {
 	let market = document.getElementById("marketDropdown").value;
 	let productDropdown = document.getElementById("productDropdown");
 	let availableProducts = allProducts.filter(product => {
-		return !(productInfo[market] && productInfo[market][product]);
+		return !(productInfo[market]?.[product]);
 	});
 	productDropdown.innerHTML = availableProducts.map(product => `<option value="${product}">${product}</option>`).join("");
 }
-
-document.getElementById("marketDropdown").addEventListener("change", updateProductDropdown);
 
 function addPriceAndGram() {
 	let market = document.getElementById("marketDropdown").value;
@@ -702,6 +766,3 @@ function toggleMarketDetails(market) {
 		detailsDiv.style.display = "none";
 	}
 }
-
-
-

@@ -52,7 +52,6 @@
 	</h1>
 
 	<div class="container">
-		<!--<div class="loading">Loading&#8230;</div>-->
 		<div class="row">
 			<div>
 				<select id="periodDropDown" name="History"></select>
@@ -93,7 +92,7 @@
 		</div>
 		<div class="modal registerModal" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
-				<div class="modal-content">
+				<div class="modal-content" style="height: 400px !important">
 					<div class="modal-header">
 						<h4 class="modal-title modal-title-centered" id="myModalLabel">Ödeme Ekleme Paneli</h4>
 						<p id="popup-info-period-msg"></p>
@@ -193,7 +192,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Brikim Fonlarım</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Birikim Fonları</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
 
@@ -320,7 +319,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Brikim Fonlarım</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Mevduat Faiz Simülasyonu</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
 
@@ -335,6 +334,7 @@
 						<table id="sonucTablosu" class="table-sticky table-scrollable"></table>
 					</div>
 					<div class="modal-footer">
+						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
 					</div>
 				</div>
 			</div>
@@ -397,13 +397,13 @@
 										<div class="input-group">
 											<input type="number" id="gramInput" class="form-control"
 												placeholder="Gramaj">
-											<span class="input-group-text">Gr</span>
+											<span class="input-group-text">GR</span>
 										</div>
 									</div>
 
 								</div>
 
-								<button onclick="addPriceAndGram()" class="btn btn-secondary w-100">Bilgi Ekle</button>
+								<button onclick="addPriceAndGram()" class="btn btn-secondary w-100">Fiyat ve Gramajı Ekle</button>
 							</div>
 
 							<!-- Sonuçları Getir Butonu -->
@@ -420,6 +420,7 @@
 						</div>
 					</div>
 					<div class="modal-footer">
+						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
 					</div>
 				</div>
 			</div>
