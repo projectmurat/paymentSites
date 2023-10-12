@@ -1,4 +1,5 @@
 const degisken = "1";
+
 let table;
 let fundsTable;
 let fireData;
@@ -479,88 +480,6 @@ function renderInstallmentsTable(installmentData) {
 	// Toplam aylık tutarı güncelleme
 	document.getElementById('toplamAylık').innerText = `${formatCurrency(totalMontlyInstallmentAmount.toFixed(2))} ₺`;
 
-}
-function createCheckbox(key) {
-    const checkboxInput = document.createElement('input');
-    checkboxInput.type = 'checkbox';
-    checkboxInput.className = 'installmentCheckbox';
-    checkboxInput.dataset.key = key;
-    return checkboxInput;
-}
-
-function createPaymentButton(key, data, currentMonthIndex, monthsInTurkish) {
-    const paymentButton = document.createElement('button');
-    paymentButton.classList.add('payment-button');
-    paymentButton.innerText = `Ödendi olarak İşaretle`;
-    paymentButton.dataset.key = key;
-
-    if (data.lastPaidMonth >= currentMonthIndex + 1) {
-        paymentButton.disabled = true;
-        paymentButton.innerText = `${monthsInTurkish[currentMonthIndex]} Ödendi`;
-    }
-
-    paymentButton.addEventListener('click', function () {
-        handlePaymentButtonClick(this, key, data, currentMonthIndex, monthsInTurkish);
-    });
-
-    return paymentButton;
-}
-
-function handlePaymentButtonClick(button, key, data, currentMonthIndex, monthsInTurkish) {
-    data.lastPaidMonth++;
-    data.currentMonth++;
-    const selectedInstallment = { ...data };
-    button.innerText = `${monthsInTurkish[currentMonthIndex]} Ödendi`;
-    button.disabled = true;
-    updateInstallments(selectedInstallment, key);
-}
-
-function updateInstallments(selectedInstallment, key) {
-    // Gerçek güncelleme işlemlerinizi burada gerçekleştirin
-}
-
-function formatCurrency(value) {
-    // Paranızı biçimlendirme kodunuz...
-    return value;  // Örnek olarak değeri olduğu gibi döndürüyorum.
-}
-
-function renderInstallmentsTable(installmentData) {
-    const tbody = document.getElementById('taksitler');
-    tbody.innerHTML = '';
-
-    const monthsInTurkish = [
-        "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-        "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
-    ];
-
-    let totalRemaining = 0;
-    let totalMontlyInstallmentAmount = 0;
-    let rowColorCounter = 0;
-
-    for (let key in installmentData) {
-        const data = installmentData[key];
-        totalRemaining += (data.totalMonths - data.currentMonth) * data.installmentAmount;
-        totalMontlyInstallmentAmount += data.installmentAmount;
-
-        const row = tbody.insertRow();
-        row.style.backgroundColor = rowColorCounter % 2 == 0 ? "#dedcdc" : "white";
-        rowColorCounter++;
-        row.style.fontSize = "smaller";
-
-        row.insertCell(0).appendChild(createCheckbox(key));
-        row.insertCell(1).innerText = data.item;
-
-        // İlerleme çubuğu ve diğer hücreler için kodunuzu buraya ekleyebilirsiniz...
-
-        const currentYear = new Date().getFullYear();
-        const currentMonthIndex = new Date().getMonth();
-
-        const paymentButton = createPaymentButton(key, data, currentMonthIndex, monthsInTurkish);
-        row.insertCell(5).appendChild(paymentButton);
-    }
-
-    document.getElementById('toplamKalan').innerText = `${formatCurrency(totalRemaining.toFixed(2))} ₺`;
-    document.getElementById('toplamAylık').innerText = `${formatCurrency(totalMontlyInstallmentAmount.toFixed(2))} ₺`;
 }
 
 function collectaNewInstallmentData() {
