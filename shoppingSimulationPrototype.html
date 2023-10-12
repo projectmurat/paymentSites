@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alışveriş Karşılaştırma</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<style>
+    .comparison-container {
+        max-width: 600px;
+        background-color: #ffffff;
+        padding: 20px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .comparison-heading {
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+    .comparison-container button,
+    .comparison-container .form-control {
+        border-radius: 5px;
+    }
+
+    .comparison-container #comparisonResults h5 {
+        cursor: pointer;
+    }
+
+    .comparison-container #comparisonResults {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .comparison-container .card-header h5:hover {
+        text-decoration: underline;
+    }
+
+    .comparison-container .card {
+        border-radius: 8px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<body>
+    <div class="comparison-container my-5">
+
+        <!-- Ürün Ekleme -->
+        <h4>Ürün Ekle</h4>
+        <div class="input-group mb-3">
+            <input type="text" id="productInput" class="form-control" placeholder="Ürün ismi">
+            <button onclick="addProduct()" class="btn btn-primary">Ekle</button>
+        </div>
+
+        <!-- Market Ekleme -->
+        <h4>Market Ekle</h4>
+        <div class="input-group mb-3">
+            <input type="text" id="marketInput" class="form-control" placeholder="Market ismi">
+            <button onclick="addMarket()" class="btn btn-primary">Ekle</button>
+        </div>
+
+        <h4>Fiyat ve Gramaj Bilgisi</h4>
+        <!-- Fiyat ve Gramaj Bilgisi -->
+        <div class="mb-3">
+            <label>Market Seçimi</label>
+            <select id="marketDropdown" class="form-control mb-2">
+            </select>
+            <label>Ürün Adı</label>
+            <select id="productDropdown" class="form-control mb-2">
+            </select>
+
+            <div class="row">
+
+                <!-- Fiyat Bilgisi -->
+                <div class="col-md-6 mb-3">
+                    <div class="input-group">
+                        <input type="number" id="priceInput" class="form-control" placeholder="Fiyat">
+                        <span class="input-group-text">TL</span>
+                    </div>
+                </div>
+
+                <!-- Gramaj Bilgisi -->
+                <div class="col-md-6 mb-3">
+                    <div class="input-group">
+                        <input type="number" id="gramInput" class="form-control" placeholder="Gramaj">
+                        <span class="input-group-text">Gr</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <button onclick="addPriceAndGram()" class="btn btn-secondary w-100">Bilgi Ekle</button>
+        </div>
+
+        <!-- Sonuçları Getir Butonu -->
+        <button onclick="compareProducts()" class="btn btn-success w-100 mb-3">Sonuçları Getir</button>
+
+        <!-- Karşılaştırma Sonuçları -->
+        <!-- Karşılaştırma Sonuçları -->
+        <div id="comparisonResults" class="mt-4">
+            <!-- Sonuçlar burada listelenecek -->
+        </div>
+
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

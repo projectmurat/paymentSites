@@ -86,6 +86,8 @@
 					data-target="#creditCardInstallmentModal" data-toggle="modal">Taksitler</button>
 				<button type="button" class="mdl-button simulation button-color-1" id="simulation"
 					data-target="#simulationModal" data-toggle="modal">Mevduat Simulasyon</button>
+				<button type="button" class="mdl-button shoppingSmimulation button-color-1" id="shoppingSmimulation"
+					data-target="#shoppingSmimulationModal" data-toggle="modal">Alışveriş Simulasyon</button>
 			</div>
 
 		</div>
@@ -151,10 +153,8 @@
 											id="periodName" placeholder="Dönem Adı Girin..."></div>
 								</div>
 								<br>
-								<div class="row" style="display: flex; align-items: center; justify-content: center;">
-									<br><br><label class="infoAddPeriod" style="text-align: center;"
+								<label class="infoAddPeriod" style="text-align: center;"
 										for="infoAddPeriod"></label>
-								</div>
 
 							</div>
 						</div>
@@ -230,7 +230,7 @@
 
 					<div class="modal-body" style="padding: 0rem;">
 						<div class="container mt-5">
-							<table class="table table-striped">
+							<table class="table table-striped table-sticky">
 								<thead>
 									<tr>
 										<th>Seç</th>
@@ -324,7 +324,7 @@
 						<p id="popup-info-period-msg"></p>
 					</div>
 
-					<div class="modal-body">
+					<div class="modal-body ">
 						<div id="inputContainer">
 							<input type="number" id="anaPara" placeholder="Ana Para (₺)">
 							<input type="number" id="faizOrani" placeholder="Yıllık Faiz Oranı (%)">
@@ -332,9 +332,93 @@
 							<button onclick="hesapla()">Hesapla</button>
 						</div>
 
-						<table id="sonucTablosu"></table>
+						<table id="sonucTablosu" class="table-sticky table-scrollable"></table>
+					</div>
+					<div class="modal-footer">
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="modal shoppingSmimulation" id="shoppingSmimulationModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Alışeriş Simülasyonu</h4>
+						<p id="popup-info-period-msg"></p>
 					</div>
 
+					<div class="modal-body ">
+						<div class="comparison-container" style="margin-top: 0px">
+
+							<!-- Ürün Ekleme -->
+							<h4>Ürün Ekle</h4>
+							<div class="input-group mb-3">
+								<input type="text" id="productInput" class="form-control" placeholder="Ürün ismi">
+								<button onclick="addProduct()" class="btn btn-primary">Ekle</button>
+							</div>
+							<!-- Eklenen Ürünlerin Listesi -->
+							<ul id="addedProductsList" class="list-group mb-3">
+								<!-- Eklenen ürünler burada listelenecek -->
+							</ul>
+
+							<!-- Market Ekleme -->
+							<h4>Market Ekle</h4>
+							<div class="input-group mb-3">
+								<input type="text" id="marketInput" class="form-control" placeholder="Market ismi">
+								<button onclick="addMarket()" class="btn btn-primary">Ekle</button>
+							</div>
+
+							<h4>Fiyat ve Gramaj Bilgisi</h4>
+							<!-- Fiyat ve Gramaj Bilgisi -->
+							<div class="mb-3">
+								<label>Market Seçimi</label>
+								<select id="marketDropdown" class="form-control mb-2">
+								</select>
+								<label>Ürün Adı</label>
+								<select id="productDropdown" class="form-control mb-2">
+								</select>
+
+								<div class="row">
+
+									<!-- Fiyat Bilgisi -->
+									<div class="col-md-6 mb-3">
+										<div class="input-group">
+											<input type="number" id="priceInput" class="form-control"
+												placeholder="Fiyat">
+											<span class="input-group-text">TL</span>
+										</div>
+									</div>
+
+									<!-- Gramaj Bilgisi -->
+									<div class="col-md-6 mb-3">
+										<div class="input-group">
+											<input type="number" id="gramInput" class="form-control"
+												placeholder="Gramaj">
+											<span class="input-group-text">Gr</span>
+										</div>
+									</div>
+
+								</div>
+
+								<button onclick="addPriceAndGram()" class="btn btn-secondary w-100">Bilgi Ekle</button>
+							</div>
+
+							<!-- Sonuçları Getir Butonu -->
+							<button onclick="compareProducts()" class="btn btn-success w-100 mb-3">Sonuçları
+								Getir</button>
+
+							<!-- Karşılaştırma Sonuçları -->
+							<!-- Karşılaştırma Sonuçları -->
+							<div id="comparisonResults" class="mt-4">
+								<!-- Sonuçlar burada listelenecek -->
+							</div>
+
+
+						</div>
+					</div>
 					<div class="modal-footer">
 					</div>
 				</div>
