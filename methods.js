@@ -534,7 +534,7 @@ function hesapla() {
 	const anaPara = parseFloat(document.getElementById('anaPara').value);
 	const faizOrani = parseFloat(document.getElementById('faizOrani').value) / 100;
 	const toplamAy = parseInt(document.getElementById('toplamAy').value);
-	const stopajOrani = 0.20;
+	const stopajOrani = 0.05;
 
 	let tablo = '<thead><tr><th>Ay</th><th>Net Ana Para (₺)</th><th>Brüt Faiz Tutarı (₺)</th><th>Stopaj (₺)</th><th>Net Faiz Getirisi (₺)</th></tr></thead><tbody>';
 	let mevcutAnaPara = anaPara;
