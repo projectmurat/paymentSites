@@ -15,6 +15,7 @@ const DELETE_SUCCESS = "Silme İşlemi başarili";
 const DELETE_FAILED = "Silme İşlemi Başarisiz";
 let dropdownData;
 var isClickReCalculate = false;
+var lastFundsCallbackTime;
 
 
 document.getElementById("marketDropdown").addEventListener("change", updateProductDropdown);
@@ -285,6 +286,24 @@ function calculateFunds(params) {
 		}, 1);
 	}
 
+}
+function fundsLastCallbackTime(dateStr) {
+    const months = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+    const days = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
+
+    // Veriyi Date objesi olarak oluştur.
+    const date = new Date(dateStr);
+
+    // Tarihi istediğiniz formata dönüştür.
+    const day = days[date.getDay()];
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    const dayOfMonth = date.getDate();
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    const second = String(date.getSeconds()).padStart(2, '0');
+
+    return `${dayOfMonth} ${month} ${year} ${day} ${hour}:${minute}:${second}`;
 }
 
 function readURL(params) {
@@ -704,3 +723,4 @@ function toggleMarketDetails(market) {
 		detailsDiv.style.display = "none";
 	}
 }
+

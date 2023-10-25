@@ -208,6 +208,8 @@ $('.funds').click(function () {
 				.then(response => response.json())
 				.then(data => {
 					dropdownData = data;
+					lastFundsCallbackTime = fundsLastCallbackTime(data["Update_Date"]);
+					document.getElementById("lastFundsEndexCallbackTimeDiv").innerHTML = "Endexlerin Son Güncellenme Tarihi"+"<br>"+'<p style="text-decoration:underline">' + lastFundsCallbackTime + '</p>';
 					fundsData = response;
 					fundsData.forEach(item => {
 						if (data[item.currencyType] && data[item.currencyType].Alış) {
@@ -215,11 +217,9 @@ $('.funds').click(function () {
 						}
 					});
 					calculateFunds(response);
-					console.log(data["gram-altin"])
 				})
 				.catch(error => {
-					fundsData = response;
-					calculateFunds(response);
+					throw new Error("Birikim verileri getirilirken hata oluştu. Ayrıntısı: \n",error);
 				});
 
 		},
@@ -278,7 +278,9 @@ $('.btn-addFundType').click(function () {
 	dropdown.innerHTML = ''; // önceki değerleri temizle
 	let keysHeader = Object.keys(dropdownData);
 	for (let key in keysHeader) {
-		if (keysHeader[key] != "Update Date") {
+		// Alınan endex değerlerinin son güncellenmiş tarihi
+		lastFundsCallbackTime = dropdownData[keysHeader[key]];
+		if (keysHeader[key] != "Update_Date") {
 			let option = document.createElement("a");
 			option.href = "#";
 			option.className = "dropdown-item";
