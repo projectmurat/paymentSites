@@ -13,6 +13,9 @@ const INSERT_SUCCESS = "Kayit işlemi başarili";
 const INSERT_FAILED = "Kayit Başarisiz"
 const DELETE_SUCCESS = "Silme İşlemi başarili";
 const DELETE_FAILED = "Silme İşlemi Başarisiz";
+let dropdownData;
+var isClickReCalculate = false;
+
 
 document.getElementById("marketDropdown").addEventListener("change", updateProductDropdown);
 
@@ -35,7 +38,7 @@ function getAttribute(source, key, defaultValue) {
 				snapshot = snapshot[element];
 			}
 			else if (!isUndefined(snapshot[key])) return snapshot[key];
-				else return defaultValue;
+			else return defaultValue;
 		}
 		return snapshot;
 	}
@@ -216,8 +219,9 @@ function statisticTableCallback(data, callback) {
 
 function fundsTableCallback(data, callback) {
 	let container = document.querySelector(".handsontable-container-funds");
+	data = data.length == 1 ? data[0] : data
 	fundsTable = new Handsontable(container, {
-		data: data[0],
+		data: data,
 		width: "100%",
 		height: "200px",
 		rowHeaders: true,
@@ -229,7 +233,7 @@ function fundsTableCallback(data, callback) {
 			if (width > 250) return 250;
 		},
 		columns: [
-			{ data: "currencyType", className: "htCenter" },
+			{ data: "currencyType", className: "htCenter", readOnly: true },
 			{
 				data: "amount",
 				type: "numeric",
@@ -258,14 +262,29 @@ function fundsTableCallback(data, callback) {
 
 function calculateFunds(params) {
 	let fundsTableData = [];
-	Object.values(params).filter(field => field.currencyType == 'Gram-Altın').map(i => i.forTl = (parseFloat(i.amount).toFixed(2) * parseFloat(i.endex.replace(/[^0-9]/g, '')) / 100))[0].toFixed(2)
+	params.forEach(item => {
+		if (item.currencyType != "TL") {
+			let endexValue = parseFloat(item.endex.replace('.', '').replace(',', '.'));
+			item.forTl = parseFloat(item.amount) * endexValue;
+		}
+
+	});
 	fundsTableData.push(Object.values(params));
-	setTimeout(() => {
-		fundsTableCallback(fundsTableData, () => {
-			let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
-			document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
-		})
-	}, 1);
+	if (isClickReCalculate) {
+		fundsTable.loadData(fundsTableData[0]);
+		let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
+		document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
+		isClickReCalculate = false;
+	}
+	else {
+		setTimeout(() => {
+			fundsTableCallback(fundsTableData, () => {
+				let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
+				document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
+			})
+		}, 1);
+	}
+
 }
 
 function readURL(params) {
@@ -595,7 +614,7 @@ function addMarket() {
 	if (market && !markets.includes(market)) {
 		markets.push(market);
 		updateMarketDropdown();
-		document.getElementById("marketInput").value=''
+		document.getElementById("marketInput").value = ''
 	}
 }
 

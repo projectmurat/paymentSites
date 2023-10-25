@@ -1,5 +1,6 @@
 window.addEventListener('DOMContentLoaded', event => {
 
+
 	/*
 	firebase.auth().sendPasswordResetEmail('imuratony@gmail.com').then(function() {
 		alert("mail gönderildi")
@@ -14,7 +15,7 @@ window.addEventListener('DOMContentLoaded', event => {
 			$('#hot-display-license-info').remove();
 		})
 	})
-	document.getElementById('importFile').setAttribute("hidden",true);
+	document.getElementById('importFile').setAttribute("hidden", true);
 });
 setTimeout(() => {
 	table.addHook("afterOnCellMouseDown", function () {
@@ -35,7 +36,7 @@ $('.btn-add').click(function () {
 	try {
 		let detail = document.getElementsByClassName("form-control").name.value;
 		let amount = document.getElementsByClassName("form-control").amount.value;
-		document.getElementById('importFile').setAttribute("hidden",true);
+		document.getElementById('importFile').setAttribute("hidden", true);
 		if (detail.trim() == "" || amount.trim() == "") {
 			throw new Error("Kayıt Başarısız.\nAlanlar boş bırakılarak kayıt işlemi gerçekleştirilemez");
 		}
@@ -107,7 +108,7 @@ $('.save').click(function () {
 		path: historyPeriod,
 		params: restoredData,
 		done: (response) => {
-			if(response) successSaveChange(historyPeriod)
+			if (response) successSaveChange(historyPeriod)
 			else throwSaveChange("false")
 
 		},
@@ -118,9 +119,8 @@ $('.save').click(function () {
 })
 
 $('.backup').click(function () {
-	backupValidation((validate)=>{
-		if(validate)
-		{
+	backupValidation((validate) => {
+		if (validate) {
 			if (confirm('Veritabanı kayıtlarını yedekleyip indirmek istiyor musun?' + "\n" + "Dosya Boyutu: " + (JSON.stringify(fireData).length / 1024).toFixed(2) + " MB")) {
 				try {
 					$.ajax({
@@ -141,7 +141,7 @@ $('.backup').click(function () {
 				}
 			}
 		}
-		else if(!validate){
+		else if (!validate) {
 			alert("Authentication Error")
 		}
 	})
@@ -193,50 +193,56 @@ $('.deletePeriod').click(function () {
 	}
 })
 
-$('.btn-close').click(function(arg){
+$('.btn-close').click(function (arg) {
 	console.log("kapatıldı")
 })
 
-$('.statistics').click(function(){
+$('.statistics').click(function () {
 	calculateStatistics()
 })
 
-$('.funds').click(function(){
+$('.funds').click(function () {
 	PocketRealtime.getFunds({
-		done:(response)=>{
+		done: (response) => {
 			fetch('https://finans.truncgil.com/today.json')
-			.then(response => response.json())
-			.then(data => {
-				fundsData = response;
-				fundsData.filter(item=>item.currencyType == "Gram-Altın")[0].endex=data["gram-altin"].Alış
-				calculateFunds(response);
-				console.log(data["gram-altin"])
-			})
-			.catch(error=>{
-				fundsData = response;
-				calculateFunds(response);
-			});
+				.then(response => response.json())
+				.then(data => {
+					dropdownData = data;
+					fundsData = response;
+					fundsData.forEach(item => {
+						if (data[item.currencyType] && data[item.currencyType].Alış) {
+							item.endex = data[item.currencyType].Alış;
+						}
+					});
+					calculateFunds(response);
+					console.log(data["gram-altin"])
+				})
+				.catch(error => {
+					fundsData = response;
+					calculateFunds(response);
+				});
 
 		},
-		fail:(error)=>{
+		fail: (error) => {
 			throw new Error(error).stack;
 		}
 	})
 })
 
-$('.btn-reCalculate').click(function() {
+$('.btn-reCalculate').click(function () {
 	let fudsTbl = fundsTable.getData();
+	isClickReCalculate = true;
 	senderFunds = [];
-	for(let i = 0;i < fudsTbl.length; i++){
+	for (let i = 0; i < fudsTbl.length; i++) {
 		let currencyType = fudsTbl[i][0];
 		let amount = fudsTbl[i][1];
 		let endex = fudsTbl[i][2];
 		let forTl = fudsTbl[i][3]
 		let rowData = {
-			"currencyType":currencyType,
-			"amount":amount,
-			"endex":endex,
-			"forTl":(parseFloat(endex).toFixed(2)*parseFloat(amount).toFixed(2))
+			"currencyType": currencyType,
+			"amount": amount,
+			"endex": endex,
+			"forTl": currencyType != "TL" ? (parseFloat(endex.replace(/\./g, 'TEMP').replace(/,/g, '.').replace(/TEMP/g, ',')) * parseFloat(amount).toFixed(2)) : parseFloat(amount) * parseFloat(endex)
 		}
 		senderFunds.push(rowData);
 	}
@@ -244,25 +250,61 @@ $('.btn-reCalculate').click(function() {
 })
 
 
-$(".btn-saveFunds").click(function(){
+$(".btn-saveFunds").click(function () {
 	PocketRealtime.setFunds({
-		params:senderFunds,
-		done:(response)=>{
-			console.log("Kaydetme Sonucu: "+response);
+		params: senderFunds,
+		done: (response) => {
+			console.log("Kaydetme Sonucu: " + response);
 		},
-		fail:(error)=>{
+		fail: (error) => {
 			throw new Error(error).stack;
 		}
 	})
 });
 
-$('.installments').click(function(){
+$('.installments').click(function () {
 	PocketRealtime.getInstallments({
-		done:(response)=>{
+		done: (response) => {
 			renderInstallmentsTable(response);
 		},
-		fail:(error)=>{
+		fail: (error) => {
 			throw new Error(error).stack;
 		}
 	})
 })
+
+$('.btn-addFundType').click(function () {
+	let dropdown = document.getElementById("dropdownFunds");
+	dropdown.innerHTML = ''; // önceki değerleri temizle
+	let keysHeader = Object.keys(dropdownData);
+	for (let key in keysHeader) {
+		if (keysHeader[key] != "Update Date") {
+			let option = document.createElement("a");
+			option.href = "#";
+			option.className = "dropdown-item";
+			option.innerText = keysHeader[key];
+			option.addEventListener("click", function(event) {
+				event.preventDefault();  // Sayfanın yeniden yüklenmesini engelle
+				let selectedFundsDropdownKey = event.target.innerText;
+				console.log(dropdownData[selectedFundsDropdownKey]);  // Seçilen anahtarı konsola yaz
+
+				// Tablo için insert datası oluturuyoruz.
+				let endexValue = dropdownData[selectedFundsDropdownKey].Alış;
+				let insertTableData = {
+					amount:0,
+					currencyType:selectedFundsDropdownKey,
+					endex:dropdownData[selectedFundsDropdownKey].Alış,
+					forTl: parseFloat(0) * parseFloat(endexValue)
+				};
+				fundsData.push(insertTableData);
+				fundsTable.loadData(fundsData);
+			});
+			dropdown.appendChild(option);
+		}
+
+	}
+})
+$('#a.dropdown-item').click(function (arg) {
+	console.log("selected",arg)
+})
+
