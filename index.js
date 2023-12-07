@@ -19,7 +19,7 @@ window.addEventListener('DOMContentLoaded', event => {
 });
 setTimeout(() => {
 	table.addHook("afterOnCellMouseDown", function () {
-		console.log(table.getDataAtRow(arguments[1].row));
+		//after table render..
 	});
 }, 1000);
 
@@ -209,7 +209,7 @@ $('.funds').click(function () {
 				.then(data => {
 					dropdownData = data;
 					lastFundsCallbackTime = fundsLastCallbackTime(data["Update_Date"]);
-					document.getElementById("lastFundsEndexCallbackTimeDiv").innerHTML = "Endexlerin Son Güncellenme Tarihi"+"<br>"+'<p style="text-decoration:underline">' + lastFundsCallbackTime + '</p>';
+					document.getElementById("lastFundsEndexCallbackTimeDiv").innerHTML = "Endexlerin Son Güncellenme Tarihi" + "<br>" + '<p style="text-decoration:underline">' + lastFundsCallbackTime + '</p>';
 					fundsData = response;
 					fundsData.forEach(item => {
 						if (data[item.currencyType] && data[item.currencyType].Alış) {
@@ -219,7 +219,7 @@ $('.funds').click(function () {
 					calculateFunds(response);
 				})
 				.catch(error => {
-					throw new Error("Birikim verileri getirilirken hata oluştu. Ayrıntısı: \n",error);
+					throw new Error("Birikim verileri getirilirken hata oluştu. Ayrıntısı: \n", error);
 				});
 
 		},
@@ -285,7 +285,7 @@ $('.btn-addFundType').click(function () {
 			option.href = "#";
 			option.className = "dropdown-item";
 			option.innerText = keysHeader[key];
-			option.addEventListener("click", function(event) {
+			option.addEventListener("click", function (event) {
 				event.preventDefault();  // Sayfanın yeniden yüklenmesini engelle
 				let selectedFundsDropdownKey = event.target.innerText;
 				console.log(dropdownData[selectedFundsDropdownKey]);  // Seçilen anahtarı konsola yaz
@@ -293,9 +293,9 @@ $('.btn-addFundType').click(function () {
 				// Tablo için insert datası oluturuyoruz.
 				let endexValue = dropdownData[selectedFundsDropdownKey].Alış;
 				let insertTableData = {
-					amount:0,
-					currencyType:selectedFundsDropdownKey,
-					endex:dropdownData[selectedFundsDropdownKey].Alış,
+					amount: 0,
+					currencyType: selectedFundsDropdownKey,
+					endex: dropdownData[selectedFundsDropdownKey].Alış,
 					forTl: parseFloat(0) * parseFloat(endexValue)
 				};
 				fundsData.push(insertTableData);
@@ -307,6 +307,47 @@ $('.btn-addFundType').click(function () {
 	}
 })
 $('#a.dropdown-item').click(function (arg) {
-	console.log("selected",arg)
+	console.log("selected", arg)
+})
+
+$('.btn-openFundsSnapshots').click(function (args) {
+	PocketRealtime.getFundsHistory({
+		done: (response) => {
+			console.log(response);
+			let historyList = [];
+			let allResponse = Object.values(response);
+			const filteredData = allResponse.reduce((acc, curr) => {
+				const foundIndex = acc.findIndex(
+					(item) =>
+						item.sunFunds === curr.sunFunds &&
+						new Date(item.insertDate).toDateString() ===
+						new Date(curr.insertDate).toDateString()
+				);
+
+				if (foundIndex === -1) {
+					acc.push(curr);
+				} else {
+					const foundDate = new Date(acc[foundIndex].insertDate);
+					const currentDate = new Date(curr.insertDate);
+
+					if (currentDate > foundDate) {
+						acc[foundIndex] = curr;
+					}
+				}
+
+				return acc;
+			}, []);
+			//tarihleri en güncel olan en üstte olacak şekilde düzenlendi
+			filteredData.sort((a, b) => convertDate(b.insertDate).getTime() - convertDate(a.insertDate).getTime());
+
+			fundsHistoryTableCallback(filteredData, () => {
+				//tablo set edildikten sonra...
+			})
+		},
+		fail: (error) => {
+			throw new Error("Birikim fonu tarihçe bilgisi alınırken hata ile karşılaşıldı");
+		}
+	})
+
 })
 

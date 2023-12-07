@@ -168,6 +168,37 @@ let PocketRealtime = (
             }
         }
 
+        function insertFundsHistory(args) {
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                let params = args.params;
+                firebase.database().ref("FonTarihce/").push().set(params, error => {
+                    if (error) {
+                        fail(error);
+                    }
+                    else {
+                        done(true);
+                    }
+                })
+            }
+            catch (error) {
+                throw new Error(error).stack;
+            }
+        }
+        function getFundsHistory(args) {
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                firebase.database().ref("FonTarihce/").on("value", (snapshot) => {
+                    done(snapshot.val())
+                })
+            }
+            catch (error) {
+                fail(error);
+            }
+        }
+
         return {
             getValue: getValue,
             setValue: setValue,
@@ -177,7 +208,9 @@ let PocketRealtime = (
             getInstallments: getInstallments,
             pushInstallments: pushInstallments,
             updateInstallments: updateInstallments,
-            deleteInstallments:deleteInstallments
+            deleteInstallments:deleteInstallments,
+            insertFundsHistory:insertFundsHistory,
+            getFundsHistory:getFundsHistory
         }
     }
 )();

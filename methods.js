@@ -4,10 +4,12 @@ let table;
 let fundsTable;
 let fireData;
 let fundsData;
+let historyFundsTable;
 let senderFunds = [];
 let allProducts = [];
 let markets = [];
 let productInfo = {};
+let sumFundsAmount;
 const months_tr = ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"];
 const INSERT_SUCCESS = "Kayit işlemi başarili";
 const INSERT_FAILED = "Kayit Başarisiz"
@@ -260,6 +262,49 @@ function fundsTableCallback(data, callback) {
 	$('#hot-display-license-info').remove();
 	callback(fundsTable)
 }
+function fundsHistoryTableCallback(data, callback) {
+	let container = document.querySelector(".handsontable-container-fundsHistory");
+	historyFundsTable = new Handsontable(container, {
+		data: data,
+		width: "100%",
+		height: "400px",
+		rowHeaders: true,
+		stretchH: "all",
+		rowHeights: 40,
+		colHeaders: ["Tarih", "Tutar"],
+		contextMenu: false,
+		modifyColWidth: function (width, col) {
+		    if (width > 200) return 200;
+		},
+		columns: [
+		    {
+			   data: "insertDate",
+			   type: "date",
+			   dateFormat: "DD/MM/YYYY",
+			   correctFormat: true,
+			   defaultDate: new Date().toDateString(),
+			   readOnly: true // Tarih sütununu read-only yap
+		    },
+		    {
+			   data: "sunFunds",
+			   type: "numeric",
+			   numericFormat: { pattern: "$0,0.00", culture: "tr-TR" },
+			   className: "htCenter",
+			   renderer: function (instance, td, row, col, prop, value, cellProperties) {
+				  // $ işaretini hücre içeriğine ekleyerek görüntüle
+				  Handsontable.renderers.TextRenderer.apply(this, arguments);
+				  td.innerHTML = "$" + value;
+			   },
+			   readOnly: true
+		    },
+		],
+		className: "htCenter" // Hücre içeriklerini ortala
+	 });
+
+
+	$('#hot-display-license-info').remove();
+	callback(historyFundsTable)
+}
 
 function calculateFunds(params) {
 	let fundsTableData = [];
@@ -274,14 +319,33 @@ function calculateFunds(params) {
 	if (isClickReCalculate) {
 		fundsTable.loadData(fundsTableData[0]);
 		let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
+		sumFundsAmount = formatCurrency(sumFunds);
 		document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
 		isClickReCalculate = false;
 	}
 	else {
 		setTimeout(() => {
 			fundsTableCallback(fundsTableData, () => {
+
 				let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
+				sumFundsAmount = formatCurrency(sumFunds);
 				document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
+
+				let historyData = {
+					"fundsList":fundsTableData,
+					"sunFunds":sumFundsAmount,
+					"insertDate":new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
+				}
+				PocketRealtime.insertFundsHistory({
+					params:historyData,
+					done:(response)=>{
+						console.log(response);
+					},
+					fail:(error)=>{
+						throw new Error("Fon Tarihçe kaydemte işleminde hata meydana geldi.");
+					}
+				})
+
 			})
 		}, 1);
 	}

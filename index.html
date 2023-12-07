@@ -38,6 +38,11 @@
 	<link href="https://cdn.jsdelivr.net/npm/handsontable@8.2.0/dist/handsontable.full.min.css" rel="stylesheet"
 		media="screen">
 
+	<!-- Chart.js CDN bağlantısı -->
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <!-- chartjs-adapter-date-fns CDN bağlantısı -->
+     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
 	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Bungee+Hairline&display=swap" rel="stylesheet">
@@ -217,8 +222,32 @@
 
 					<div class="modal-footer">
 						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
-						<button type="button" class="btn btn-reCalculate">Yeniden Hesapla</button>
+						<button type="button" class="btn btn-openFundsSnapshots" data-target="#fundsHistoryModal"
+							data-toggle="modal">Tarihçe</button>
+						<button type="button" class="btn btn-reCalculate">Hesapla</button>
 						<button type="button" class="btn btn-saveFunds">Kaydet</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fundsHistoryModal" id="fundsHistoryModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Birikim Tarihçesi</h4>
+						<p id="popup-info-period-msg"></p>
+					</div>
+
+					<div class="modal-body">
+						<div class="handsontable-container-fundsHistory" id="grid-table"></div>
+						<br>
+						<br>
+
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
 					</div>
 				</div>
 			</div>
