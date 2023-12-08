@@ -336,7 +336,7 @@ function calculateFunds(params) {
 					"sunFunds":sumFundsAmount,
 					"insertDate":new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
 				}
-				PocketRealtime.insertFundsHistory({
+				/*PocketRealtime.insertFundsHistory({
 					params:historyData,
 					done:(response)=>{
 						console.log(response);
@@ -344,7 +344,7 @@ function calculateFunds(params) {
 					fail:(error)=>{
 						throw new Error("Fon Tarihçe kaydemte işleminde hata meydana geldi.");
 					}
-				})
+				})*/
 
 			})
 		}, 1);

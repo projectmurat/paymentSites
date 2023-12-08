@@ -313,8 +313,6 @@ $('#a.dropdown-item').click(function (arg) {
 $('.btn-openFundsSnapshots').click(function (args) {
 	PocketRealtime.getFundsHistory({
 		done: (response) => {
-			console.log(response);
-			let historyList = [];
 			let allResponse = Object.values(response);
 			const filteredData = allResponse.reduce((acc, curr) => {
 				const foundIndex = acc.findIndex(
@@ -340,9 +338,81 @@ $('.btn-openFundsSnapshots').click(function (args) {
 			//tarihleri en güncel olan en üstte olacak şekilde düzenlendi
 			filteredData.sort((a, b) => convertDate(b.insertDate).getTime() - convertDate(a.insertDate).getTime());
 
-			fundsHistoryTableCallback(filteredData, () => {
-				//tablo set edildikten sonra...
-			})
+			let previousValue;
+			const tableBody = document.getElementById('tableBody');
+			filteredData.sort((a, b) => convertDate(a.insertDate).getTime() - convertDate(b.insertDate).getTime());
+			let tableList = [];
+			filteredData.forEach(item => {
+				const row = document.createElement('tr');
+
+				const dateCell = document.createElement('td');
+				dateCell.textContent = item.insertDate;
+				row.appendChild(dateCell);
+
+				const fundsCell = document.createElement('td');
+				fundsCell.textContent = item.sunFunds;
+				row.appendChild(fundsCell);
+				let jsFormattedNumber = parseFloat(item.sunFunds.replace(/\./g, '').replace(',', '.'));
+				if (previousValue !== undefined) {
+
+					// Türkçe formatlı sayıyı JavaScript formatına dönüştürme
+					jsFormattedNumber = parseFloat(item.sunFunds.replace(/\./g, '').replace(',', '.'));
+					const currentValue = parseFloat(jsFormattedNumber);
+					const previousNumericValue = parseFloat(previousValue);
+
+					if (currentValue > previousNumericValue) {
+						row.classList.add('change-up');
+					} else if (currentValue < previousNumericValue) {
+						row.classList.add('change-down');
+					}
+				}
+
+				previousValue = jsFormattedNumber;
+				tableList.push(row);
+				//tableBody.appendChild(row);
+			});
+			let reversedTableList = tableList.toReversed();
+			for (const element of reversedTableList) {
+				tableBody.appendChild(element);
+			}
+			// Grafik oluşturma
+			let dates = filteredData.map(item => item.insertDate);
+			function kisaTarih(tarih) {
+				let parts = tarih.split(' ');
+				return parts[0] + " " + parts[1] + " " + parts[4];
+			}
+			document.getElementById('snapshotSpan').innerText = 'Snapshot Veri Sayısı: ' + reversedTableList.length;
+			dates = dates.map(tarih => kisaTarih(tarih));
+
+			const sunFunds = filteredData.map(item => parseFloat(item.sunFunds.replace(/\./g, '').replace(',', '.')));
+
+			const ctx = document.getElementById('myChart').getContext('2d');
+			const myChart = new Chart(ctx, {
+				type: 'line',
+				data: {
+					labels: dates,
+					datasets: [{
+						label: 'Birikim Değişimi',
+						data: sunFunds,
+						backgroundColor: 'rgba(54, 162, 235, 0.2)',
+						borderColor: 'rgba(54, 162, 235, 1)',
+						borderWidth: 1
+					}]
+				},
+				options: {
+					animation: {
+						duration: 2000, // Animasyon süresi (ms cinsinden)
+						easing: 'easeInOutQuart' // Animasyon tipi
+					},
+					scales: {
+						y: {
+							ticks: {
+								beginAtZero: false // Y ekseninin sıfırdan başlamaması
+							}
+						}
+					}
+				}
+			});
 		},
 		fail: (error) => {
 			throw new Error("Birikim fonu tarihçe bilgisi alınırken hata ile karşılaşıldı");

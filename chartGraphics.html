@@ -3,710 +3,162 @@
 
 <head>
      <meta charset="UTF-8">
-     <title>Grafik Analizi</title>
-     <!-- Chart.js CDN bağlantısı -->
-     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-     <!-- chartjs-adapter-date-fns CDN bağlantısı -->
-     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Funds Analysis</title>
+     <!-- Bootstrap CSS dosyaları -->
+     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+     <style>
+          /* Stil dosyası */
+          body {
+               font-family: Arial, sans-serif;
+               margin: 0;
+               padding: 0;
+          }
+
+          h1 {
+               text-align: center;
+          }
+
+          .table-container {
+               width: 80%;
+               margin: auto;
+               overflow-x: auto;
+               max-height: 400px;
+               /* Maksimum yükseklik */
+               position: relative;
+          }
+
+          table {
+               width: 100%;
+               border-collapse: collapse;
+               margin-bottom: 20px;
+          }
+
+          th,
+          td {
+               font-size: 12px;
+               border: 1px solid #ddd;
+               padding: 8px;
+               text-align: left;
+               transition: background-color 0.3s ease;
+               /* Geçiş efekti */
+          }
+
+          th {
+               background-color: #f2f2f2;
+          }
+
+          .sticky-header thead th {
+               position: sticky;
+               top: 0;
+               background-color: #f2f2f2;
+          }
+
+          .sticky-header {
+               overflow-y: scroll;
+               max-height: 400px;
+          }
+
+          /* Ok işaretlerini içeren CSS */
+          tr.change-up td:nth-child(2)::after {
+               content: "\25b2";
+               /* Yukarı ok işareti */
+               color: green;
+               /* Yeşil renk */
+               font-size: smaller;
+               /* Daha küçük boyutta */
+               margin-left: 5px;
+               /* Soldan boşluk */
+               transition: transform 0.3s ease;
+               /* Geçiş efekti */
+          }
+
+          tr.change-down td:nth-child(2)::after {
+               content: "\25bc";
+               /* Aşağı ok işareti */
+               color: red;
+               /* Kırmızı renk */
+               font-size: smaller;
+               /* Daha küçük boyutta */
+               margin-left: 5px;
+               /* Soldan boşluk */
+               transition: transform 0.3s ease;
+               /* Geçiş efekti */
+          }
+
+          /* Önceki geçiş efektlerini içeren stiller */
+          tr.change-up td:nth-child(2),
+          tr.change-down td:nth-child(2) {
+               transition: background-color 0.3s ease;
+               /* Geçiş efekti */
+          }
+
+          tr.change-up td:nth-child(2) {
+               background-color: rgba(144, 238, 144, 0.5);
+               /* Yeşil tonunda bir arka plan */
+          }
+
+          tr.change-down td:nth-child(2) {
+               background-color: rgba(255, 99, 71, 0.5);
+               /* Kırmızı tonunda bir arka plan */
+          }
+
+          canvas {
+               margin-top: 20px;
+               width: 100%;
+               height: 400px;
+          }
+
+          #snapshotSpan {
+               padding: 10px 20px;
+               border-radius: 5px;
+               background-color: #3498db;
+               color: white;
+               font-weight: bold;
+               text-transform: uppercase;
+               box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+               transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+               cursor: pointer;
+          }
+
+          #snapshotSpan.hidden {
+               opacity: 0;
+               transform: translateY(-20px);
+          }
+
+          #snapshotSpan.show {
+               opacity: 1;
+               transform: translateY(0);
+          }
+     </style>
 </head>
 
 <body>
-     <canvas id="fundsHistoryChart" width="auto" height="auto"></canvas>
+     <div class="container">
+          <h1 class="text-center my-4">Funds Analysis</h1>
+          <div class="table-container sticky-header">
+               <table class="table table-striped">
+                    <thead class="sticky-header">
+                         <tr>
+                              <th>Snapshot Tarihi</th>
+                              <th>Birim</th>
+                         </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                         <!-- JavaScript ile veriler buraya eklenecek -->
+                    </tbody>
+               </table>
+               <span id="snapshotSpan"></span>
+          </div>
 
-     <script>
-          // Verileriniz
-          const data = {
-               "-Nl3zxkukFJap6icayae": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.886,59",
-                                   "forTl": 22639.079999999998
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 18:57:29",
-                    "sunFunds": "121.314,79"
-               },
-               "-Nl4-F1Ba8JjgX1g9--m": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.886,59",
-                                   "forTl": 22639.079999999998
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 18:59:03",
-                    "sunFunds": "121.314,79"
-               },
-               "-Nl4-UI7M9mpUxaWjYit": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.886,59",
-                                   "forTl": 22639.079999999998
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 19:00:05",
-                    "sunFunds": "121.314,79"
-               },
-               "-Nl4AqNrRlvdEAIhWeKP": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.886,16",
-                                   "forTl": 22633.920000000002
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 19:49:44",
-                    "sunFunds": "121.309,63"
-               },
-               "-Nl4CXEQBjgf47CRYPRG": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.886,16",
-                                   "forTl": 22633.920000000002
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 19:57:05",
-                    "sunFunds": "121.309,63"
-               },
-               "-Nl4D27w9PvOrxPgPAhs": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.886,16",
-                                   "forTl": 22633.920000000002
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 19:59:20",
-                    "sunFunds": "121.309,63"
-               },
-               "-Nl4DWNECQc1RGfd8PKY": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.884,38",
-                                   "forTl": 22612.56
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 20:01:24",
-                    "sunFunds": "121.288,27"
-               },
-               "-Nl4DxaGuDLuRWbkP2xS": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.884,38",
-                                   "forTl": 22612.56
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 20:03:20",
-                    "sunFunds": "121.288,27"
-               },
-               "-Nl4EgGkQlmygXeGPXbM": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.884,38",
-                                   "forTl": 22612.56
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 20:06:31",
-                    "sunFunds": "121.288,27"
-               },
-               "-Nl4EvWPrY24S3iuwUvD": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.884,38",
-                                   "forTl": 22612.56
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 20:07:33",
-                    "sunFunds": "121.288,27"
-               },
-               "-Nl4H9iL13BcD_0ZahrF": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.884,14",
-                                   "forTl": 22609.68
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 20:17:20",
-                    "sunFunds": "121.285,39"
-               },
-               "-Nl4HfEG96R9Yaudx5Nt": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.884,14",
-                                   "forTl": 22609.68
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 20:19:33",
-                    "sunFunds": "121.285,39"
-               },
-               "-Nl4I-NvF17Lh29Gts3K": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.884,14",
-                                   "forTl": 22609.68
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 20:21:00",
-                    "sunFunds": "121.285,39"
-               },
-               "-Nl4IcoADVqlbNueAIz5": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.884,14",
-                                   "forTl": 22609.68
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 20:23:45",
-                    "sunFunds": "121.285,39"
-               },
-               "-Nl4NQWMcVm_3ojc7JLC": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.879,22",
-                                   "forTl": 22550.64
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 20:44:41",
-                    "sunFunds": "121.226,35"
-               },
-               "-Nl4NunXIG1X6Z5qULup": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.882,40",
-                                   "forTl": 22588.800000000003
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 20:46:50",
-                    "sunFunds": "121.264,51"
-               },
-               "-Nl4OhPFEj0y32pSmUCD": {
-                    "fundsList": [
-                         [
-                              {
-                                   "amount": 12,
-                                   "currencyType": "gram-altin",
-                                   "endex": "1.882,40",
-                                   "forTl": 22588.800000000003
-                              },
-                              {
-                                   "amount": 14,
-                                   "currencyType": "ceyrek-altin",
-                                   "endex": "3.118,59",
-                                   "forTl": 43660.26
-                              },
-                              {
-                                   "amount": 2580.15,
-                                   "currencyType": "TL",
-                                   "endex": 1,
-                                   "forTl": 2580.15
-                              },
-                              {
-                                   "amount": 26,
-                                   "currencyType": "22-ayar-bilezik",
-                                   "endex": "1.777,60",
-                                   "forTl": 46217.6
-                              },
-                              {
-                                   "amount": 1,
-                                   "currencyType": "yarim-altin",
-                                   "endex": "6.217,70",
-                                   "forTl": 6217.7
-                              }
-                         ]
-                    ],
-                    "insertDate": "7 Ara 2023 Per 20:50:17",
-                    "sunFunds": "121.264,51"
-               }
-          }
+          <canvas id="myChart"></canvas> <!-- Grafik için Canvas -->
+     </div>
 
-
-          // InsertDate'leri tarih nesnesine dönüştürme
-          // InsertDate'leri tarih nesnesine dönüştürme
-          const dates = Object.values(data).map(item => new Date(item.insertDate));
-          // SunFunds değerlerini alma
-          const sunFunds = Object.values(data).map(item => parseFloat(item.sunFunds.replace(',', '.')));
-
-          // Canvas elementini seçme
-          const ctx = document.getElementById('fundsHistoryChart').getContext('2d');
-
-          // Chart oluşturma
-          const myChart = new Chart(ctx, {
-               type: 'line',
-               data: {
-                    labels: dates.map(date => date.toLocaleString()), // Tarihleri yerel saat dilimine göre biçimlendirme
-                    datasets: [{
-                         label: 'Birikim Değişimi',
-                         data: sunFunds,
-                         fill: false,
-                         borderColor: 'rgb(75, 192, 192)',
-                         tension: 0.1
-                    }]
-               },
-               options: {
-                    scales: {
-                         x: {
-                              display: true,
-                              title: {
-                                   display: true,
-                                   text: 'Tarihler'
-                              }
-                         },
-                         y: {
-                              display: true,
-                              title: {
-                                   display: true,
-                                   text: 'Tutar'
-                              }
-                         }
-                    }
-               }
-          });
-     </script>
+     <!-- Bootstrap ve jQuery kütüphaneleri -->
+     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js -->
+     <script src="test.js"></script> <!-- Harici JavaScript dosyası -->
 </body>
 
 </html>

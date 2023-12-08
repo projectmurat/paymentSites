@@ -240,9 +240,25 @@
 					</div>
 
 					<div class="modal-body">
-						<div class="handsontable-container-fundsHistory" id="grid-table"></div>
-						<br>
-						<br>
+						<div class="container">
+							<h1 class="text-center my-4">Funds Analysis</h1>
+							<div class="table-container sticky-header">
+								<table class="table table-striped">
+									<thead class="sticky-header">
+										<tr>
+											<th>Snapshot Tarihi</th>
+											<th>Birikim</th>
+										</tr>
+									</thead>
+									<tbody id="tableBody">
+										<!-- JavaScript ile veriler buraya eklenecek -->
+									</tbody>
+								</table>
+								<span id="snapshotSpan"></span>
+							</div>
+
+							<canvas id="myChart"></canvas> <!-- Grafik için Canvas -->
+						</div>
 
 					</div>
 
