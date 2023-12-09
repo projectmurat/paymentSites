@@ -166,7 +166,6 @@ body {
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: -60px;
     vertical-align: inherit;
 }
 
@@ -713,40 +712,6 @@ tbody td {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .table-container {
     width: 100%;
     margin: auto;
@@ -759,7 +724,6 @@ tbody td {
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
 }
 
 th,
@@ -769,6 +733,7 @@ td {
     padding: 8px;
     text-align: left;
     transition: background-color 0.3s ease;
+    vertical-align: center;
     /* Geçiş efekti */
 }
 
@@ -955,4 +920,35 @@ h2 {
 
 .map-link:hover {
     color: #0056b3;
+}
+
+
+#userActivityDropdown {
+    /* Genel dropdown stili */
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    width: 150px;
+    /* Dropdown seçenekleri açıldığında stil */
+}
+
+#userActivityDropdown:focus {
+    outline: none;
+    /* Odaklandığında varsayılan border'ı kaldır */
+}
+
+/* Seçeneklerin stilini ayarlamak için */
+#userActivityDropdown option {
+    padding: 8px;
+    font-size: 16px;
+    background-color: #fff;
+    color: #000;
+}
+
+#userActivityTopDiv{
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
 }

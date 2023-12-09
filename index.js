@@ -28,7 +28,7 @@ $('#periodDropDown').change(event => {
 	let tableOptions = document.getElementById("periodDropDown").options;
 	let changePeriod = tableOptions[tableOptions.selectedIndex].innerText;
 	PocketRealtime.getValue({
-		path: "/"+changePeriod,
+		path: "/" + changePeriod,
 		done: (response) => {
 			startTable(response, () => { });
 		},
@@ -90,14 +90,14 @@ $('.btn-add-period').click(function () {
 			params: dummyData,
 			done: (response) => {
 				let insertData = {
-					date:period
+					date: period
 				};
 				PocketRealtime.insertPaymentDate({
-					params:insertData,
-					done:(response)=>{
+					params: insertData,
+					done: (response) => {
 						successAddPeriodValidation();
 					},
-					fail:(error)=>{
+					fail: (error) => {
 						throwAddPeriodValidation(error);
 					}
 				})
@@ -207,11 +207,11 @@ $('.deletePeriod').click(function () {
 				path: historyPeriod,
 				done: (response) => {
 					PocketRealtime.deletePaymentDates({
-						path:deletedId,
-						done:(responseDeletePaymentDates)=>{
+						path: deletedId,
+						done: (responseDeletePaymentDates) => {
 							console.log(responseDeletePaymentDates);
 						},
-						fail:(error)=>{
+						fail: (error) => {
 							throw new Error("error");
 						}
 					})
@@ -370,11 +370,9 @@ $('.btn-openFundsSnapshots').click(function (args) {
 				return acc;
 			}, []);
 			//tarihleri en güncel olan en üstte olacak şekilde düzenlendi
-			filteredData.sort((a, b) => convertDate(b.insertDate).getTime() - convertDate(a.insertDate).getTime());
 
 			let previousValue;
 			const tableBody = document.getElementById('tableBody');
-			filteredData.sort((a, b) => convertDate(a.insertDate).getTime() - convertDate(b.insertDate).getTime());
 			let tableList = [];
 			filteredData.forEach(item => {
 				const row = document.createElement('tr');
@@ -395,18 +393,18 @@ $('.btn-openFundsSnapshots').click(function (args) {
 					const previousNumericValue = parseFloat(previousValue);
 
 					if (currentValue > previousNumericValue) {
+						row.children[1].innerHTML = row.children[1].innerHTML + " +"+Math.abs(parseFloat(previousNumericValue-currentValue).toPrecision(2))
 						row.classList.add('change-up');
 					} else if (currentValue < previousNumericValue) {
+						row.children[1].innerHTML = row.children[1].innerHTML + " -"+parseFloat(previousNumericValue-currentValue).toPrecision(4)
 						row.classList.add('change-down');
 					}
 				}
 
 				previousValue = jsFormattedNumber;
 				tableList.push(row);
-				//tableBody.appendChild(row);
 			});
-			let reversedTableList = tableList.toReversed();
-			for (const element of reversedTableList) {
+			for (const element of tableList.reverse()) {
 				tableBody.appendChild(element);
 			}
 			// Grafik oluşturma
@@ -415,13 +413,16 @@ $('.btn-openFundsSnapshots').click(function (args) {
 				let parts = tarih.split(' ');
 				return parts[0] + " " + parts[1] + " " + parts[4];
 			}
-			document.getElementById('snapshotSpan').innerText = 'Snapshot Veri Sayısı: ' + reversedTableList.length;
+			document.getElementById('snapshotSpan').innerText = 'Snapshot Veri Sayısı: ' + tableList.length;
 			dates = dates.map(tarih => kisaTarih(tarih));
 
 			const sunFunds = filteredData.map(item => parseFloat(item.sunFunds.replace(/\./g, '').replace(',', '.')));
 
+			if (myChart) {
+				myChart.destroy();
+			}
 			const ctx = document.getElementById('myChart').getContext('2d');
-			const myChart = new Chart(ctx, {
+			myChart = new Chart(ctx, {
 				type: 'line',
 				data: {
 					labels: dates,
@@ -457,6 +458,7 @@ $('.btn-openFundsSnapshots').click(function (args) {
 
 $('.userActivity').click(function () {
 	PocketRealtime.getserLoggedActivity({
+		params:{lastRecordCount:selectedUserActivityLimit},
 		done: (response) => {
 			for (let key in response) {
 				if (response.hasOwnProperty(key)) {
@@ -470,3 +472,26 @@ $('.userActivity').click(function () {
 		}
 	})
 })
+
+
+const dropdown = document.getElementById('userActivityDropdown');
+
+dropdown.addEventListener('change', function() {
+  const selectedValue = dropdown.value;
+  selectedUserActivityLimit = parseInt(selectedValue);
+  PocketRealtime.getserLoggedActivity({
+	params:{lastRecordCount:parseInt(selectedValue)},
+	done: (response) => {
+		for (let key in response) {
+			if (response.hasOwnProperty(key)) {
+				response[key]["id"] = key;
+			}
+		}
+		renderUserActivityModal(response);
+	},
+	fail: (error) => {
+		throw new Error(error).stack;
+	}
+})
+  // Burada seçilen değeri kullanarak yapmak istediğiniz işlemleri gerçekleştirebilirsiniz.
+});

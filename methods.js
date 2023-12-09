@@ -19,6 +19,8 @@ const DELETE_FAILED = "Silme İşlemi Başarisiz";
 let dropdownData;
 var isClickReCalculate = false;
 var lastFundsCallbackTime;
+let myChart;
+let selectedUserActivityLimit = 10;
 
 
 document.getElementById("marketDropdown").addEventListener("change", updateProductDropdown);
@@ -850,6 +852,7 @@ function renderUserActivityModal(data) {
 
 	const userData = document.getElementById('userData');
 	userData.innerHTML = '';
+	data.sort((a, b) => convertDate(b.loginDate).getTime() - convertDate(a.loginDate).getTime());
 	Object.values(data).forEach(item => {
 		const row = document.createElement('tr');
 
@@ -879,6 +882,7 @@ function renderUserActivityModal(data) {
 
 		userData.appendChild(row);
 	});
+	document.getElementById('userActivitySpan').innerText = "Son "+ selectedUserActivityLimit + " kayıt listelenmektedir.";
 }
 function renderUserActivityDetailModal() {
 
