@@ -39,9 +39,9 @@
 		media="screen">
 
 	<!-- Chart.js CDN bağlantısı -->
-     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-     <!-- chartjs-adapter-date-fns CDN bağlantısı -->
-     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<!-- chartjs-adapter-date-fns CDN bağlantısı -->
+	<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 
 	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
@@ -92,10 +92,13 @@
 					data-target="#simulationModal" data-toggle="modal">Mevduat Simulasyon</button>
 				<button type="button" class="mdl-button shoppingSmimulation button-color-1" id="shoppingSmimulation"
 					data-target="#shoppingSmimulationModal" data-toggle="modal">Alışveriş Simulasyon</button>
+				<button type="button" class="mdl-button userActivity button-color-1" id="userActivity"
+					data-target="#userActivityModal" data-toggle="modal">Kullanıcı Aktivite</button>
 			</div>
 
 		</div>
-		<div class="modal registerModal" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal registerModal" id="registerModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content" style="height: 400px !important">
 					<div class="modal-header">
@@ -107,18 +110,21 @@
 							<div class="form-group">
 								<div class="row">
 									<div class="col-md-3"><label for="name">Detay:</label></div>
-									<div class="col-md-9"><input type="text" name="name" class="form-control" id="name"
-											placeholder="Ödeme Detayı Ekleyin..."></div>
+									<div class="col-md-9"><input type="text" name="name" class="form-control"
+											id="name" placeholder="Ödeme Detayı Ekleyin..."></div>
 								</div>
 								<br>
 								<div class="row">
 									<div class="col-md-3"><label for="amount">Tutar:</label></div>
-									<div class="col-md-9"><input type="amount" name="amount" class="form-control"
-											id="amount" placeholder="Ödeme Tutarı Ekleyin..."></div>
+									<div class="col-md-9"><input type="amount" name="amount"
+											class="form-control" id="amount"
+											placeholder="Ödeme Tutarı Ekleyin..."></div>
 								</div>
 
-								<div class="row" style="display: flex; align-items: center; justify-content: center;">
-									<br><br><label class="infoLabel" style="text-align: center;" for="info"></label>
+								<div class="row"
+									style="display: flex; align-items: center; justify-content: center;">
+									<br><br><label class="infoLabel" style="text-align: center;"
+										for="info"></label>
 								</div>
 
 							</div>
@@ -129,8 +135,10 @@
 								<input type="file" id="file" name="file" onchange="readURL(this.value)" />
 								<button type="button" class="importFile" id="importFile">Yükle</button>
 							</div>
-							<div class="row" style="display: flex; align-items: center; justify-content: center;">
-								<br><br><label class="infoFile" style="text-align: center;" for="infoFile"></label>
+							<div class="row"
+								style="display: flex; align-items: center; justify-content: center;">
+								<br><br><label class="infoFile" style="text-align: center;"
+									for="infoFile"></label>
 							</div>
 						</div>
 						<div class="modal-footer">
@@ -158,7 +166,7 @@
 								</div>
 								<br>
 								<label class="infoAddPeriod" style="text-align: center;"
-										for="infoAddPeriod"></label>
+									for="infoAddPeriod"></label>
 
 							</div>
 						</div>
@@ -212,7 +220,8 @@
 						<div id="sumFundsInfo"></div>
 
 						<div class="text-center mt-4">
-							<button type="button" class="btn btn-primary btn-addFundType" data-toggle="dropdown">Fon
+							<button type="button" class="btn btn-primary btn-addFundType"
+								data-toggle="dropdown">Fon
 								Ekle</button>
 							<div class="dropdown-menu dropdown-menu-center" id="dropdownFunds">
 								<!-- Diğer döviz kurlarını buraya ekleyebilirsiniz -->
@@ -231,7 +240,8 @@
 			</div>
 		</div>
 
-		<div class="modal fundsHistoryModal" id="fundsHistoryModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal fundsHistoryModal" id="fundsHistoryModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -293,18 +303,20 @@
 								</tbody>
 							</table>
 							<div class="mt-3 total-amount-container">
-								<strong>Toplam Kalan Tutar:</strong> <span id="toplamKalan" class="amount">0 ₺</span>
+								<strong>Toplam Kalan Tutar:</strong> <span id="toplamKalan" class="amount">0
+									₺</span>
 							</div>
 							<div class="mt-3 total-amount-container">
-								<strong>Toplam Aylık Tutar:</strong> <span id="toplamAylık" class="amount">0 ₺</span>
+								<strong>Toplam Aylık Tutar:</strong> <span id="toplamAylık" class="amount">0
+									₺</span>
 							</div>
 						</div>
 					</div>
 
 					<div class="modal-footer">
 						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
-						<button type="button" class="btn btn-installments installments" data-target="#addNewInstallment"
-							data-toggle="modal">Taksit Ekle</button>
+						<button type="button" class="btn btn-installments installments"
+							data-target="#addNewInstallment" data-toggle="modal">Taksit Ekle</button>
 						<button type="button" class="btn" id="deleteButton" style="display:none;">Sil</button>
 					</div>
 				</div>
@@ -357,7 +369,8 @@
 
 					<div class="modal-footer">
 						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
-						<button class="btn-add-installment" onclick="collectaNewInstallmentData()">Taksit Ekle</button>
+						<button class="btn-add-installment" onclick="collectaNewInstallmentData()">Taksit
+							Ekle</button>
 					</div>
 				</div>
 			</div>
@@ -368,7 +381,8 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Mevduat Faiz Simülasyonu</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Mevduat Faiz Simülasyonu
+						</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
 
@@ -405,7 +419,8 @@
 							<!-- Ürün Ekleme -->
 							<h4>Ürün Ekle</h4>
 							<div class="input-group mb-3">
-								<input type="text" id="productInput" class="form-control" placeholder="Ürün ismi">
+								<input type="text" id="productInput" class="form-control"
+									placeholder="Ürün ismi">
 								<button onclick="addProduct()" class="btn btn-primary">Ekle</button>
 							</div>
 							<!-- Eklenen Ürünlerin Listesi -->
@@ -416,7 +431,8 @@
 							<!-- Market Ekleme -->
 							<h4>Market Ekle</h4>
 							<div class="input-group mb-3">
-								<input type="text" id="marketInput" class="form-control" placeholder="Market ismi">
+								<input type="text" id="marketInput" class="form-control"
+									placeholder="Market ismi">
 								<button onclick="addMarket()" class="btn btn-primary">Ekle</button>
 							</div>
 
@@ -452,7 +468,8 @@
 
 								</div>
 
-								<button onclick="addPriceAndGram()" class="btn btn-secondary w-100">Fiyat ve Gramajı Ekle</button>
+								<button onclick="addPriceAndGram()" class="btn btn-secondary w-100">Fiyat ve
+									Gramajı Ekle</button>
 							</div>
 
 							<!-- Sonuçları Getir Butonu -->
@@ -466,6 +483,102 @@
 							</div>
 
 
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal userActivity" id="userActivityModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Kullanıcı Aktiviteleri
+						</h4>
+						<p id="popup-info-period-msg"></p>
+					</div>
+
+					<div class="modal-body " style="padding:0px">
+						<div class="container">
+							<div class="row">
+								<div class="col-md-10 mx-auto">
+									<div id="userTableWrapper">
+										<table class="table table-striped" id="userTable">
+											<thead>
+												<tr>
+													<th>Detay</th>
+													<th>Şehir</th>
+													<th>Şehir Detay</th>
+													<th>IP Adresi</th>
+													<th class="dateColumn">Giriş Tarihi</th>
+												</tr>
+											</thead>
+											<tbody id="userData">
+												<!-- Buraya verilerin dinamik olarak ekleneceği JS kodu gelecek -->
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal userActivityDetail" id="userActivityDetailModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Kullanıcı Aktivite Detayı
+						</h4>
+						<p id="popup-info-period-msg"></p>
+					</div>
+
+					<div class="modal-body ">
+						<div class="container">
+							<div class="data-item" id="cityItem">
+								<label for="city">Şehir:</label>
+								<span id="city"></span>
+							</div>
+							<div class="data-item" id="continentItem">
+								<label for="continent">Kıta:</label>
+								<span id="continent"></span>
+							</div>
+							<div class="data-item" id="countryItem">
+								<label for="country">Ülke:</label>
+								<span id="country"></span>
+							</div>
+							<div class="data-item" id="ipItem">
+								<label for="ip">IP Adresi:</label>
+								<span id="ip"></span>
+							</div>
+							<div class="data-item" id="loginDateItem">
+								<label for="loginDate">Giriş Tarihi:</label>
+								<span id="loginDate"></span>
+							</div>
+							<div class="data-item" id="isProxyItem">
+								<label for="isProxy">Yönlendirici Var Mı?</label>
+								<span id="isProxy"></span>
+							</div>
+							<div class="data-item" id="isZipCodeItem">
+								<label for="zipCode">Zip Kodu</label>
+								<span id="zipCode"></span>
+							</div>
+							<div class="data-item" id="locationItem">
+								<label for="location">Konum:</label>
+								<span id="location">
+									<a href="#" id="mapLink" class="map-link" target="_blank">Google Maps</a>
+								</span>
+							</div>
 						</div>
 					</div>
 					<div class="modal-footer">

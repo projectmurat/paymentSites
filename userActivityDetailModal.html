@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>User Information</title>
+     <style>
+          /* Global Stiller */
+          body {
+               font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+               margin: 0;
+               padding: 0;
+               background-color: #f4f4f4;
+          }
+
+          .container {
+               max-width: 800px;
+               margin: 20px auto;
+               padding: 20px;
+               background-color: #fff;
+               border-radius: 8px;
+               box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          }
+
+          h2 {
+               color: #333;
+               margin-bottom: 20px;
+          }
+
+          .data-item {
+               display: flex;
+               align-items: center;
+               justify-content: space-between;
+               margin-bottom: 15px;
+          }
+
+          .data-item label {
+               flex-basis: 30%;
+               font-weight: bold;
+               color: #555;
+          }
+
+          .data-item span {
+               flex-basis: 65%;
+               padding: 8px;
+               background-color: #f9f9f9;
+               border-radius: 4px;
+               overflow: hidden;
+               text-overflow: ellipsis;
+          }
+
+          .map-link {
+               color: #007bff;
+               text-decoration: underline;
+               cursor: pointer;
+          }
+
+          .map-link:hover {
+               color: #0056b3;
+          }
+     </style>
+</head>
+
+<body>
+     <div class="container">
+          <h2>User Information</h2>
+          <div class="data-item" id="cityItem">
+               <label for="city">Şehir:</label>
+               <span id="city"></span>
+          </div>
+          <div class="data-item" id="continentItem">
+               <label for="continent">Kıta:</label>
+               <span id="continent"></span>
+          </div>
+          <div class="data-item" id="countryItem">
+               <label for="country">Ülke:</label>
+               <span id="country"></span>
+          </div>
+          <div class="data-item" id="ipItem">
+               <label for="ip">IP Adresi:</label>
+               <span id="ip"></span>
+          </div>
+          <div class="data-item" id="loginDateItem">
+               <label for="loginDate">Giriş Tarihi:</label>
+               <span id="loginDate"></span>
+          </div>
+          <div class="data-item" id="isProxyItem">
+               <label for="isProxy">Yönlendirici Var Mı?</label>
+               <span id="isProxy"></span>
+          </div>
+          <div class="data-item" id="isZipCodeItem">
+               <label for="zipCode">Zip Kodu</label>
+               <span id="zipCode"></span>
+          </div>
+          <div class="data-item" id="locationItem">
+               <label for="location">Konum:</label>
+               <span id="location">
+                    <a href="#" id="mapLink" class="map-link" target="_blank">Google Maps</a>
+               </span>
+          </div>
+     </div>
+
+     <script>
+          const data = {
+               "cityName": "Istanbul",
+               "continent": "Asia",
+               "continentCode": "AS",
+               "countryCode": "TR",
+               "countryName": "Turkey",
+               "ipAddress": "88.243.145.135",
+               "ipVersion": 4,
+               "isProxy": false,
+               "latitude": 41.01384,
+               "loginDate": "9 Ara 2023 Cmt 15:31:24",
+               "longitude": 28.949659,
+               "regionName": "Istanbul",
+               "timeZone": "+03:00",
+               "zipCode": "34080",
+               "id": "-NlDYu0MSK08kIGbRUnx"
+          };
+
+          document.getElementById('city').textContent = data.cityName;
+          document.getElementById('continent').textContent = data.continent;
+          document.getElementById('country').textContent = data.countryName;
+          document.getElementById('ip').textContent = data.ipAddress;
+          document.getElementById('loginDate').textContent = data.loginDate;
+          document.getElementById('isProxy').textContent = data.isProxy ? "Var":"Yok";
+          document.getElementById('zipCode').textContent = data.zipCode;
+
+          const latitude = data.latitude;
+          const longitude = data.longitude;
+          const mapLink = document.getElementById('mapLink');
+          mapLink.href = `https://www.google.com/maps?q=${latitude},${longitude}`;
+     </script>
+</body>
+
+</html>

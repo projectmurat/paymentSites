@@ -2,9 +2,10 @@ const degisken = "1";
 
 let table;
 let fundsTable;
-let fireData;
+let selectedData;
 let fundsData;
 let historyFundsTable;
+let selectedUserActivityItem;
 let senderFunds = [];
 let allProducts = [];
 let markets = [];
@@ -49,6 +50,10 @@ function getAttribute(source, key, defaultValue) {
 }
 
 function startTable(data, callback) {
+	if (data == null) {
+		console.info("Silme işlemi için tablo tetiklendi ve es geçildi.");
+		throw new Error("jumped.")
+	}
 	data.sort((a, b) => convertDate(b.date).getTime() - convertDate(a.date).getTime());
 	let container = document.querySelector(".handsontable-container");
 	table = new Handsontable(container, {
@@ -100,41 +105,61 @@ function startTable(data, callback) {
 }
 
 function init(callback) {
-	const countriesDropDown = document.getElementById("periodDropDown");
-	PocketRealtime.getValue({
-		path: "root",
-		done: (response) => {
-			countriesDropDown.innerHTML = "";
-			if (!isNull(response)) {
-				fireData = response;
-				let countriesData = {};
-				let keys = Object.keys(response);
-				keys = keys.sort(compareDates);
-				for (const element of keys) {
-					let key = "".concat(element)
-					let temp = {}
-					temp[key] = ""
-					Object.assign(countriesData, temp);
-				}
-				for (let key in countriesData) {
-					let option = document.createElement("option");
-					option.setAttribute("value", keys[key]);
+	getLoggedUserInfo((dummy) => {
+		const countriesDropDown = document.getElementById("periodDropDown");
+		PocketRealtime.getPaymentDates({
+			done: (paymentDates) => {
+				countriesDropDown.innerHTML = "";
+				if (!isNull(paymentDates)) {
+					selectedData = paymentDates;
+					let countriesData = {};
+					let keys = Object.values(paymentDates).map(i => i.date);
+					keys = keys.sort(compareDates);
+					for (const element of keys) {
+						let key = "".concat(element)
+						let temp = {}
+						temp[key] = ""
+						Object.assign(countriesData, temp);
+					}
+					for (let key in countriesData) {
+						let option = document.createElement("option");
+						option.setAttribute("value", keys[key]);
 
-					let optionText = document.createTextNode(key);
-					option.appendChild(optionText);
+						let optionText = document.createTextNode(key);
+						option.appendChild(optionText);
 
-					countriesDropDown.appendChild(option);
-					countriesDropDown.selectedIndex = 0;
+						for (let key in paymentDates) {
+							if (paymentDates.hasOwnProperty(key)) {
+								paymentDates[key]["id"] = key;
+							}
+						}
+
+						option.className = Object.values(paymentDates).filter(i => i.date == option.innerText)[0].id;
+
+						countriesDropDown.appendChild(option);
+						countriesDropDown.selectedIndex = 0;
+					}
+					let tableOptions = document.getElementById("periodDropDown").options;
+					let path = tableOptions[tableOptions.selectedIndex].innerText;
+					PocketRealtime.getValue({
+						path: "/" + path,
+						done: (response) => {
+							selectedData = response;
+							callback(response)
+						},
+						fail: (error) => {
+							alert("Başlangıç ajax hatası meydana geldi.");
+						}
+					})
 				}
-				callback(response)
+				else {
+					callback([])
+				}
+			},
+			fail: (error) => {
+				alert.alert("Periyot tarihleri alınırken hata alındı.")
 			}
-			else {
-				callback([])
-			}
-		},
-		fail: (error) => {
-			alert("Başlangıç ajax hatası meydana geldi.");
-		}
+		})
 	})
 }
 
@@ -274,32 +299,32 @@ function fundsHistoryTableCallback(data, callback) {
 		colHeaders: ["Tarih", "Tutar"],
 		contextMenu: false,
 		modifyColWidth: function (width, col) {
-		    if (width > 200) return 200;
+			if (width > 200) return 200;
 		},
 		columns: [
-		    {
-			   data: "insertDate",
-			   type: "date",
-			   dateFormat: "DD/MM/YYYY",
-			   correctFormat: true,
-			   defaultDate: new Date().toDateString(),
-			   readOnly: true // Tarih sütununu read-only yap
-		    },
-		    {
-			   data: "sunFunds",
-			   type: "numeric",
-			   numericFormat: { pattern: "$0,0.00", culture: "tr-TR" },
-			   className: "htCenter",
-			   renderer: function (instance, td, row, col, prop, value, cellProperties) {
-				  // $ işaretini hücre içeriğine ekleyerek görüntüle
-				  Handsontable.renderers.TextRenderer.apply(this, arguments);
-				  td.innerHTML = "$" + value;
-			   },
-			   readOnly: true
-		    },
+			{
+				data: "insertDate",
+				type: "date",
+				dateFormat: "DD/MM/YYYY",
+				correctFormat: true,
+				defaultDate: new Date().toDateString(),
+				readOnly: true // Tarih sütununu read-only yap
+			},
+			{
+				data: "sunFunds",
+				type: "numeric",
+				numericFormat: { pattern: "$0,0.00", culture: "tr-TR" },
+				className: "htCenter",
+				renderer: function (instance, td, row, col, prop, value, cellProperties) {
+					// $ işaretini hücre içeriğine ekleyerek görüntüle
+					Handsontable.renderers.TextRenderer.apply(this, arguments);
+					td.innerHTML = "$" + value;
+				},
+				readOnly: true
+			},
 		],
 		className: "htCenter" // Hücre içeriklerini ortala
-	 });
+	});
 
 
 	$('#hot-display-license-info').remove();
@@ -332,11 +357,11 @@ function calculateFunds(params) {
 				document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
 
 				let historyData = {
-					"fundsList":fundsTableData,
-					"sunFunds":sumFundsAmount,
-					"insertDate":new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
+					"fundsList": fundsTableData,
+					"sunFunds": sumFundsAmount,
+					"insertDate": new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
 				}
-				/*PocketRealtime.insertFundsHistory({
+				PocketRealtime.insertFundsHistory({
 					params:historyData,
 					done:(response)=>{
 						console.log(response);
@@ -344,30 +369,29 @@ function calculateFunds(params) {
 					fail:(error)=>{
 						throw new Error("Fon Tarihçe kaydemte işleminde hata meydana geldi.");
 					}
-				})*/
+				})
 
 			})
 		}, 1);
 	}
-
 }
 function fundsLastCallbackTime(dateStr) {
-    const months = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
-    const days = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
+	const months = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+	const days = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
 
-    // Veriyi Date objesi olarak oluştur.
-    const date = new Date(dateStr);
+	// Veriyi Date objesi olarak oluştur.
+	const date = new Date(dateStr);
 
-    // Tarihi istediğiniz formata dönüştür.
-    const day = days[date.getDay()];
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    const dayOfMonth = date.getDate();
-    const hour = String(date.getHours()).padStart(2, '0');
-    const minute = String(date.getMinutes()).padStart(2, '0');
-    const second = String(date.getSeconds()).padStart(2, '0');
+	// Tarihi istediğiniz formata dönüştür.
+	const day = days[date.getDay()];
+	const month = months[date.getMonth()];
+	const year = date.getFullYear();
+	const dayOfMonth = date.getDate();
+	const hour = String(date.getHours()).padStart(2, '0');
+	const minute = String(date.getMinutes()).padStart(2, '0');
+	const second = String(date.getSeconds()).padStart(2, '0');
 
-    return `${dayOfMonth} ${month} ${year} ${day} ${hour}:${minute}:${second}`;
+	return `${dayOfMonth} ${month} ${year} ${day} ${hour}:${minute}:${second}`;
 }
 
 function readURL(params) {
@@ -786,5 +810,89 @@ function toggleMarketDetails(market) {
 	} else {
 		detailsDiv.style.display = "none";
 	}
+}
+
+function getLoggedUserInfo(callback) {
+	try {
+		fetch('https://freeipapi.com/api/json')
+			.then(response => response.json())
+			.then(data => {
+				let localInfo = {
+					loginDate: new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
+				}
+				Object.assign(data, localInfo);
+				PocketRealtime.saveUserLoggedActivity({
+					params: data,
+					done: (responseSaveActivity) => {
+						console.log("Kullanıcı aktivitesi kaydedildi.");
+						callback()
+					},
+					fail: (error) => {
+						console.log("Kullanıcı aktivitesi keydedilirken hata alındı.");
+						callback()
+					}
+				})
+				console.log('IP bilgileri:', data);
+			})
+			.catch(error => {
+				console.log(error);
+				callback()
+			});
+	} catch (error) {
+		console.log("Kullanıcı network bilgisi alınırken hata oluştu.");
+		callback()
+	}
+}
+
+function renderUserActivityModal(data) {
+	// İzin verilen sütunlar
+	const isAllowedColumns = ["cityName", "continent", "ipAddress", "loginDate"];
+
+	const userData = document.getElementById('userData');
+	userData.innerHTML = '';
+	Object.values(data).forEach(item => {
+		const row = document.createElement('tr');
+
+		// İşlem sütunu ve buton oluşturma
+		const actionCell = document.createElement('td');
+		const actionButton = document.createElement('button');
+		actionButton.id = 'detailButton'; // Buton için özel ID
+		actionButton.textContent = 'Detay';
+		actionButton.setAttribute("data-target", "#userActivityDetailModal");
+		actionButton.setAttribute('data-toggle', 'modal');
+		actionButton.addEventListener('click', () => {
+			selectedUserActivityItem = item;
+			renderUserActivityDetailModal();
+			console.log(item); // Veriyi konsola yazdırma
+		});
+		actionCell.appendChild(actionButton);
+		row.appendChild(actionCell);
+
+		// İzin verilen sütunları tabloya ekleme
+		isAllowedColumns.forEach(column => {
+			if (item.hasOwnProperty(column)) {
+				const cell = document.createElement('td');
+				cell.textContent = item[column];
+				row.appendChild(cell);
+			}
+		});
+
+		userData.appendChild(row);
+	});
+}
+function renderUserActivityDetailModal() {
+
+	document.getElementById('city').textContent = selectedUserActivityItem.cityName;
+	document.getElementById('continent').textContent = selectedUserActivityItem.continent;
+	document.getElementById('country').textContent = selectedUserActivityItem.countryName;
+	document.getElementById('ip').textContent = selectedUserActivityItem.ipAddress;
+	document.getElementById('loginDate').textContent = selectedUserActivityItem.loginDate;
+	document.getElementById('isProxy').textContent = selectedUserActivityItem.isProxy ? "Var" : "Yok";
+	document.getElementById('zipCode').textContent = selectedUserActivityItem.zipCode;
+
+	const latitude = selectedUserActivityItem.latitude;
+	const longitude = selectedUserActivityItem.longitude;
+	const mapLink = document.getElementById('mapLink');
+	mapLink.href = `https://www.google.com/maps?q=${latitude},${longitude}`;
 }
 

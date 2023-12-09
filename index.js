@@ -10,8 +10,7 @@ window.addEventListener('DOMContentLoaded', event => {
 	  });
 	  */
 	init((initData) => {
-		let tableOptions = document.getElementById("periodDropDown").options;
-		startTable(initData[tableOptions[tableOptions.selectedIndex].innerText], (responseTable) => {
+		startTable(initData, (responseTable) => {
 			$('#hot-display-license-info').remove();
 		})
 	})
@@ -28,7 +27,16 @@ $('#periodDropDown').change(event => {
 	$('#hot-display-license-info').remove();
 	let tableOptions = document.getElementById("periodDropDown").options;
 	let changePeriod = tableOptions[tableOptions.selectedIndex].innerText;
-	startTable(fireData[changePeriod], () => { });
+	PocketRealtime.getValue({
+		path: "/"+changePeriod,
+		done: (response) => {
+			startTable(response, () => { });
+		},
+		fail: (error) => {
+			alert("Başlangıç ajax hatası meydana geldi.");
+		}
+	})
+
 })
 
 $('.btn-add').click(function () {
@@ -47,11 +55,11 @@ $('.btn-add').click(function () {
 			amount: amount,
 			date: new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
 		};
-		fireData[historyPeriod].push(pushData);
+		selectedData.push(pushData);
 
 		PocketRealtime.setValue({
 			path: historyPeriod,
-			params: fireData[historyPeriod],
+			params: selectedData,
 			done: (response) => {
 				successAddPaymentValidation(historyPeriod);
 			},
@@ -72,11 +80,27 @@ $('.btn-add-period').click(function () {
 		if (period.trim() == "") {
 			throw new Error("Kayıt Başarısız.\nAlanlar boş bırakılarak kayıt işlemi gerçekleştirilemez");
 		}
+		let dummyData = [{
+			name: "",
+			amount: "",
+			date: new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
+		}];
 		PocketRealtime.setValue({
 			path: period,
-			params: [{ "name": "", "amount": "" }],
+			params: dummyData,
 			done: (response) => {
-				successAddPeriodValidation();
+				let insertData = {
+					date:period
+				};
+				PocketRealtime.insertPaymentDate({
+					params:insertData,
+					done:(response)=>{
+						successAddPeriodValidation();
+					},
+					fail:(error)=>{
+						throwAddPeriodValidation(error);
+					}
+				})
 			},
 			fail: (error) => {
 				throwAddPeriodValidation(error);
@@ -177,10 +201,20 @@ $('.deletePeriod').click(function () {
 	try {
 		let tableOptions = document.getElementById("periodDropDown").options;
 		let historyPeriod = tableOptions[tableOptions.selectedIndex].innerText;
+		let deletedId = tableOptions[tableOptions.selectedIndex].className;
 		if (confirm(historyPeriod + " dönemi silinmek üzere. Onaylıyor musunuz?")) {
 			PocketRealtime.deleteValue({
 				path: historyPeriod,
 				done: (response) => {
+					PocketRealtime.deletePaymentDates({
+						path:deletedId,
+						done:(responseDeletePaymentDates)=>{
+							console.log(responseDeletePaymentDates);
+						},
+						fail:(error)=>{
+							throw new Error("error");
+						}
+					})
 					alert(historyPeriod + " dönemi silindi");
 				},
 				fail: (error) => {
@@ -421,3 +455,18 @@ $('.btn-openFundsSnapshots').click(function (args) {
 
 })
 
+$('.userActivity').click(function () {
+	PocketRealtime.getserLoggedActivity({
+		done: (response) => {
+			for (let key in response) {
+				if (response.hasOwnProperty(key)) {
+					response[key]["id"] = key;
+				}
+			}
+			renderUserActivityModal(response);
+		},
+		fail: (error) => {
+			throw new Error(error).stack;
+		}
+	})
+})

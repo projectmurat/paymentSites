@@ -94,14 +94,18 @@ body {
 
 .modal-header {
     padding: 10px;
-    background-color: #fafafa; /* Arka plan rengini daha açık bir gri yapalım */
+    background-color: #fafafa;
+    /* Arka plan rengini daha açık bir gri yapalım */
     border-bottom: 1px solid #e5e5e5;
-    border-radius: 20px; /* Köşeleri yuvarlak yapmak için */
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1); /* Hafif bir gölge efekti */
+    border-radius: 20px;
+    /* Köşeleri yuvarlak yapmak için */
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    /* Hafif bir gölge efekti */
     display: flex;
     flex-direction: column;
     align-items: center !important;
 }
+
 .modal-title {
     transform: rotateX(0deg);
     transition: transform 0.5s, opacity 0.5s;
@@ -112,14 +116,17 @@ body {
 }
 
 .modal-header:hover .modal-title {
-    transform: rotateX(5deg); /* Hover efekti ile başlığı hafifçe döndürelim */
-    opacity: 0.9; /* Başlığın opaklığını azaltarak soluk bir efekt oluşturalım */
+    transform: rotateX(5deg);
+    /* Hover efekti ile başlığı hafifçe döndürelim */
+    opacity: 0.9;
+    /* Başlığın opaklığını azaltarak soluk bir efekt oluşturalım */
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0.5;
     }
+
     to {
         opacity: 1;
     }
@@ -127,7 +134,8 @@ body {
 
 
 #popup-info-period-msg {
-    color: #666; /* Metni daha soluk bir renge ayarlayalım */
+    color: #666;
+    /* Metni daha soluk bir renge ayarlayalım */
 }
 
 
@@ -322,13 +330,17 @@ tbody tr:hover {
     overflow-y: auto;
     box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
     background-color: #f9f9f9;
-    position: fixed; /* Konumu ekran içerisinde sabitlemek için 'fixed' kullanıyoruz */
+    position: fixed;
+    /* Konumu ekran içerisinde sabitlemek için 'fixed' kullanıyoruz */
     will-change: transform;
-    top: 50%; /* Dikeyde ekranın ortasını belirtir */
-    left: 50%; /* Yatayda ekranın ortasını belirtir */
-    transform: translate(-50%, -50%); /* Bu, menüyü tam olarak ekranın ortasına yerleştirir */
+    top: 50%;
+    /* Dikeyde ekranın ortasını belirtir */
+    left: 50%;
+    /* Yatayda ekranın ortasını belirtir */
+    transform: translate(-50%, -50%);
+    /* Bu, menüyü tam olarak ekranın ortasına yerleştirir */
     max-height: 400px;
-    bottom:15px;
+    bottom: 15px;
 }
 
 
@@ -358,7 +370,8 @@ tbody tr:hover {
     /* Hafif renk değişimi */
     color: #555;
 }
-.dropdown{
+
+.dropdown {
     bottom: 15px;
 }
 
@@ -372,9 +385,10 @@ tbody tr:hover {
     background-color: rgba(23, 23, 39, 0.1);
     color: #171727;
 }
+
 /* Dopdown Menu Genel Stil */
 
-#menuButton{
+#menuButton {
     width: 100%;
     background-color: inherit;
 }
@@ -386,8 +400,10 @@ tbody tr:hover {
     justify-content: space-between;
     align-items: center;
     padding: 10px 15px;
-    background-color: inherit; /* body'nin arka plan rengini miras al */
-    flex-wrap: wrap; /* ekstra genişlik olmadığında öğeleri alt alta dizme */
+    background-color: inherit;
+    /* body'nin arka plan rengini miras al */
+    flex-wrap: wrap;
+    /* ekstra genişlik olmadığında öğeleri alt alta dizme */
 }
 
 #periodDropDown {
@@ -398,8 +414,10 @@ tbody tr:hover {
     border: none;
     outline: none;
     transition: all 0.2s;
-    margin-bottom: 10px; /* mobilde butonlarla arasında boşluk oluşturma */
-    width: 100%; /* ekranın tam genişliğine yayılma */
+    margin-bottom: 10px;
+    /* mobilde butonlarla arasında boşluk oluşturma */
+    width: 100%;
+    /* ekranın tam genişliğine yayılma */
 }
 
 .periodButton {
@@ -410,8 +428,10 @@ tbody tr:hover {
     border: none;
     cursor: pointer;
     transition: all 0.2s;
-    margin-bottom: 10px; /* mobilde bir sonraki butonla arasında boşluk oluşturma */
-    width: 100%; /* ekranın tam genişliğine yayılma */
+    margin-bottom: 10px;
+    /* mobilde bir sonraki butonla arasında boşluk oluşturma */
+    width: 100%;
+    /* ekranın tam genişliğine yayılma */
 }
 
 /* Ekstra Stiller için Medya Sorgusu */
@@ -423,14 +443,18 @@ tbody tr:hover {
     }
 
     #periodDropDown {
-        margin-right: 0; /* margin'i kaldırma */
-        width: 100%; /* ekranın tam genişliğine yayılma */
+        margin-right: 0;
+        /* margin'i kaldırma */
+        width: 100%;
+        /* ekranın tam genişliğine yayılma */
     }
 
     .periodButton {
-        margin-left: 0; /* margin'i kaldırma */
+        margin-left: 0;
+        /* margin'i kaldırma */
     }
 }
+
 /*ÜST BUTON TASARIMI*/
 
 .generalTitle {
@@ -439,9 +463,12 @@ tbody tr:hover {
     color: rgb(201, 197, 197);
     text-align: center;
     padding: 20px 0;
-    background-color: transparent;  /* Eğer bir arka plan rengi isterseniz */
-    border-radius: 10px;     /* Kenarları yumuşatmak için */
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);  /* Hafif bir gölge ekleyerek derinlik hissi katalım */
+    background-color: transparent;
+    /* Eğer bir arka plan rengi isterseniz */
+    border-radius: 10px;
+    /* Kenarları yumuşatmak için */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    /* Hafif bir gölge ekleyerek derinlik hissi katalım */
 }
 
 
@@ -486,7 +513,7 @@ tbody tr:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
     font-family: 'Arial', sans-serif;
-    margin-top:10px
+    margin-top: 10px
 }
 
 #sumFundsInfo:hover {
@@ -497,8 +524,10 @@ tbody tr:hover {
 .info-box {
     border-radius: 10px;
     padding: 15px 25px;
-    background-color: #2c3e50; /* Koyu mavi ton */
-    color: #ecf0f1; /* Açık gri ton */
+    background-color: #2c3e50;
+    /* Koyu mavi ton */
+    color: #ecf0f1;
+    /* Açık gri ton */
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     font-family: 'Arial', sans-serif;
     max-width: 400px;
@@ -517,30 +546,41 @@ tbody tr:hover {
 
 /* Handsontable başlık hücrelerini stilize edin */
 .ht_clone_top .htCore thead th {
-    font-weight: bold;        /* başlıkları kalın yapma */
-    background-color: #f3f3f3; /* başlıklar için daha açık bir arka plan rengi */
-    padding-top: 0px;        /* üstten boşluk ekleyerek yükseklik hissi oluşturma */
-    padding-bottom: 0px;     /* alttan boşluk ekleyerek yükseklik hissi oluşturma */
+    font-weight: bold;
+    /* başlıkları kalın yapma */
+    background-color: #f3f3f3;
+    /* başlıklar için daha açık bir arka plan rengi */
+    padding-top: 0px;
+    /* üstten boşluk ekleyerek yükseklik hissi oluşturma */
+    padding-bottom: 0px;
+    /* alttan boşluk ekleyerek yükseklik hissi oluşturma */
 }
 
 /* Hücre içeriklerini daha estetik yapmak için */
 tbody td {
-    border-right: 1px solid #e2e2e2; /* sağ kenarlık ekleyerek hücreler arasında ayırıcı ekleyin */
+    border-right: 1px solid #e2e2e2;
+    /* sağ kenarlık ekleyerek hücreler arasında ayırıcı ekleyin */
 }
 
 .handsontable-container-statistics,
 .handsontable-container-funds,
 .handsontable-container {
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1); /* yumuşak bir gölge efekti */
-    border-radius: 10px; /* köşeleri yuvarlayarak daha yumuşak bir görünüm kazandırma */
-    overflow: hidden; /* yuvarlatılmış köşelerin dışına çıkan içerikleri gizle */
-    border: 1px solid #e2e2e2; /* ince bir sınır ekleyerek 3D etkisi verme */
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    /* yumuşak bir gölge efekti */
+    border-radius: 10px;
+    /* köşeleri yuvarlayarak daha yumuşak bir görünüm kazandırma */
+    overflow: hidden;
+    /* yuvarlatılmış köşelerin dışına çıkan içerikleri gizle */
+    border: 1px solid #e2e2e2;
+    /* ince bir sınır ekleyerek 3D etkisi verme */
 }
 
 
 .htCore tbody td {
-    border-right: 1px solid #ebebeb; /* hücreler arasına daha hafif bir sınır ekleyin */
-    border-bottom: 1px solid #ebebeb; /* hücreler arasına daha hafif bir sınır ekleyin */
+    border-right: 1px solid #ebebeb;
+    /* hücreler arasına daha hafif bir sınır ekleyin */
+    border-bottom: 1px solid #ebebeb;
+    /* hücreler arasına daha hafif bir sınır ekleyin */
 }
 
 
@@ -557,7 +597,8 @@ tbody td {
     align-items: center;
 }
 
-#inputContainer input, #inputContainer button {
+#inputContainer input,
+#inputContainer button {
     padding: 12px;
     margin: 8px 0;
     width: 90%;
@@ -580,7 +621,8 @@ tbody td {
     margin-top: auto;
 }
 
-#sonucTablosu th, #sonucTablosu td {
+#sonucTablosu th,
+#sonucTablosu td {
     border: 1px solid #ddd;
     padding: 8px;
     white-space: nowrap;
@@ -604,26 +646,32 @@ tbody td {
         padding: 10px;
     }
 
-    #inputContainer input, #inputContainer button {
+    #inputContainer input,
+    #inputContainer button {
         font-size: 14px;
     }
 
-    #sonucTablosu th, #sonucTablosu td {
+    #sonucTablosu th,
+    #sonucTablosu td {
         padding: 5px;
         font-size: 12px;
     }
 }
 
 .table-scrollable {
-    max-height: 400px; /* İstediğiniz yükseklik değerini buraya yazın */
+    max-height: 400px;
+    /* İstediğiniz yükseklik değerini buraya yazın */
     overflow-y: auto;
     display: block;
 }
+
 .table-sticky thead th {
     position: sticky;
     top: 0;
-    background-color: white; /* Arka planın şeffaf olmamasını sağlar */
-    z-index: 10; /* Diğer öğelerin üstünde görünmesini sağlar */
+    background-color: white;
+    /* Arka planın şeffaf olmamasını sağlar */
+    z-index: 10;
+    /* Diğer öğelerin üstünde görünmesini sağlar */
 }
 
 .comparison-container {
@@ -812,4 +860,99 @@ canvas {
 #snapshotSpan.show {
     opacity: 1;
     transform: translateY(0);
+}
+
+
+
+/* Stil vermek için yalnızca id'ler kullanılıyor */
+#userTableWrapper {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#userTable thead {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+}
+
+/* Diğer stiller */
+/* İlgili id'lerin stilleri */
+#userTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#userTable th,
+#userTable td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    min-width: 116px;
+}
+
+/* İlgili id'lerin stilleri */
+#userTable th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+/* Buton tasarımı */
+#detailButton {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#detailButton:hover {
+    background-color: #45a049;
+}
+
+/* Tarih kolonu genişliği */
+#userData .dateColumn {
+    white-space: nowrap;
+    min-width: 150px;
+    /* Örnek olarak genişlik ayarı */
+}
+
+
+h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.data-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.data-item label {
+    flex-basis: 30%;
+    font-weight: bold;
+    color: #555;
+}
+
+.data-item span {
+    flex-basis: 65%;
+    padding: 8px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.map-link {
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.map-link:hover {
+    color: #0056b3;
 }

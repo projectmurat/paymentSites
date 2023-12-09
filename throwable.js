@@ -16,7 +16,7 @@ function successAddPaymentValidation(historyPeriod) {
 			}
 		}
 		let changePeriod = tableOptions[tableOptions.selectedIndex].innerText;
-		startTable(fireData[changePeriod], () => { });
+		startTable(selectedData, () => { });
 	}, 1000);
 }
 
@@ -110,7 +110,7 @@ function successSaveChange(historyPeriod) {
 			}
 		}
 		let changePeriod = tableOptions[tableOptions.selectedIndex].innerText;
-		startTable(fireData[changePeriod], () => { });
+		startTable(selectedData, () => { });
 	}, 2000);
 
 }

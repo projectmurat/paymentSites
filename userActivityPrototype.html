@@ -1,0 +1,135 @@
+<!-- HTML içeriği -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Information</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Stil vermek için yalnızca id'ler kullanılıyor */
+    #userTableWrapper {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    #userTable thead {
+      position: sticky;
+      top: 0;
+      background-color: #fff;
+    }
+
+    /* Diğer stiller */
+    /* İlgili id'lerin stilleri */
+    #userTable {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    #userTable th,
+    #userTable td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      min-width: 100px;
+    }
+
+    /* İlgili id'lerin stilleri */
+    #userTable th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    /* Buton tasarımı */
+    #detailButton {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #detailButton:hover {
+      background-color: #45a049;
+    }
+
+    /* Tarih kolonu genişliği */
+    #userData .dateColumn {
+      white-space: nowrap;
+      min-width: 250px; /* Örnek olarak genişlik ayarı */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 mx-auto">
+        <h2 class="text-center mt-4">User Information</h2>
+        <div id="userTableWrapper">
+          <table class="table table-striped" id="userTable">
+            <thead>
+              <tr>
+                <th>Action</th>
+                <th>City Name</th>
+                <th>Continent</th>
+                <th>IP Address</th>
+                <th class="dateColumn">Login Date</th>
+              </tr>
+            </thead>
+            <tbody id="userData">
+              <!-- Buraya verilerin dinamik olarak ekleneceği JS kodu gelecek -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Verilerinizi içeren obje
+    const data = {
+      "-NlDO6p52w4_ByfrWdIY": {
+        "cityName": "Istanbul",
+        "continent": "Asia",
+        "ipAddress": "88.243.145.135",
+        "loginDate": "9 Ara 2023 Cmt 14:44:17"
+      },
+      // Diğer veriler buraya gelecek
+    };
+
+    // İzin verilen sütunlar
+    const isAllowedColumns = ["cityName", "continent", "ipAddress", "loginDate"];
+
+    const userData = document.getElementById('userData');
+    Object.values(data).forEach(item => {
+      const row = document.createElement('tr');
+
+      // İşlem sütunu ve buton oluşturma
+      const actionCell = document.createElement('td');
+      const actionButton = document.createElement('button');
+      actionButton.id = 'detailButton'; // Buton için özel ID
+      actionButton.textContent = 'Detail';
+      actionButton.addEventListener('click', () => {
+        console.log(item); // Veriyi konsola yazdırma
+      });
+      actionCell.appendChild(actionButton);
+      row.appendChild(actionCell);
+
+      // İzin verilen sütunları tabloya ekleme
+      isAllowedColumns.forEach(column => {
+        if (item.hasOwnProperty(column)) {
+          const cell = document.createElement('td');
+          cell.textContent = item[column];
+          row.appendChild(cell);
+        }
+      });
+
+      userData.appendChild(row);
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -198,19 +198,102 @@ let PocketRealtime = (
                 fail(error);
             }
         }
+        function insertPaymentDate(args){
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                let params = args.params;
+                firebase.database().ref("OdemeTarihleri/").push().set(params, error => {
+                    if (error) {
+                        fail(error);
+                    }
+                    else {
+                        done(true);
+                    }
+                })
+            }
+            catch (error) {
+                throw new Error(error).stack;
+            }
+        }
+        function getPaymentDates(args) {
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                firebase.database().ref("OdemeTarihleri/").on("value", (snapshot) => {
+                    done(snapshot.val())
+                })
+            }
+            catch (error) {
+                fail(error);
+            }
+        }
+        function deletePaymentDates(args) {
+            let fail = args.fail;
+            try {
+                let path = args.path;
+                let done = args.done;
+                firebase.database().ref("OdemeTarihleri/" + path).remove((error) => {
+                    if (error) {
+                        fail(error);
+                    } else {
+                        done(true);
+                    }
+                })
+            }
+            catch (error) {
+                throw new Error(error).stack;
+            }
+        }
+        function saveUserLoggedActivity(args){
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                let params = args.params;
+                firebase.database().ref("UserLoggedActivity/").push().set(params, error => {
+                    if (error) {
+                        fail(error);
+                    }
+                    else {
+                        done(true);
+                    }
+                })
+            }
+            catch (error) {
+                throw new Error(error).stack;
+            }
+        }
+
+        function getserLoggedActivity(args) {
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                firebase.database().ref("UserLoggedActivity/").on("value", (snapshot) => {
+                    done(snapshot.val())
+                })
+            }
+            catch (error) {
+                fail(error);
+            }
+        }
 
         return {
-            getValue: getValue,
-            setValue: setValue,
-            deleteValue: deleteValue,
-            getFunds: getFunds,
-            setFunds: setFunds,
-            getInstallments: getInstallments,
-            pushInstallments: pushInstallments,
-            updateInstallments: updateInstallments,
-            deleteInstallments:deleteInstallments,
-            insertFundsHistory:insertFundsHistory,
-            getFundsHistory:getFundsHistory
+            getValue                :   getValue,
+            setValue                :   setValue,
+            deleteValue             :   deleteValue,
+            getFunds                :   getFunds,
+            setFunds                :   setFunds,
+            getInstallments         :   getInstallments,
+            pushInstallments        :   pushInstallments,
+            updateInstallments      :   updateInstallments,
+            deleteInstallments      :   deleteInstallments,
+            insertFundsHistory      :   insertFundsHistory,
+            getFundsHistory         :   getFundsHistory,
+            insertPaymentDate       :   insertPaymentDate,
+            getPaymentDates         :   getPaymentDates,
+            deletePaymentDates      :   deletePaymentDates,
+            saveUserLoggedActivity  :   saveUserLoggedActivity,
+            getserLoggedActivity    :   getserLoggedActivity
         }
     }
 )();
