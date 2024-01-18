@@ -122,18 +122,26 @@ let PocketRealtime = (
         function getInstallments(args) {
             waitMe(true);
             let fail = args.fail;
+            let status = "1";
+            if(args.status != undefined){
+                status = args.status;
+            }
             try {
                 let done = args.done;
-                firebase.database().ref("Installments/").on("value", (snapshot) => {
-                    waitMe(false);
-                    done(snapshot.val())
-                })
-            }
-            catch (error) {
+
+                firebase.database().ref("Installments/")
+                    .orderByChild("status") // "status" alanına göre sırala
+                    .equalTo(status) // "status" değeri "1" olanları getir
+                    .on("value", (snapshot) => {
+                        waitMe(false);
+                        done(snapshot.val());
+                    });
+            } catch (error) {
                 waitMe(false);
                 fail(error);
             }
         }
+
         function pushInstallments(args) {
             waitMe(true);
             let fail = args.fail;
@@ -238,7 +246,7 @@ let PocketRealtime = (
                 fail(error);
             }
         }
-        function insertPaymentDate(args){
+        function insertPaymentDate(args) {
             let fail = args.fail;
             try {
                 let done = args.done;
@@ -295,7 +303,7 @@ let PocketRealtime = (
                 throw new Error(error).stack;
             }
         }
-        function saveUserLoggedActivity(args){
+        function saveUserLoggedActivity(args) {
             waitMe(true);
             let fail = args.fail;
             try {
@@ -327,13 +335,13 @@ let PocketRealtime = (
                 firebase.database().ref("UserLoggedActivity/").orderByChild('loginDate').limitToLast(params.lastRecordCount).once('value', snapshot => {
                     const latestTenRecords = [];
                     snapshot.forEach(childSnapshot => {
-                      const key = childSnapshot.key;
-                      const childData = childSnapshot.val();
-                      latestTenRecords.push({ key, ...childData });
+                        const key = childSnapshot.key;
+                        const childData = childSnapshot.val();
+                        latestTenRecords.push({ key, ...childData });
                     });
                     waitMe(false);
                     done(latestTenRecords);
-                  });
+                });
             }
             catch (error) {
                 waitMe(false);
@@ -341,7 +349,7 @@ let PocketRealtime = (
             }
         }
 
-        function getStatistics(args){
+        function getStatistics(args) {
             waitMe(true);
             let fail = args.fail;
             try {
@@ -358,23 +366,23 @@ let PocketRealtime = (
         }
 
         return {
-            getValue                :   getValue,
-            setValue                :   setValue,
-            deleteValue             :   deleteValue,
-            getFunds                :   getFunds,
-            setFunds                :   setFunds,
-            getInstallments         :   getInstallments,
-            pushInstallments        :   pushInstallments,
-            updateInstallments      :   updateInstallments,
-            deleteInstallments      :   deleteInstallments,
-            insertFundsHistory      :   insertFundsHistory,
-            getFundsHistory         :   getFundsHistory,
-            insertPaymentDate       :   insertPaymentDate,
-            getPaymentDates         :   getPaymentDates,
-            deletePaymentDates      :   deletePaymentDates,
-            saveUserLoggedActivity  :   saveUserLoggedActivity,
-            getserLoggedActivity    :   getserLoggedActivity,
-            getStatistics           :   getStatistics
+            getValue: getValue,
+            setValue: setValue,
+            deleteValue: deleteValue,
+            getFunds: getFunds,
+            setFunds: setFunds,
+            getInstallments: getInstallments,
+            pushInstallments: pushInstallments,
+            updateInstallments: updateInstallments,
+            deleteInstallments: deleteInstallments,
+            insertFundsHistory: insertFundsHistory,
+            getFundsHistory: getFundsHistory,
+            insertPaymentDate: insertPaymentDate,
+            getPaymentDates: getPaymentDates,
+            deletePaymentDates: deletePaymentDates,
+            saveUserLoggedActivity: saveUserLoggedActivity,
+            getserLoggedActivity: getserLoggedActivity,
+            getStatistics: getStatistics
         }
     }
 )();

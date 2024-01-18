@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Ödenmiş Taksitler</title>
+     <link rel="stylesheet" href="styles.css">
+     <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
+     <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+     <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-auth.js"></script>
+</head>
+
+<body>
+     <div class="container">
+          <h1>Ödenmiş Taksitler</h1>
+          <table>
+               <thead>
+                    <tr>
+                         <th>Taksit İsmi</th>
+                         <th>Taksit Tutarı</th>
+                         <th>Borç Bitiş Tarihi</th>
+                         <th>Toplam Ay Sayısı</th>
+                         <th>Toplam Borç Tutarı</th>
+                    </tr>
+               </thead>
+               <tbody id="paidInstallmentsTableBody">
+                    <!-- Tablo içeriği buraya eklenecek -->
+               </tbody>
+          </table>
+     </div>
+     <script src="test.js"></script>
+</body>
+
+</html>

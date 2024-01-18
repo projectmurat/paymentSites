@@ -583,6 +583,9 @@ function renderInstallmentsTable(installmentData) {
 			this.innerText = `${monthsInTurkish[currentMonthIndex]}-${currentYear} Ödendi`;
 			this.disabled = true;
 			tbody.innerHTML = '';
+			if(selectedInstallment.totalMonths == selectedInstallment.currentMonth){
+				selectedInstallment["status"] = "0";
+			}
 			PocketRealtime.updateInstallments({
 				params: selectedInstallment,
 				where: { "key": itemKey },
@@ -941,4 +944,44 @@ function waitMe(shown) {
 	else{
 		document.getElementById("loader-overlay").style.display = "none"
 	}
+}
+
+function displayPaidInstallments(installments) {
+	document.getElementById("paidInstallmentsTableBody").innerHTML = "";
+     const paidInstallmentsTableBody = document.getElementById("paidInstallmentsTableBody");
+	let totalInstallmentAmount = 0;
+     for (const key in installments) {
+          const installment = installments[key];
+
+          if (installment.status === "0") {
+               const row = document.createElement("tr");
+
+               const itemNameCell = document.createElement("td");
+               itemNameCell.textContent = installment.item;
+               row.appendChild(itemNameCell);
+
+               const installmentAmountCell = document.createElement("td");
+               installmentAmountCell.textContent = installment.installmentAmount;
+               row.appendChild(installmentAmountCell);
+
+               const lastPaidMonthCell = document.createElement("td");
+               lastPaidMonthCell.textContent = installment.lastPaidMonth;
+               row.appendChild(lastPaidMonthCell);
+
+               const totalMonthsCell = document.createElement("td");
+               totalMonthsCell.textContent = installment.totalMonths;
+               row.appendChild(totalMonthsCell);
+
+			let installmentSumPaid = parseInt(installment.totalMonths) * parseInt(installment.installmentAmount);
+			totalInstallmentAmount += installmentSumPaid;
+               const totalPaid = document.createElement("td");
+               totalPaid.textContent = formatCurrency(installmentSumPaid);
+               row.appendChild(totalPaid);
+
+
+
+               paidInstallmentsTableBody.appendChild(row);
+          }
+     }
+	document.getElementById("toplamOdenmisTutar").innerText = formatCurrency(totalInstallmentAmount) + " ₺";
 }

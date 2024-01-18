@@ -503,3 +503,16 @@ dropdown.addEventListener('change', function () {
 	})
 	// Burada seçilen değeri kullanarak yapmak istediğiniz işlemleri gerçekleştirebilirsiniz.
 });
+
+
+$('.installmentsHistory').click(function () {
+	PocketRealtime.getInstallments({
+		"status": "0",
+          done: function (installments) {
+               displayPaidInstallments(installments);
+          },
+          fail: function (error) {
+               console.error(error);
+          }
+	})
+})
