@@ -952,3 +952,43 @@ h2 {
     align-items: center;
     margin: 5px;
 }
+
+
+
+
+/* LOADER */
+
+#loader-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8); /* Arka plan rengi ve opaklık ayarlayabilirsiniz */
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+#loader {
+    border: 16px solid #f3f3f3; /* Yükleniyor animasyonunun çerçeve rengi */
+    border-top: 16px solid #3498db; /* Yükleniyor animasyonunun başlangıç rengi */
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Sayfanın içeriğini temsil eden bir örnek içerik */
+.content {
+    padding: 20px;
+    text-align: center;
+}

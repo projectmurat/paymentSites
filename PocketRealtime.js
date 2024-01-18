@@ -13,27 +13,32 @@ let PocketRealtime = (
          * @param {Object} args
          */
         function getValue(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let path = args.path;
                 let done = args.done;
                 if (path == "root") {
                     firebase.database().ref("Odemeler/").on("value", (snapshot) => {
+                        waitMe(false);
                         done(snapshot.val())
                     })
                 }
                 else if (path.trim() != "root") {
                     firebase.database().ref("Odemeler/" + path + "/").on("value", (snapshot) => {
+                        waitMe(false);
                         done(snapshot.val())
                     })
                 }
             }
             catch (error) {
+                waitMe(false);
                 fail(error);
             }
 
         }
         function setValue(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let path = args.path;
@@ -41,57 +46,70 @@ let PocketRealtime = (
                 let params = args.params;
                 firebase.database().ref("Odemeler/" + path).set(params, (error) => {
                     if (error) {
+                        waitMe(false);
                         fail(error);
                     } else {
+                        waitMe(false);
                         done(true);
                     }
                 })
             }
             catch (error) {
+                waitMe(false);
                 throw new Error(error).stack;
             }
         }
 
         function deleteValue(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let path = args.path;
                 let done = args.done;
                 firebase.database().ref("Odemeler/" + path).remove((error) => {
                     if (error) {
+                        waitMe(false);
                         fail(error);
                     } else {
+                        waitMe(false);
                         done(true);
                     }
                 })
             }
             catch (error) {
+                waitMe(false);
                 throw new Error(error).stack;
             }
         }
 
         function getFunds(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let done = args.done;
                 firebase.database().ref("Fonlar/").on("value", (snapshot) => {
+                    waitMe(false);
                     done(snapshot.val())
                 })
             }
             catch (error) {
+                waitMe(false);
                 fail(error);
             }
         }
 
         function setFunds(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let done = args.done;
                 let params = args.params;
                 firebase.database().ref("Fonlar/").set(params, (error) => {
                     if (error) {
+                        waitMe(false);
                         fail(error);
                     } else {
+                        waitMe(false);
                         done(true);
                     }
                 })
@@ -102,37 +120,45 @@ let PocketRealtime = (
         }
 
         function getInstallments(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let done = args.done;
                 firebase.database().ref("Installments/").on("value", (snapshot) => {
+                    waitMe(false);
                     done(snapshot.val())
                 })
             }
             catch (error) {
+                waitMe(false);
                 fail(error);
             }
         }
         function pushInstallments(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let done = args.done;
                 let params = args.params;
                 firebase.database().ref("Installments/").push().set(params, error => {
                     if (error) {
+                        waitMe(false);
                         fail(error);
                     }
                     else {
+                        waitMe(false);
                         done(true);
                     }
                 })
             }
             catch (error) {
+                waitMe(false);
                 throw new Error(error).stack;
             }
         }
 
         function updateInstallments(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let done = args.done;
@@ -140,61 +166,75 @@ let PocketRealtime = (
                 let updateKey = args.where;
                 firebase.database().ref("Installments/" + updateKey.key).update(params, (error) => {
                     if (error) {
+                        waitMe(false);
                         fail(error);
                     } else {
+                        waitMe(false);
                         done(true);
                     }
                 })
             }
             catch (error) {
+                waitMe(false);
                 throw new Error(error).stack;
             }
         }
         function deleteInstallments(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let done = args.done;
                 let updateKey = args.where;
                 firebase.database().ref("Installments/" + updateKey.key).remove()
                     .then(function () {
+                        waitMe(false);
                         done(true);
                     })
                     .catch(function (error) {
+                        waitMe(false);
                         fail(false);
                     });
             }
             catch (error) {
+                waitMe(false);
                 throw new Error(error).stack;
             }
         }
 
         function insertFundsHistory(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let done = args.done;
                 let params = args.params;
                 firebase.database().ref("FonTarihce/").push().set(params, error => {
                     if (error) {
+                        waitMe(false);
                         fail(error);
                     }
                     else {
+                        waitMe(false);
                         done(true);
                     }
                 })
             }
             catch (error) {
+                waitMe(false);
                 throw new Error(error).stack;
             }
         }
         function getFundsHistory(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let done = args.done;
                 firebase.database().ref("FonTarihce/").on("value", (snapshot) => {
+                    waitMe(false);
                     done(snapshot.val())
                 })
             }
             catch (error) {
+                waitMe(false);
                 fail(error);
             }
         }
@@ -205,66 +245,81 @@ let PocketRealtime = (
                 let params = args.params;
                 firebase.database().ref("OdemeTarihleri/").push().set(params, error => {
                     if (error) {
+                        waitMe(false);
                         fail(error);
                     }
                     else {
+                        waitMe(false);
                         done(true);
                     }
                 })
             }
             catch (error) {
+                waitMe(false);
                 throw new Error(error).stack;
             }
         }
         function getPaymentDates(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let done = args.done;
                 firebase.database().ref("OdemeTarihleri/").on("value", (snapshot) => {
+                    waitMe(false);
                     done(snapshot.val())
                 })
             }
             catch (error) {
+                waitMe(false);
                 fail(error);
             }
         }
         function deletePaymentDates(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let path = args.path;
                 let done = args.done;
                 firebase.database().ref("OdemeTarihleri/" + path).remove((error) => {
                     if (error) {
+                        waitMe(false);
                         fail(error);
                     } else {
+                        waitMe(false);
                         done(true);
                     }
                 })
             }
             catch (error) {
+                waitMe(false);
                 throw new Error(error).stack;
             }
         }
         function saveUserLoggedActivity(args){
+            waitMe(true);
             let fail = args.fail;
             try {
                 let done = args.done;
                 let params = args.params;
                 firebase.database().ref("UserLoggedActivity/").push().set(params, error => {
                     if (error) {
+                        waitMe(false);
                         fail(error);
                     }
                     else {
+                        waitMe(false);
                         done(true);
                     }
                 })
             }
             catch (error) {
+                waitMe(false);
                 throw new Error(error).stack;
             }
         }
 
         function getserLoggedActivity(args) {
+            waitMe(true);
             let fail = args.fail;
             try {
                 let done = args.done;
@@ -276,10 +331,28 @@ let PocketRealtime = (
                       const childData = childSnapshot.val();
                       latestTenRecords.push({ key, ...childData });
                     });
+                    waitMe(false);
                     done(latestTenRecords);
                   });
             }
             catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
+        function getStatistics(args){
+            waitMe(true);
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                firebase.database().ref("Odemeler/").on("value", (snapshot) => {
+                    waitMe(false);
+                    done(snapshot.val())
+                })
+            }
+            catch (error) {
+                waitMe(false);
                 fail(error);
             }
         }
@@ -300,7 +373,8 @@ let PocketRealtime = (
             getPaymentDates         :   getPaymentDates,
             deletePaymentDates      :   deletePaymentDates,
             saveUserLoggedActivity  :   saveUserLoggedActivity,
-            getserLoggedActivity    :   getserLoggedActivity
+            getserLoggedActivity    :   getserLoggedActivity,
+            getStatistics           :   getStatistics
         }
     }
 )();

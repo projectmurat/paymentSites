@@ -194,30 +194,34 @@ function backupValidation(callback) {
 }
 
 function calculateStatistics(callback) {
-	let keys = Object.keys(fireData);
-	let sumPayments = 0;
-	let statisticsData = [];
-	for (const element of keys) {
-		let sumPaymentsObject = {};
-		fireData[element].forEach(items => {
-			sumPayments += parseFloat(items.amount == "" ? 0 : items.amount)
-		})
-		sumPaymentsObject = {}
-		sumPaymentsObject["period"] = element;
-		sumPaymentsObject["amount"] = sumPayments;
-		statisticsData.push(sumPaymentsObject);
-		sumPayments = 0;
-	}
-	statisticsData = statisticsData.sort(comparePeriodDates);
-	setTimeout(() => {
-		statisticTableCallback(statisticsData, () => {
-			document.getElementById("popup-info-period-msg-count").innerHTML = "Toplam Dönem: " + statisticsData.length.toString() + " Ay";
-			document.getElementById("popup-info-period-msg-amount").innerHTML = "Toplam Harcama: " + new Intl.NumberFormat('en-US').format(statisticsData.map(i => i.amount).reduce((acc, current) => acc + current, 0)) + " ₺";
-		})
-	}, 1);
+	PocketRealtime.getStatistics({
+		done: (response) => {
+			let keys = Object.keys(response);
+			let sumPayments = 0;
+			let statisticsData = [];
+			for (const element of keys) {
+				let sumPaymentsObject = {};
+				response[element].forEach(items => {
+					sumPayments += parseFloat(items.amount == "" ? 0 : items.amount)
+				})
+				sumPaymentsObject = {}
+				sumPaymentsObject["period"] = element;
+				sumPaymentsObject["amount"] = sumPayments;
+				statisticsData.push(sumPaymentsObject);
+				sumPayments = 0;
+			}
+			statisticsData = statisticsData.sort(comparePeriodDates);
+			setTimeout(() => {
+				statisticTableCallback(statisticsData, () => {
+					document.getElementById("popup-info-period-msg-count").innerHTML = "Toplam Dönem: " + statisticsData.length.toString() + " Ay";
+					document.getElementById("popup-info-period-msg-amount").innerHTML = "Toplam Harcama: " + new Intl.NumberFormat('en-US').format(statisticsData.map(i => i.amount).reduce((acc, current) => acc + current, 0)) + " ₺";
+				})
+			}, 1);
+		},
+		fail: (error) => {
 
-
-
+		}
+	})
 }
 
 function statisticTableCallback(data, callback) {
@@ -335,25 +339,53 @@ function fundsHistoryTableCallback(data, callback) {
 
 function calculateFunds(params) {
 	let fundsTableData = [];
-	params.forEach(item => {
-		if (item.currencyType != "TL") {
-			let endexValue = parseFloat(item.endex.replace('.', '').replace(',', '.'));
-			item.forTl = parseFloat(item.amount) * endexValue;
-		}
+	if (params.length != 0) {
 
-	});
-	fundsTableData.push(Object.values(params));
-	if (isClickReCalculate) {
-		fundsTable.loadData(fundsTableData[0]);
-		let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
-		sumFundsAmount = formatCurrency(sumFunds);
-		document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
-		isClickReCalculate = false;
+		params.forEach(item => {
+			if (item.currencyType != "TL") {
+				let endexValue = parseFloat(item.endex.replace('.', '').replace(',', '.'));
+				item.forTl = parseFloat(item.amount) * endexValue;
+			}
+
+		});
+		fundsTableData.push(Object.values(params));
+		if (isClickReCalculate) {
+			fundsTable.loadData(fundsTableData[0]);
+			let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
+			sumFundsAmount = formatCurrency(sumFunds);
+			document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
+			isClickReCalculate = false;
+		}
+		else {
+			setTimeout(() => {
+				fundsTableCallback(fundsTableData, () => {
+
+					let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
+					sumFundsAmount = formatCurrency(sumFunds);
+					document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
+
+					let historyData = {
+						"fundsList": fundsTableData,
+						"sunFunds": sumFundsAmount,
+						"insertDate": new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
+					}
+					PocketRealtime.insertFundsHistory({
+						params: historyData,
+						done: (response) => {
+							console.log(response);
+						},
+						fail: (error) => {
+							throw new Error("Fon Tarihçe kaydemte işleminde hata meydana geldi.");
+						}
+					})
+
+				})
+			}, 1);
+		}
 	}
 	else {
-		setTimeout(() => {
-			fundsTableCallback(fundsTableData, () => {
-
+		fundsTableCallback(fundsTableData, () => {
+			if (fundsTableData.length != 0) {
 				let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
 				sumFundsAmount = formatCurrency(sumFunds);
 				document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
@@ -364,17 +396,19 @@ function calculateFunds(params) {
 					"insertDate": new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
 				}
 				PocketRealtime.insertFundsHistory({
-					params:historyData,
-					done:(response)=>{
+					params: historyData,
+					done: (response) => {
 						console.log(response);
 					},
-					fail:(error)=>{
+					fail: (error) => {
 						throw new Error("Fon Tarihçe kaydemte işleminde hata meydana geldi.");
 					}
 				})
-
-			})
-		}, 1);
+			}
+			else{
+				document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + 0 + ' ₺' + '</b>';
+			}
+		})
 	}
 }
 function fundsLastCallbackTime(dateStr) {
@@ -882,7 +916,7 @@ function renderUserActivityModal(data) {
 
 		userData.appendChild(row);
 	});
-	document.getElementById('userActivitySpan').innerText = "Son "+ selectedUserActivityLimit + " kayıt listelenmektedir.";
+	document.getElementById('userActivitySpan').innerText = "Son " + selectedUserActivityLimit + " kayıt listelenmektedir.";
 }
 function renderUserActivityDetailModal() {
 
@@ -900,3 +934,11 @@ function renderUserActivityDetailModal() {
 	mapLink.href = `https://www.google.com/maps?q=${latitude},${longitude}`;
 }
 
+function waitMe(shown) {
+	if(shown){
+		document.getElementById("loader-overlay").style.display = "flex"
+	}
+	else{
+		document.getElementById("loader-overlay").style.display = "none"
+	}
+}

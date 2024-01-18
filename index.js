@@ -238,23 +238,31 @@ $('.statistics').click(function () {
 $('.funds').click(function () {
 	PocketRealtime.getFunds({
 		done: (response) => {
+
 			fetch('https://finans.truncgil.com/today.json')
 				.then(response => response.json())
 				.then(data => {
 					dropdownData = data;
 					lastFundsCallbackTime = fundsLastCallbackTime(data["Update_Date"]);
 					document.getElementById("lastFundsEndexCallbackTimeDiv").innerHTML = "Endexlerin Son Güncellenme Tarihi" + "<br>" + '<p style="text-decoration:underline">' + lastFundsCallbackTime + '</p>';
-					fundsData = response;
-					fundsData.forEach(item => {
-						if (data[item.currencyType] && data[item.currencyType].Alış) {
-							item.endex = data[item.currencyType].Alış;
-						}
-					});
-					calculateFunds(response);
+					if (response != null) {
+						fundsData = response;
+						fundsData.forEach(item => {
+							if (data[item.currencyType] && data[item.currencyType].Alış) {
+								item.endex = data[item.currencyType].Alış;
+							}
+						});
+						calculateFunds(response);
+					}
+					else {
+						calculateFunds([]);
+					}
+
 				})
 				.catch(error => {
 					throw new Error("Birikim verileri getirilirken hata oluştu. Ayrıntısı: \n", error);
 				});
+
 
 		},
 		fail: (error) => {
@@ -393,10 +401,10 @@ $('.btn-openFundsSnapshots').click(function (args) {
 					const previousNumericValue = parseFloat(previousValue);
 
 					if (currentValue > previousNumericValue) {
-						row.children[1].innerHTML = row.children[1].innerHTML + " +"+Math.abs(parseFloat(previousNumericValue-currentValue).toPrecision(2))
+						row.children[1].innerHTML = row.children[1].innerHTML + " +" + Math.abs(parseFloat(previousNumericValue - currentValue).toPrecision(2))
 						row.classList.add('change-up');
 					} else if (currentValue < previousNumericValue) {
-						row.children[1].innerHTML = row.children[1].innerHTML + " -"+parseFloat(previousNumericValue-currentValue).toPrecision(4)
+						row.children[1].innerHTML = row.children[1].innerHTML + " -" + parseFloat(previousNumericValue - currentValue).toPrecision(4)
 						row.classList.add('change-down');
 					}
 				}
@@ -458,7 +466,7 @@ $('.btn-openFundsSnapshots').click(function (args) {
 
 $('.userActivity').click(function () {
 	PocketRealtime.getserLoggedActivity({
-		params:{lastRecordCount:selectedUserActivityLimit},
+		params: { lastRecordCount: selectedUserActivityLimit },
 		done: (response) => {
 			for (let key in response) {
 				if (response.hasOwnProperty(key)) {
@@ -476,22 +484,22 @@ $('.userActivity').click(function () {
 
 const dropdown = document.getElementById('userActivityDropdown');
 
-dropdown.addEventListener('change', function() {
-  const selectedValue = dropdown.value;
-  selectedUserActivityLimit = parseInt(selectedValue);
-  PocketRealtime.getserLoggedActivity({
-	params:{lastRecordCount:parseInt(selectedValue)},
-	done: (response) => {
-		for (let key in response) {
-			if (response.hasOwnProperty(key)) {
-				response[key]["id"] = key;
+dropdown.addEventListener('change', function () {
+	const selectedValue = dropdown.value;
+	selectedUserActivityLimit = parseInt(selectedValue);
+	PocketRealtime.getserLoggedActivity({
+		params: { lastRecordCount: parseInt(selectedValue) },
+		done: (response) => {
+			for (let key in response) {
+				if (response.hasOwnProperty(key)) {
+					response[key]["id"] = key;
+				}
 			}
+			renderUserActivityModal(response);
+		},
+		fail: (error) => {
+			throw new Error(error).stack;
 		}
-		renderUserActivityModal(response);
-	},
-	fail: (error) => {
-		throw new Error(error).stack;
-	}
-})
-  // Burada seçilen değeri kullanarak yapmak istediğiniz işlemleri gerçekleştirebilirsiniz.
+	})
+	// Burada seçilen değeri kullanarak yapmak istediğiniz işlemleri gerçekleştirebilirsiniz.
 });
