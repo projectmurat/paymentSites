@@ -1,26 +1,29 @@
 const degisken = "1";
 
-let table;
-let fundsTable;
-let selectedData;
-let fundsData;
-let historyFundsTable;
-let selectedUserActivityItem;
-let senderFunds = [];
-let allProducts = [];
-let markets = [];
-let productInfo = {};
-let sumFundsAmount;
+var table;
+var fundsTable;
+var selectedData;
+var fundsData;
+var historyFundsTable;
+var selectedUserActivityItem;
+var senderFunds = [];
+var allProducts = [];
+var markets = [];
+var productInfo = {};
+var sumFundsAmount;
 const months_tr = ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"];
 const INSERT_SUCCESS = "Kayit işlemi başarili";
 const INSERT_FAILED = "Kayit Başarisiz"
 const DELETE_SUCCESS = "Silme İşlemi başarili";
 const DELETE_FAILED = "Silme İşlemi Başarisiz";
-let dropdownData;
+var dropdownData;
 var isClickReCalculate = false;
 var lastFundsCallbackTime;
-let myChart;
-let selectedUserActivityLimit = 10;
+var myChart;
+var selectedUserActivityLimit = 10;
+var familyIncomeObject;
+var familyIncomeAmount = 0;
+var globalTotalMontlyInstallmentAmount
 
 
 document.getElementById("marketDropdown").addEventListener("change", updateProductDropdown);
@@ -49,6 +52,16 @@ function getAttribute(source, key, defaultValue) {
 		return snapshot;
 	}
 	return recursion(key.split('.'));
+}
+
+function putKeyInsideObject(object) {
+	// Mevcut objenin anahtarını al
+	const existingKey = Object.keys(object)[0];
+
+	// Mevcut objenin içine anahtarını ekleyin
+	object[existingKey]["key"] = existingKey;
+
+	return object;
 }
 
 function startTable(data, callback) {
@@ -405,7 +418,7 @@ function calculateFunds(params) {
 					}
 				})
 			}
-			else{
+			else {
 				document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + 0 + ' ₺' + '</b>';
 			}
 		})
@@ -583,7 +596,7 @@ function renderInstallmentsTable(installmentData) {
 			this.innerText = `${monthsInTurkish[currentMonthIndex]}-${currentYear} Ödendi`;
 			this.disabled = true;
 			tbody.innerHTML = '';
-			if(selectedInstallment.totalMonths == selectedInstallment.currentMonth){
+			if (selectedInstallment.totalMonths == selectedInstallment.currentMonth) {
 				selectedInstallment["status"] = "0";
 			}
 			PocketRealtime.updateInstallments({
@@ -644,6 +657,10 @@ function renderInstallmentsTable(installmentData) {
 	document.getElementById('toplamKalan').innerText = `${formatCurrency(totalRemaining.toFixed(2))} ₺`;
 	// Toplam aylık tutarı güncelleme
 	document.getElementById('toplamAylık').innerText = `${formatCurrency(totalMontlyInstallmentAmount.toFixed(2))} ₺`;
+
+	globalTotalMontlyInstallmentAmount = totalMontlyInstallmentAmount;
+
+	document.getElementById('eldeKalanMiktar').innerText = `${formatCurrency(totalMontlyInstallmentAmount.toFixed(2))} ₺`;
 
 }
 
@@ -938,50 +955,132 @@ function renderUserActivityDetailModal() {
 }
 
 function waitMe(shown) {
-	if(shown){
+	if (shown) {
 		document.getElementById("loader-overlay").style.display = "flex"
 	}
-	else{
+	else {
 		document.getElementById("loader-overlay").style.display = "none"
 	}
 }
 
 function displayPaidInstallments(installments) {
 	document.getElementById("paidInstallmentsTableBody").innerHTML = "";
-     const paidInstallmentsTableBody = document.getElementById("paidInstallmentsTableBody");
+	const paidInstallmentsTableBody = document.getElementById("paidInstallmentsTableBody");
 	let totalInstallmentAmount = 0;
-     for (const key in installments) {
-          const installment = installments[key];
+	for (const key in installments) {
+		const installment = installments[key];
 
-          if (installment.status === "0") {
-               const row = document.createElement("tr");
+		if (installment.status === "0") {
+			const row = document.createElement("tr");
 
-               const itemNameCell = document.createElement("td");
-               itemNameCell.textContent = installment.item;
-               row.appendChild(itemNameCell);
+			const itemNameCell = document.createElement("td");
+			itemNameCell.textContent = installment.item;
+			row.appendChild(itemNameCell);
 
-               const installmentAmountCell = document.createElement("td");
-               installmentAmountCell.textContent = installment.installmentAmount;
-               row.appendChild(installmentAmountCell);
+			const installmentAmountCell = document.createElement("td");
+			installmentAmountCell.textContent = installment.installmentAmount;
+			row.appendChild(installmentAmountCell);
 
-               const lastPaidMonthCell = document.createElement("td");
-               lastPaidMonthCell.textContent = installment.lastPaidMonth;
-               row.appendChild(lastPaidMonthCell);
+			const lastPaidMonthCell = document.createElement("td");
+			lastPaidMonthCell.textContent = months_tr[installment.lastPaidMonth - 1];
+			row.appendChild(lastPaidMonthCell);
 
-               const totalMonthsCell = document.createElement("td");
-               totalMonthsCell.textContent = installment.totalMonths;
-               row.appendChild(totalMonthsCell);
+			const totalMonthsCell = document.createElement("td");
+			totalMonthsCell.textContent = installment.totalMonths;
+			row.appendChild(totalMonthsCell);
 
 			let installmentSumPaid = parseInt(installment.totalMonths) * parseInt(installment.installmentAmount);
 			totalInstallmentAmount += installmentSumPaid;
-               const totalPaid = document.createElement("td");
-               totalPaid.textContent = formatCurrency(installmentSumPaid);
-               row.appendChild(totalPaid);
+			const totalPaid = document.createElement("td");
+			totalPaid.textContent = formatCurrency(installmentSumPaid);
+			row.appendChild(totalPaid);
 
 
 
-               paidInstallmentsTableBody.appendChild(row);
-          }
-     }
+			paidInstallmentsTableBody.appendChild(row);
+		}
+	}
 	document.getElementById("toplamOdenmisTutar").innerText = formatCurrency(totalInstallmentAmount) + " ₺";
+}
+
+function setIncome(income) {
+	let mySalary = income.mySalary
+	let myMealAllowance = income.myMealAllowance
+	let spouseSalary = income.spouseSalary
+	let spouseMealAllowance = income.spouseMealAllowance
+
+	document.getElementById("mySalary").value = mySalary
+	document.getElementById("myMealAllowance").value = myMealAllowance
+	document.getElementById("spouseSalary").value = spouseSalary
+	document.getElementById("spouseMealAllowance").value = spouseMealAllowance
+
+	const totalIncome = mySalary + myMealAllowance + spouseSalary + spouseMealAllowance;
+
+	document.getElementById("totalIncome").textContent = formatCurrency(totalIncome) + " ₺";
+}
+
+function calculateAndSaveTotalIncome() {
+
+	const mySalary = parseFloat(document.getElementById("mySalary").value) || 0;
+	const myMealAllowance = parseFloat(document.getElementById("myMealAllowance").value) || 0;
+	const spouseSalary = parseFloat(document.getElementById("spouseSalary").value) || 0;
+	const spouseMealAllowance = parseFloat(document.getElementById("spouseMealAllowance").value) || 0;
+
+	if (familyIncomeObject.mySalary != mySalary ||
+		familyIncomeObject.myMealAllowance != myMealAllowance ||
+		familyIncomeObject.spouseSalary != spouseSalary ||
+		familyIncomeObject.spouseMealAllowance != spouseMealAllowance) {
+		const totalIncome = mySalary + myMealAllowance + spouseSalary + spouseMealAllowance;
+
+		let updateIncome = {
+			"mySalary": mySalary,
+			"myMealAllowance": myMealAllowance,
+			"spouseSalary": spouseSalary,
+			"spouseMealAllowance": spouseMealAllowance,
+			"updateDate": new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR'),
+			"status": "1"
+		}
+		updateIncomeRegister(familyIncomeObject.key, (responseUpdate) => {
+			if (responseUpdate) {
+				PocketRealtime.insertFamilyIncome({
+					params: updateIncome,
+					done: (response) => {
+						if (response) {
+							alert("Gelir güncelleme işlemi yapıldı.");
+						}
+					},
+					fail: (error) => {
+						console.error(error);
+					}
+				})
+			}
+		});
+	}
+	else{
+		alert("Değişiklik algılanamadı.");
+	}
+
+}
+
+function updateIncomeRegister(uniqueKey, callback) {
+	const ref = firebase.database().ref("AileGeliri/" + uniqueKey);
+
+	return ref.update({
+		status: "0"
+	})
+		.then(() => {
+			console.log("Gelir pasife çekildi.");
+			callback(true);
+		})
+		.catch((error) => {
+			throw new Error("Gelir pasife çekilirken hata oluştu.\nGelirKey: " + uniqueKey, error);
+		});
+}
+
+function setFamilyIncomeInformationForInstallmentModal() {
+	const totalIncome = familyIncomeObject.mySalary + familyIncomeObject.myMealAllowance + familyIncomeObject.spouseSalary + familyIncomeObject.spouseMealAllowance;
+	familyIncomeAmount = totalIncome;
+	document.getElementById('toplamAileGelir').innerText = `${formatCurrency(totalIncome.toFixed(2))} ₺`;
+	let remaining = totalIncome - globalTotalMontlyInstallmentAmount;
+	document.getElementById('eldeKalanMiktar').innerText = `${formatCurrency(remaining.toFixed(2))} ₺`;
 }

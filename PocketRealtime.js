@@ -365,6 +365,43 @@ let PocketRealtime = (
             }
         }
 
+        function getFamilyIncome(args) {
+            waitMe(true);
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                firebase.database().ref("AileGeliri/").on("value", (snapshot) => {
+                    waitMe(false);
+                    done(snapshot.val())
+                })
+            }
+            catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+        function insertFamilyIncome(args) {
+            waitMe(true);
+            let fail = args.fail;
+            let params = args.params;
+            try {
+                firebase.database().ref("AileGeliri/").push().set(params, error => {
+                    if (error) {
+                        waitMe(false);
+                        fail(error);
+                    }
+                    else {
+                        waitMe(false);
+                        done(true);
+                    }
+                })
+            }
+            catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
         return {
             getValue: getValue,
             setValue: setValue,
@@ -382,7 +419,9 @@ let PocketRealtime = (
             deletePaymentDates: deletePaymentDates,
             saveUserLoggedActivity: saveUserLoggedActivity,
             getserLoggedActivity: getserLoggedActivity,
-            getStatistics: getStatistics
+            getStatistics: getStatistics,
+            getFamilyIncome:getFamilyIncome,
+            insertFamilyIncome:insertFamilyIncome
         }
     }
 )();

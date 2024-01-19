@@ -249,12 +249,40 @@ tbody tr:hover {
     box-shadow: none;
     transform: none;
 }
-
 .total-amount-container {
     padding: 10px;
     border: 1px solid #e5e5e5;
     border-radius: 5px;
-    background-color: #f8f8f8;
+    background-color: #e5e5e5;
+    display: inline-block;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+}
+.total-amount-container-remaining {
+    padding: 10px;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    background-color: #50d2ff;
+    display: inline-block;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+}
+
+.total-amount-container-expense {
+    padding: 10px;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    background-color: #ff6464;
+    display: inline-block;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+}
+
+.total-amount-container-income {
+    padding: 10px;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    background-color: #adffa2;
     display: inline-block;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
     margin-top: 5px;
@@ -991,4 +1019,40 @@ h2 {
 .content {
     padding: 20px;
     text-align: center;
+}
+
+
+#mainContainer {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+#incomeForm {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 10px;
+}
+
+input {
+    margin-bottom: 10px;
+    padding: 8px;
+}
+
+#familyIncomeCalculateButton {
+    padding: 10px;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+#totalIncomeResult {
+    margin-top: 20px;
 }

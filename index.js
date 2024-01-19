@@ -1,3 +1,4 @@
+const dropdown = document.getElementById('userActivityDropdown');
 window.addEventListener('DOMContentLoaded', event => {
 
 
@@ -22,6 +23,25 @@ setTimeout(() => {
 	});
 }, 1000);
 
+dropdown.addEventListener('change', function () {
+	const selectedValue = dropdown.value;
+	selectedUserActivityLimit = parseInt(selectedValue);
+	PocketRealtime.getserLoggedActivity({
+		params: { lastRecordCount: parseInt(selectedValue) },
+		done: (response) => {
+			for (let key in response) {
+				if (response.hasOwnProperty(key)) {
+					response[key]["id"] = key;
+				}
+			}
+			renderUserActivityModal(response);
+		},
+		fail: (error) => {
+			throw new Error(error).stack;
+		}
+	})
+	// Burada seçilen değeri kullanarak yapmak istediğiniz işlemleri gerçekleştirebilirsiniz.
+});
 $('#periodDropDown').change(event => {
 	$("#grid-table").html("");
 	$('#hot-display-license-info').remove();
@@ -291,7 +311,6 @@ $('.btn-reCalculate').click(function () {
 	calculateFunds(senderFunds);
 })
 
-
 $(".btn-saveFunds").click(function () {
 	PocketRealtime.setFunds({
 		params: senderFunds,
@@ -308,6 +327,16 @@ $('.installments').click(function () {
 	PocketRealtime.getInstallments({
 		done: (response) => {
 			renderInstallmentsTable(response);
+			PocketRealtime.getFamilyIncome({
+				done:(response)=>{
+					let incomeInformation = putKeyInsideObject(response);
+					familyIncomeObject = Object.values(incomeInformation)[0];
+					setFamilyIncomeInformationForInstallmentModal();
+				},
+				fail:(error)=>{
+					console.error(error);
+				}
+			})
 		},
 		fail: (error) => {
 			throw new Error(error).stack;
@@ -348,6 +377,7 @@ $('.btn-addFundType').click(function () {
 
 	}
 })
+
 $('#a.dropdown-item').click(function (arg) {
 	console.log("selected", arg)
 })
@@ -481,35 +511,23 @@ $('.userActivity').click(function () {
 	})
 })
 
-
-const dropdown = document.getElementById('userActivityDropdown');
-
-dropdown.addEventListener('change', function () {
-	const selectedValue = dropdown.value;
-	selectedUserActivityLimit = parseInt(selectedValue);
-	PocketRealtime.getserLoggedActivity({
-		params: { lastRecordCount: parseInt(selectedValue) },
-		done: (response) => {
-			for (let key in response) {
-				if (response.hasOwnProperty(key)) {
-					response[key]["id"] = key;
-				}
-			}
-			renderUserActivityModal(response);
-		},
-		fail: (error) => {
-			throw new Error(error).stack;
-		}
-	})
-	// Burada seçilen değeri kullanarak yapmak istediğiniz işlemleri gerçekleştirebilirsiniz.
-});
-
-
 $('.installmentsHistory').click(function () {
 	PocketRealtime.getInstallments({
 		"status": "0",
           done: function (installments) {
                displayPaidInstallments(installments);
+          },
+          fail: function (error) {
+               console.error(error);
+          }
+	})
+})
+
+$('#familyIncomeButton').click(function () {
+	PocketRealtime.getFamilyIncome({
+		"status": "1",
+          done: function (installments) {
+               setIncome(Object.values(putKeyInsideObject(installments))[0]);
           },
           fail: function (error) {
                console.error(error);
