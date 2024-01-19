@@ -1065,7 +1065,7 @@ function calculateAndSaveTotalIncome() {
 function updateIncomeRegister(uniqueKey, callback) {
 	const ref = firebase.database().ref("AileGeliri/" + uniqueKey);
 
-	return ref.update({
+	ref.update({
 		status: "0"
 	})
 		.then(() => {

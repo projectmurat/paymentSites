@@ -123,7 +123,7 @@ let PocketRealtime = (
             waitMe(true);
             let fail = args.fail;
             let status = "1";
-            if(args.status != undefined){
+            if (args.status != undefined) {
                 status = args.status;
             }
             try {
@@ -368,14 +368,18 @@ let PocketRealtime = (
         function getFamilyIncome(args) {
             waitMe(true);
             let fail = args.fail;
+
             try {
                 let done = args.done;
-                firebase.database().ref("AileGeliri/").on("value", (snapshot) => {
-                    waitMe(false);
-                    done(snapshot.val())
-                })
-            }
-            catch (error) {
+
+                firebase.database().ref("AileGeliri/")
+                    .orderByChild("status")
+                    .equalTo("1")
+                    .on("value", (snapshot) => {
+                        waitMe(false);
+                        done(snapshot.val());
+                    });
+            } catch (error) {
                 waitMe(false);
                 fail(error);
             }
@@ -383,6 +387,7 @@ let PocketRealtime = (
         function insertFamilyIncome(args) {
             waitMe(true);
             let fail = args.fail;
+            let done = args.done;
             let params = args.params;
             try {
                 firebase.database().ref("AileGeliri/").push().set(params, error => {
@@ -420,8 +425,8 @@ let PocketRealtime = (
             saveUserLoggedActivity: saveUserLoggedActivity,
             getserLoggedActivity: getserLoggedActivity,
             getStatistics: getStatistics,
-            getFamilyIncome:getFamilyIncome,
-            insertFamilyIncome:insertFamilyIncome
+            getFamilyIncome: getFamilyIncome,
+            insertFamilyIncome: insertFamilyIncome
         }
     }
 )();

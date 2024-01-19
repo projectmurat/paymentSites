@@ -328,12 +328,14 @@ $('.installments').click(function () {
 		done: (response) => {
 			renderInstallmentsTable(response);
 			PocketRealtime.getFamilyIncome({
-				done:(response)=>{
-					let incomeInformation = putKeyInsideObject(response);
-					familyIncomeObject = Object.values(incomeInformation)[0];
-					setFamilyIncomeInformationForInstallmentModal();
+				done: (response) => {
+					if (response != null) {
+						let incomeInformation = putKeyInsideObject(response);
+						familyIncomeObject = Object.values(incomeInformation)[0];
+						setFamilyIncomeInformationForInstallmentModal();
+					}
 				},
-				fail:(error)=>{
+				fail: (error) => {
 					console.error(error);
 				}
 			})
@@ -491,7 +493,6 @@ $('.btn-openFundsSnapshots').click(function (args) {
 			throw new Error("Birikim fonu tarihçe bilgisi alınırken hata ile karşılaşıldı");
 		}
 	})
-
 })
 
 $('.userActivity').click(function () {
@@ -514,23 +515,26 @@ $('.userActivity').click(function () {
 $('.installmentsHistory').click(function () {
 	PocketRealtime.getInstallments({
 		"status": "0",
-          done: function (installments) {
-               displayPaidInstallments(installments);
-          },
-          fail: function (error) {
-               console.error(error);
-          }
+		done: function (installments) {
+			displayPaidInstallments(installments);
+		},
+		fail: function (error) {
+			console.error(error);
+		}
 	})
 })
 
 $('#familyIncomeButton').click(function () {
 	PocketRealtime.getFamilyIncome({
 		"status": "1",
-          done: function (installments) {
-               setIncome(Object.values(putKeyInsideObject(installments))[0]);
-          },
-          fail: function (error) {
-               console.error(error);
-          }
+		done: function (installments) {
+			if(installments != null){
+				setIncome(Object.values(putKeyInsideObject(installments))[0]);
+			}
+
+		},
+		fail: function (error) {
+			console.error(error);
+		}
 	})
 })
