@@ -1031,6 +1031,7 @@ h2 {
     border-radius: 5px;
 }
 
+#outMoneyForm,
 #incomeForm {
     display: flex;
     flex-direction: column;
@@ -1045,6 +1046,7 @@ input {
     padding: 8px;
 }
 
+#familyRoutinMoneyOutSaveButton,
 #familyIncomeCalculateButton {
     padding: 10px;
     background-color: #4caf50;

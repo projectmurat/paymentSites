@@ -1,0 +1,30 @@
+{
+     "-asd123KAWDK123kS":{
+          "routineName":"Seher Cep Telefon",
+          "amount":200
+     },
+     "-bsd123KAWDK123kS":{
+          "routineName":"Murat Cep Telefon",
+          "amount":200
+     },
+     "-csd123KAWDK123kS":{
+          "routineName":"Ev İnternet",
+          "amount":400
+     },
+     "-dsd123KAWDK123kS":{
+          "routineName":"Su Faturası",
+          "amount":150
+     },
+     "-esd123KAWDK123kS":{
+          "routineName":"Elektrik Faturası",
+          "amount":350
+     },
+     "-fsd123KAWDK123kS":{
+          "routineName":"Apartman Aidat",
+          "amount":600
+     },
+     "-gsd123KAWDK123kS":{
+          "routineName":"Doğalgaz Faturası",
+          "amount":800
+     }
+}

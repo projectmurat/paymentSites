@@ -1,29 +1,30 @@
 const degisken = "1";
 
-var table;
-var fundsTable;
-var selectedData;
-var fundsData;
-var historyFundsTable;
-var selectedUserActivityItem;
-var senderFunds = [];
-var allProducts = [];
-var markets = [];
-var productInfo = {};
-var sumFundsAmount;
+let table;
+let fundsTable;
+let selectedData;
+let fundsData;
+let historyFundsTable;
+let selectedUserActivityItem;
+let senderFunds = [];
+let allProducts = [];
+let markets = [];
+let productInfo = {};
+let sumFundsAmount;
 const months_tr = ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"];
 const INSERT_SUCCESS = "Kayit işlemi başarili";
 const INSERT_FAILED = "Kayit Başarisiz"
 const DELETE_SUCCESS = "Silme İşlemi başarili";
 const DELETE_FAILED = "Silme İşlemi Başarisiz";
-var dropdownData;
-var isClickReCalculate = false;
-var lastFundsCallbackTime;
-var myChart;
-var selectedUserActivityLimit = 10;
-var familyIncomeObject;
-var familyIncomeAmount = 0;
-var globalTotalMontlyInstallmentAmount
+let dropdownData;
+let isClickReCalculate = false;
+let lastFundsCallbackTime;
+let myChart;
+let selectedUserActivityLimit = 10;
+let familyIncomeObject;
+let familyIncomeAmount = 0;
+let globalTotalMontlyInstallmentAmount;
+let familyOutObject;
 
 
 document.getElementById("marketDropdown").addEventListener("change", updateProductDropdown);
@@ -582,7 +583,7 @@ function renderInstallmentsTable(installmentData) {
 		paymentButton.innerText = `Ödendi olarak İşaretle`;
 		paymentButton.dataset.key = key; // Tıklama olayında hangi taksitin güncellendiğini belirlemek için
 
-		if (data.lastPaidMonth >= currentMonthIndex + 1) { // Ay 0'dan başladığı için +1 eklememiz gerekiyor
+		if ((data.lastPaidMonth % 12 >= currentMonthIndex + 1 || data.lastPaidYear < currentYear)) { // Ay 0'dan başladığı için +1 eklememiz gerekiyor
 			paymentButton.disabled = true;
 			paymentButton.innerText = `${monthsInTurkish[currentMonthIndex]}-${currentYear} Ödendi`;
 		}
@@ -592,6 +593,7 @@ function renderInstallmentsTable(installmentData) {
 			const itemKey = this.dataset.key;
 			installmentData[itemKey].lastPaidMonth++;
 			installmentData[itemKey].currentMonth++;
+			installmentData[itemKey].lastPaidYear = currentYear;
 			const selectedInstallment = { ...installmentData[itemKey] };
 			this.innerText = `${monthsInTurkish[currentMonthIndex]}-${currentYear} Ödendi`;
 			this.disabled = true;
@@ -1056,7 +1058,7 @@ function calculateAndSaveTotalIncome() {
 			}
 		});
 	}
-	else{
+	else {
 		alert("Değişiklik algılanamadı.");
 	}
 
@@ -1079,8 +1081,112 @@ function updateIncomeRegister(uniqueKey, callback) {
 
 function setFamilyIncomeInformationForInstallmentModal() {
 	const totalIncome = familyIncomeObject.mySalary + familyIncomeObject.myMealAllowance + familyIncomeObject.spouseSalary + familyIncomeObject.spouseMealAllowance;
+	let familyOutAmount = familyOutObject.reduce((total, item) => total + (parseInt(item.amount) || 0), 0);
 	familyIncomeAmount = totalIncome;
+
 	document.getElementById('toplamAileGelir').innerText = `${formatCurrency(totalIncome.toFixed(2))} ₺`;
-	let remaining = totalIncome - globalTotalMontlyInstallmentAmount;
+	let remaining = totalIncome - globalTotalMontlyInstallmentAmount - familyOutAmount;
 	document.getElementById('eldeKalanMiktar').innerText = `${formatCurrency(remaining.toFixed(2))} ₺`;
 }
+
+function setFamilyMoneyOutInformationForInstallmentModal(outMoneyObject) {
+	let sumOutAmount = document.getElementById("rutinGider");
+
+	sumOutAmount.innerText = outMoneyObject.reduce((total, item) => total + (parseInt(item.amount) || 0), 0) + " ₺";
+}
+
+
+function setRoutineMoneyOut(routineInfo) {
+	let sumFamilyMoneyOut = 0;
+	let outMoneyForm = document.getElementById("outMoneyForm");
+	outMoneyForm.innerHTML = "";
+	for (const element of routineInfo) {
+		let labelRoutineName = document.createElement("label");
+		let uniqueFor = "routineName " + element.id;
+		labelRoutineName.setAttribute("for", uniqueFor);
+		labelRoutineName.innerText = element.routineName;
+
+		let inputRoutineAmount = document.createElement("input");
+		inputRoutineAmount.type = "number";
+		inputRoutineAmount.id = uniqueFor;
+		inputRoutineAmount.value = parseInt(element.amount);
+		inputRoutineAmount.step = "0.01";
+		inputRoutineAmount.placeholder = "0";
+
+		sumFamilyMoneyOut += parseInt(element.amount);
+
+		outMoneyForm.appendChild(labelRoutineName);
+		outMoneyForm.appendChild(inputRoutineAmount);
+
+	}
+
+	document.getElementById("totalMoneyOut").innerText = sumFamilyMoneyOut + " ₺";
+
+	let outMoneyUpdateSaveButton = document.createElement("button");
+
+	outMoneyUpdateSaveButton.type = "button";
+	outMoneyUpdateSaveButton.id = "familyRoutinMoneyOutSaveButton";
+
+	outMoneyUpdateSaveButton.addEventListener('click', function () {
+		const form = document.getElementById('outMoneyForm');
+		const inputs = form.querySelectorAll('input');
+
+		const data = {};
+
+		inputs.forEach(input => {
+			const label = form.querySelector(`label[for="${input.id}"]`);
+			if (label) {
+				data[input.id.split(' ')[1]] = {
+					routineName: label.textContent.trim(),
+					amount: input.value.trim(),
+					id: input.id.split(' ')[1]
+				};
+			}
+		});
+		const difference = findDifference(Object.values(data), familyOutObject);
+
+		let approve = confirm('Güncelleme işlemini yapmak istiyor musunuz?');
+
+		if(approve){
+			difference.forEach(item => {
+				const { routineName, amount, id } = item;
+				firebase.database().ref(`RutinGider/${id}`).update({
+				  routineName,
+				  amount
+				}, (error) => {
+				  if (error) {
+				    console.error("Güncelleme sırasında hata oluştu:", error);
+				  } else {
+				    console.log("Veri başarıyla güncellendi:", id);
+				  }
+				});
+			   });
+		}
+		console.log(difference);
+		//calculateAndSaveFamilyRoutinMoneyOut(element);
+	});
+	outMoneyUpdateSaveButton.innerText = "Toplam Rutin Gider Hesapla/Kaydet";
+
+	outMoneyForm.appendChild(outMoneyUpdateSaveButton);
+}
+
+function calculateAndSaveFamilyRoutinMoneyOut(arg) {
+	console.log(arg);
+}
+
+function findDifference(data1, data2) {
+	const difference = [];
+
+	// data1'deki öğeleri kontrol et
+	data1.forEach(item1 => {
+	  // data2'de aynı id'ye sahip öğe var mı kontrol et
+	  const item2 = data2.find(item => item.id === item1.id);
+
+	  // eğer data2'de yoksa fark olarak ekle
+	  if (item1.amount != item2.amount) {
+	    difference.push(item1);
+	  }
+	});
+
+	return difference;
+   }

@@ -1,4 +1,5 @@
 const dropdown = document.getElementById('userActivityDropdown');
+
 window.addEventListener('DOMContentLoaded', event => {
 
 
@@ -17,6 +18,7 @@ window.addEventListener('DOMContentLoaded', event => {
 	})
 	document.getElementById('importFile').setAttribute("hidden", true);
 });
+
 setTimeout(() => {
 	table.addHook("afterOnCellMouseDown", function () {
 		//after table render..
@@ -42,6 +44,7 @@ dropdown.addEventListener('change', function () {
 	})
 	// Burada seçilen değeri kullanarak yapmak istediğiniz işlemleri gerçekleştirebilirsiniz.
 });
+
 $('#periodDropDown').change(event => {
 	$("#grid-table").html("");
 	$('#hot-display-license-info').remove();
@@ -329,11 +332,29 @@ $('.installments').click(function () {
 			renderInstallmentsTable(response);
 			PocketRealtime.getFamilyIncome({
 				done: (response) => {
-					if (response != null) {
-						let incomeInformation = putKeyInsideObject(response);
-						familyIncomeObject = Object.values(incomeInformation)[0];
-						setFamilyIncomeInformationForInstallmentModal();
-					}
+					PocketRealtime.getFamilyRoutinMoneyOut({
+						done: function (routinMoneyOutInfo) {
+
+
+							if(routinMoneyOutInfo != null){
+								let uniqueKeyList = Object.keys(routinMoneyOutInfo);
+								for(const element of uniqueKeyList){
+									Object.assign(routinMoneyOutInfo[element],{"id":element});
+								}
+								familyOutObject = Object.values(routinMoneyOutInfo);
+								setFamilyMoneyOutInformationForInstallmentModal(Object.values(routinMoneyOutInfo));
+							}
+
+							if (response != null) {
+								let incomeInformation = putKeyInsideObject(response);
+								familyIncomeObject = Object.values(incomeInformation)[0];
+								setFamilyIncomeInformationForInstallmentModal();
+							}
+						},
+						fail: function (error) {
+							console.error(error);
+						}
+					})
 				},
 				fail: (error) => {
 					console.error(error);
@@ -537,4 +558,26 @@ $('#familyIncomeButton').click(function () {
 			console.error(error);
 		}
 	})
+})
+
+$('#familyRoutinMoneyOutButton').click(function () {
+	PocketRealtime.getFamilyRoutinMoneyOut({
+		done: function (routinMoneyOutInfo) {
+			if(routinMoneyOutInfo != null){
+				let uniqueKeyList = Object.keys(routinMoneyOutInfo);
+				for(const element of uniqueKeyList){
+					Object.assign(routinMoneyOutInfo[element],{"id":element});
+				}
+				setRoutineMoneyOut(Object.values(routinMoneyOutInfo));
+			}
+		},
+		fail: function (error) {
+			console.error(error);
+		}
+	})
+})
+
+$('.familyRoutinMoneyOutSaveButton').click(function() {
+	let form = document.getElementById("outMoneyForm");
+	console.log(form)
 })

@@ -407,6 +407,24 @@ let PocketRealtime = (
             }
         }
 
+        function getFamilyRoutinMoneyOut(args) {
+            waitMe(true);
+            let fail = args.fail;
+
+            try {
+                let done = args.done;
+
+                firebase.database().ref("RutinGider/")
+                    .on("value", (snapshot) => {
+                        waitMe(false);
+                        done(snapshot.val());
+                    });
+            } catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
         return {
             getValue: getValue,
             setValue: setValue,
@@ -426,7 +444,8 @@ let PocketRealtime = (
             getserLoggedActivity: getserLoggedActivity,
             getStatistics: getStatistics,
             getFamilyIncome: getFamilyIncome,
-            insertFamilyIncome: insertFamilyIncome
+            insertFamilyIncome: insertFamilyIncome,
+            getFamilyRoutinMoneyOut:getFamilyRoutinMoneyOut
         }
     }
 )();

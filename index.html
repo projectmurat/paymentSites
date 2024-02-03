@@ -317,6 +317,10 @@
 								<strong>Toplam Aylık Tutar:</strong> <span id="toplamAylık" class="amount">0
 									₺</span>
 							</div>
+							<div class="mt-3 total-amount-container-expense" data-target="#familyRoutinMoneyOut" data-toggle="modal" id="familyRoutinMoneyOutButton">
+								<strong>Toplam Aylık Rutin Gider:</strong> <span id="rutinGider" class="amount">0
+									₺</span>
+							</div>
 							<div class="mt-3 total-amount-container-income" data-target="#familyIncomeModal" data-toggle="modal" id="familyIncomeButton">
 								<strong>Toplam Aile Geliri:</strong> <span id="toplamAileGelir" class="amount">0
 									₺</span>
@@ -406,6 +410,34 @@
 
 							 <div class="mt-3 total-amount-container">
 								<strong>Toplam Gelir:</strong> <span id="totalIncome" class="amount">0
+									₺</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal familyRoutinMoneyOut" id="familyRoutinMoneyOut" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Rutin Giderler</h4>
+					</div>
+
+					<div class="modal-body" style="padding: 0rem;">
+						<div class="container">
+							<form id="outMoneyForm">
+
+							 </form>
+
+							 <div class="mt-3 total-amount-container">
+								<strong>Toplam Rutin Gider:</strong> <span id="totalMoneyOut" class="amount">0
 									₺</span>
 							</div>
 						</div>
