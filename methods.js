@@ -682,13 +682,22 @@ function collectaNewInstallmentData() {
 		alert("Lütfen tüm alanları doldurun!");
 		return;  // Eğer herhangi bir alan boşsa fonksiyonu burada sonlandırıyoruz
 	}
+	const currentDate = new Date();
+	const currentYear = currentDate.getFullYear();
+	const currentMonthIndex = currentDate.getMonth();
+	const currentMonthName = months_tr[currentMonthIndex];
 
+	// TODO: taksidi ekleme tarihi ay ismi ve yıl değeri eklendi. Bunların db'de de eklenmesi lazım.
 	const jsonData = {
 		item: itemName,
 		installmentAmount: installmentAmount,
 		currentMonth: currentInstallment,
 		lastPaidMonth: parseInt(lastPaidMonth),
-		totalMonths: parseInt(totalInstallment)
+		totalMonths: parseInt(totalInstallment),
+		status: "1",
+		insertMonth: currentMonthName,
+		insertYear: currentYear
+
 	};
 
 	PocketRealtime.pushInstallments({
@@ -983,8 +992,15 @@ function displayPaidInstallments(installments) {
 			installmentAmountCell.textContent = installment.installmentAmount;
 			row.appendChild(installmentAmountCell);
 
+			const month = installment.insertMonth || '-';
+			const year = installment.insertYear || '-';
+			const result = (month == "-" && year == "-") ? month + " / " + year : month + "-" + year
+			const addPaidMonthCell = document.createElement("td");
+			addPaidMonthCell.textContent = result;
+			row.appendChild(addPaidMonthCell);
+
 			const lastPaidMonthCell = document.createElement("td");
-			lastPaidMonthCell.textContent = months_tr[installment.lastPaidMonth - 1];
+			lastPaidMonthCell.textContent = months_tr[installment.lastPaidMonth - 1] + "-" + installment.lastPaidYear;
 			row.appendChild(lastPaidMonthCell);
 
 			const totalMonthsCell = document.createElement("td");
@@ -1147,20 +1163,20 @@ function setRoutineMoneyOut(routineInfo) {
 
 		let approve = confirm('Güncelleme işlemini yapmak istiyor musunuz?');
 
-		if(approve){
+		if (approve) {
 			difference.forEach(item => {
 				const { routineName, amount, id } = item;
 				firebase.database().ref(`RutinGider/${id}`).update({
-				  routineName,
-				  amount
+					routineName,
+					amount
 				}, (error) => {
-				  if (error) {
-				    console.error("Güncelleme sırasında hata oluştu:", error);
-				  } else {
-				    console.log("Veri başarıyla güncellendi:", id);
-				  }
+					if (error) {
+						console.error("Güncelleme sırasında hata oluştu:", error);
+					} else {
+						console.log("Veri başarıyla güncellendi:", id);
+					}
 				});
-			   });
+			});
 		}
 		console.log(difference);
 		//calculateAndSaveFamilyRoutinMoneyOut(element);
@@ -1179,14 +1195,33 @@ function findDifference(data1, data2) {
 
 	// data1'deki öğeleri kontrol et
 	data1.forEach(item1 => {
-	  // data2'de aynı id'ye sahip öğe var mı kontrol et
-	  const item2 = data2.find(item => item.id === item1.id);
+		// data2'de aynı id'ye sahip öğe var mı kontrol et
+		const item2 = data2.find(item => item.id === item1.id);
 
-	  // eğer data2'de yoksa fark olarak ekle
-	  if (item1.amount != item2.amount) {
-	    difference.push(item1);
-	  }
+		// eğer data2'de yoksa fark olarak ekle
+		if (item1.amount != item2.amount) {
+			difference.push(item1);
+		}
 	});
 
 	return difference;
-   }
+}
+
+function getDate() {
+	return new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR');
+}
+
+function getPeriodTemplate() {
+	let mandatoryElement = ["Elektrik Faturası", "Su Faturası", "Doğalgaz Faturası", "İnternet Faturası", "Murat Cep", "Seher Cep", "Apartman Aidat"];
+	let templateElementList = [];
+	mandatoryElement.forEach(element => {
+		let template = {
+			name: element,
+			amount: 0,
+			date: getDate()
+		};
+		templateElementList.push(template);
+	});
+	return templateElementList;
+
+}

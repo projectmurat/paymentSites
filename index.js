@@ -16,7 +16,6 @@ window.addEventListener('DOMContentLoaded', event => {
 			$('#hot-display-license-info').remove();
 		})
 	})
-	document.getElementById('importFile').setAttribute("hidden", true);
 });
 
 setTimeout(() => {
@@ -67,7 +66,6 @@ $('.btn-add').click(function () {
 	try {
 		let detail = document.getElementsByClassName("form-control").name.value;
 		let amount = document.getElementsByClassName("form-control").amount.value;
-		document.getElementById('importFile').setAttribute("hidden", true);
 		if (detail.trim() == "" || amount.trim() == "") {
 			throw new Error("Kayıt Başarısız.\nAlanlar boş bırakılarak kayıt işlemi gerçekleştirilemez");
 		}
@@ -103,14 +101,10 @@ $('.btn-add-period').click(function () {
 		if (period.trim() == "") {
 			throw new Error("Kayıt Başarısız.\nAlanlar boş bırakılarak kayıt işlemi gerçekleştirilemez");
 		}
-		let dummyData = [{
-			name: "",
-			amount: "",
-			date: new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
-		}];
+
 		PocketRealtime.setValue({
 			path: period,
-			params: dummyData,
+			params: getPeriodTemplate(),
 			done: (response) => {
 				let insertData = {
 					date: period

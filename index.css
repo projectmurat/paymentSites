@@ -43,6 +43,15 @@
         background-position: 0% 50%;
     }
 }
+@keyframes gradientMenu {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 100% 0;
+    }
+}
 
 
 body {
@@ -249,6 +258,7 @@ tbody tr:hover {
     box-shadow: none;
     transform: none;
 }
+
 .total-amount-container {
     padding: 10px;
     border: 1px solid #e5e5e5;
@@ -258,6 +268,7 @@ tbody tr:hover {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
     margin-top: 5px;
 }
+
 .total-amount-container-remaining {
     padding: 10px;
     border: 1px solid #e5e5e5;
@@ -351,12 +362,13 @@ tbody tr:hover {
 
 /* Dopdown Menu Genel Stil */
 .dropdown-menu {
-    width: 300px;
     border: none;
     border-radius: 8px;
     overflow-y: auto;
     box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
-    background-color: #f9f9f9;
+    background-image: linear-gradient(90deg, #52588f, #a2a5aa, #1cdceb, #cf9bb1);
+    /* Bu değeri artırdık */
+    animation: gradientMenu 8s infinite;
     position: fixed;
     /* Konumu ekran içerisinde sabitlemek için 'fixed' kullanıyoruz */
     will-change: transform;
@@ -382,7 +394,7 @@ tbody tr:hover {
     font-size: 15px;
     background-color: transparent;
     /* Şeffaf arkaplan */
-    color: #333;
+    color: #e1e1e1;;
 
     /* Koyu gri metin rengi */
 }
@@ -974,7 +986,7 @@ h2 {
     color: #000;
 }
 
-#userActivityTopDiv{
+#userActivityTopDiv {
     display: grid;
     justify-content: center;
     align-items: center;
@@ -995,15 +1007,18 @@ h2 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.8); /* Arka plan rengi ve opaklık ayarlayabilirsiniz */
+    background: rgba(255, 255, 255, 0.8);
+    /* Arka plan rengi ve opaklık ayarlayabilirsiniz */
     z-index: 9999;
     justify-content: center;
     align-items: center;
 }
 
 #loader {
-    border: 16px solid #f3f3f3; /* Yükleniyor animasyonunun çerçeve rengi */
-    border-top: 16px solid #3498db; /* Yükleniyor animasyonunun başlangıç rengi */
+    border: 16px solid #f3f3f3;
+    /* Yükleniyor animasyonunun çerçeve rengi */
+    border-top: 16px solid #3498db;
+    /* Yükleniyor animasyonunun başlangıç rengi */
     border-radius: 50%;
     width: 80px;
     height: 80px;
@@ -1011,8 +1026,13 @@ h2 {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Sayfanın içeriğini temsil eden bir örnek içerik */
@@ -1057,4 +1077,83 @@ input {
 
 #totalIncomeResult {
     margin-top: 20px;
+}
+
+#uyari {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #ffcc00;
+    color: #333;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    animation: uyariAnimasyon 2s ease-in-out forwards;
+}
+
+@keyframes uyariAnimasyon {
+    0% {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 0;
+    }
+
+    90% {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 0;
+    }
+}
+
+@keyframes uyariAnimasyon {
+    0% {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 0;
+    }
+
+    10% {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+
+    90% {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 0;
+    }
+}
+
+#uyari {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #ffcc00;
+    color: #333;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    animation: uyariAnimasyon 6s ease-in-out forwards;
+}
+
+#uyari i {
+    margin-right: 10px;
+}
+
+#uyari span {
+    margin-left: 5px;
+    font-style: italic;
+    font-weight: bold;
 }

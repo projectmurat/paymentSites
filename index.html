@@ -47,6 +47,7 @@
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Bungee+Hairline&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
 </head>
@@ -115,37 +116,29 @@
 					<form action="{{ route('register') }}" method="POST">
 						<div class="modal-body">
 							<div class="form-group">
-								<div class="row">
-									<div class="col-md-3"><label for="name">Detay:</label></div>
-									<div class="col-md-9"><input type="text" name="name" class="form-control"
-											id="name" placeholder="Ödeme Detayı Ekleyin..."></div>
-								</div>
-								<br>
-								<div class="row">
-									<div class="col-md-3"><label for="amount">Tutar:</label></div>
-									<div class="col-md-9"><input type="amount" name="amount"
-											class="form-control" id="amount"
-											placeholder="Ödeme Tutarı Ekleyin..."></div>
+								<div class="form-group">
+									<div class="row">
+										<div class="col-md-3"><label for="name">Detay:</label></div>
+										<div class="col-md-9"><input type="text" name="name"
+												class="form-control" id="name"
+												placeholder="Ödeme Detayı Ekleyin..."></div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-3"><label for="amount">Tutar:</label></div>
+										<div class="col-md-9"><input type="amount" name="amount"
+												class="form-control" id="amount"
+												placeholder="Ödeme Tutarı Ekleyin..."></div>
+									</div>
+
+									<div class="row"
+										style="display: flex; align-items: center; justify-content: center;">
+										<label class="infoLabel" style="text-align: center;" for="info">
+										</label>
+									</div>
+
 								</div>
 
-								<div class="row"
-									style="display: flex; align-items: center; justify-content: center;">
-									<br><br><label class="infoLabel" style="text-align: center;"
-										for="info"></label>
-								</div>
-
-							</div>
-						</div>
-						<div>
-							<div style="margin: 5px;">
-								<label for="file">Toplu dönem yükle</label><br>
-								<input type="file" id="file" name="file" onchange="readURL(this.value)" />
-								<button type="button" class="importFile" id="importFile">Yükle</button>
-							</div>
-							<div class="row"
-								style="display: flex; align-items: center; justify-content: center;">
-								<br><br><label class="infoFile" style="text-align: center;"
-									for="infoFile"></label>
 							</div>
 						</div>
 						<div class="modal-footer">
@@ -158,18 +151,24 @@
 		</div>
 		<div class="modal addPeriod" id="addPeriod" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
-				<div class="modal-content">
+				<div class="modal-content" style="height: 400px !important">
 					<div class="modal-header">
 						<h4 class="modal-title modal-title-centered" id="myModalLabel">Dönem Ekleme Paneli</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
 					<form action="{{ route('register') }}" method="POST">
 						<div class="modal-body">
+							<div id="uyari">
+								<i class="fas fa-exclamation-circle"></i>
+								<span>Dönem adları Mart-2024, Nisan-2023, Mayıs-2028 gibi türkçe sesli harfler
+									kullanılmadan yazılmalıdır.</span>
+							</div>
 							<div class="form-group">
 								<div class="row">
 									<div class="col-md-3"><label for="periodName">Dönem Adı:</label></div>
 									<div class="col-md-9"><input type="text" name="name" class="form-control"
-											id="periodName" placeholder="Dönem Adı Girin..."></div>
+											id="periodName" placeholder="Temmuz-2024 Benzeri Dönem adı">
+									</div>
 								</div>
 								<br>
 								<label class="infoAddPeriod" style="text-align: center;"
@@ -317,11 +316,14 @@
 								<strong>Toplam Aylık Tutar:</strong> <span id="toplamAylık" class="amount">0
 									₺</span>
 							</div>
-							<div class="mt-3 total-amount-container-expense" data-target="#familyRoutinMoneyOut" data-toggle="modal" id="familyRoutinMoneyOutButton">
-								<strong>Toplam Aylık Rutin Gider:</strong> <span id="rutinGider" class="amount">0
+							<div class="mt-3 total-amount-container-expense" data-target="#familyRoutinMoneyOut"
+								data-toggle="modal" id="familyRoutinMoneyOutButton">
+								<strong>Toplam Aylık Rutin Gider:</strong> <span id="rutinGider"
+									class="amount">0
 									₺</span>
 							</div>
-							<div class="mt-3 total-amount-container-income" data-target="#familyIncomeModal" data-toggle="modal" id="familyIncomeButton">
+							<div class="mt-3 total-amount-container-income" data-target="#familyIncomeModal"
+								data-toggle="modal" id="familyIncomeButton">
 								<strong>Toplam Aile Geliri:</strong> <span id="toplamAileGelir" class="amount">0
 									₺</span>
 							</div>
@@ -337,15 +339,16 @@
 						<button type="button" class="btn btn-installments installments"
 							data-target="#addNewInstallment" data-toggle="modal">Taksit Ekle</button>
 						<button type="button" class="btn btn-installments installmentsHistory"
-							data-target="#creditCardInstallmentHistoryModal" data-toggle="modal">Taksit Tarihçe</button>
+							data-target="#creditCardInstallmentHistoryModal" data-toggle="modal">Taksit
+							Tarihçe</button>
 						<button type="button" class="btn" id="deleteButton" style="display:none;">Sil</button>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="modal creditCardInstallmentHistoryModal" id="creditCardInstallmentHistoryModal" tabindex="-1" role="dialog"
-			aria-labelledby="myModalLabel">
+		<div class="modal creditCardInstallmentHistoryModal" id="creditCardInstallmentHistoryModal" tabindex="-1"
+			role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -359,6 +362,7 @@
 									<tr>
 										<th>Taksit İsmi</th>
 										<th>Taksit Tutarı</th>
+										<th>Borç Başlangıç</th>
 										<th>Borç Bitiş</th>
 										<th>Taksit Sayısı</th>
 										<th>Toplam Tutarı</th>
@@ -369,7 +373,8 @@
 								</tbody>
 							</table>
 							<div class="mt-3 total-amount-container">
-								<strong>Toplam Ödenmiş Tutar:</strong> <span id="toplamOdenmisTutar" class="amount">0
+								<strong>Toplam Ödenmiş Tutar:</strong> <span id="toplamOdenmisTutar"
+									class="amount">0
 									₺</span>
 							</div>
 						</div>
@@ -405,10 +410,12 @@
 								<label for="spouseMealAllowance">Seher Yemek Ücreti:</label>
 								<input type="number" id="spouseMealAllowance" step="0.01" placeholder="0">
 
-								<button type="button" id="familyIncomeCalculateButton" onclick="calculateAndSaveTotalIncome()">Toplam Geliri Hesapla/Kaydet</button>
-							 </form>
+								<button type="button" id="familyIncomeCalculateButton"
+									onclick="calculateAndSaveTotalIncome()">Toplam Geliri
+									Hesapla/Kaydet</button>
+							</form>
 
-							 <div class="mt-3 total-amount-container">
+							<div class="mt-3 total-amount-container">
 								<strong>Toplam Gelir:</strong> <span id="totalIncome" class="amount">0
 									₺</span>
 							</div>
@@ -434,9 +441,9 @@
 						<div class="container">
 							<form id="outMoneyForm">
 
-							 </form>
+							</form>
 
-							 <div class="mt-3 total-amount-container">
+							<div class="mt-3 total-amount-container">
 								<strong>Toplam Rutin Gider:</strong> <span id="totalMoneyOut" class="amount">0
 									₺</span>
 							</div>
