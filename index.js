@@ -19,9 +19,12 @@ window.addEventListener('DOMContentLoaded', event => {
 });
 
 setTimeout(() => {
-	table.addHook("afterOnCellMouseDown", function () {
-		//after table render..
-	});
+	if (table) {
+		table.addHook("afterOnCellMouseDown", function () {
+			//after table render..
+		});
+	}
+
 }, 1000);
 
 dropdown.addEventListener('change', function () {
@@ -330,10 +333,10 @@ $('.installments').click(function () {
 						done: function (routinMoneyOutInfo) {
 
 
-							if(routinMoneyOutInfo != null){
+							if (routinMoneyOutInfo != null) {
 								let uniqueKeyList = Object.keys(routinMoneyOutInfo);
-								for(const element of uniqueKeyList){
-									Object.assign(routinMoneyOutInfo[element],{"id":element});
+								for (const element of uniqueKeyList) {
+									Object.assign(routinMoneyOutInfo[element], { "id": element });
 								}
 								familyOutObject = Object.values(routinMoneyOutInfo);
 								setFamilyMoneyOutInformationForInstallmentModal(Object.values(routinMoneyOutInfo));
@@ -543,7 +546,7 @@ $('#familyIncomeButton').click(function () {
 	PocketRealtime.getFamilyIncome({
 		"status": "1",
 		done: function (installments) {
-			if(installments != null){
+			if (installments != null) {
 				setIncome(Object.values(putKeyInsideObject(installments))[0]);
 			}
 
@@ -557,10 +560,10 @@ $('#familyIncomeButton').click(function () {
 $('#familyRoutinMoneyOutButton').click(function () {
 	PocketRealtime.getFamilyRoutinMoneyOut({
 		done: function (routinMoneyOutInfo) {
-			if(routinMoneyOutInfo != null){
+			if (routinMoneyOutInfo != null) {
 				let uniqueKeyList = Object.keys(routinMoneyOutInfo);
-				for(const element of uniqueKeyList){
-					Object.assign(routinMoneyOutInfo[element],{"id":element});
+				for (const element of uniqueKeyList) {
+					Object.assign(routinMoneyOutInfo[element], { "id": element });
 				}
 				setRoutineMoneyOut(Object.values(routinMoneyOutInfo));
 			}
@@ -571,7 +574,11 @@ $('#familyRoutinMoneyOutButton').click(function () {
 	})
 })
 
-$('.familyRoutinMoneyOutSaveButton').click(function() {
+$('.familyRoutinMoneyOutSaveButton').click(function () {
 	let form = document.getElementById("outMoneyForm");
 	console.log(form)
+})
+
+$('#mevduatHesaplaButon').click(function() {
+	hesapla();
 })

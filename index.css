@@ -358,7 +358,9 @@ tbody tr:hover {
     background-color: #2980b9;
 }
 
-
+.dropdown-item{
+    color:#bebebe !important;
+}
 
 /* Dopdown Menu Genel Stil */
 .dropdown-menu {
@@ -366,9 +368,7 @@ tbody tr:hover {
     border-radius: 8px;
     overflow-y: auto;
     box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
-    background-image: linear-gradient(90deg, #52588f, #a2a5aa, #1cdceb, #cf9bb1);
-    /* Bu değeri artırdık */
-    animation: gradientMenu 8s infinite;
+    background-color: #373737 !important;
     position: fixed;
     /* Konumu ekran içerisinde sabitlemek için 'fixed' kullanıyoruz */
     will-change: transform;
@@ -1156,4 +1156,16 @@ input {
     margin-left: 5px;
     font-style: italic;
     font-weight: bold;
+}
+
+#popup-info-period-msg-count, #popup-info-period-msg-amount{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    width: 80%;
+    background-color: #313131;
+    margin-left: 10%;
+    color: navajowhite;
+    padding: 5px;
+    border-radius: 5px;
 }

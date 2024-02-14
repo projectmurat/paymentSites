@@ -47,7 +47,8 @@
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Bungee+Hairline&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
 </head>
@@ -193,13 +194,14 @@
 						<h4 class="modal-title modal-title-centered" id="myModalLabel">İstatistikler</h4>
 
 					</div>
-					<p id="popup-info-period-msg-count"
-						style="display: flex; justify-content: center; text-align: center;"></p>
-					<p id="popup-info-period-msg-amount"
-						style="display: flex; justify-content: center; text-align: center;"></p>
-					<div class="modal-body">
-						<div class="handsontable-container-statistics" id="grid-table"></div>
+					<div>
+						<p id="popup-info-period-msg-count"></p>
+						<p id="popup-info-period-msg-amount"></p>
+						<div class="modal-body">
+						</div>
+
 					</div>
+					<div class="handsontable-container-statistics" id="grid-table"></div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
 					</div>
@@ -522,10 +524,14 @@
 
 					<div class="modal-body ">
 						<div id="inputContainer">
-							<input type="number" id="anaPara" placeholder="Ana Para (₺)">
-							<input type="number" id="faizOrani" placeholder="Yıllık Faiz Oranı (%)">
-							<input type="number" id="toplamAy" placeholder="Toplam Hesaplanması İstenen Ay">
-							<button onclick="hesapla()">Hesapla</button>
+							<form onsubmit="return false" style="display: contents;">
+								<input type="number" id="anaPara" placeholder="Ana Para (₺)" required>
+								<input type="number" id="birikim" placeholder="Birikim (₺)">
+								<input type="number" id="faizOrani" placeholder="Yıllık Faiz Oranı (%)" required>
+								<input type="number" id="toplamAy" placeholder="Toplam Hesaplanması İstenen Ay" required>
+								<button id="mevduatHesaplaButon">Hesapla</button>
+							</form>
+
 						</div>
 
 						<table id="sonucTablosu" class="table-sticky table-scrollable"></table>

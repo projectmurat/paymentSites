@@ -725,31 +725,39 @@ function formatCurrency(value) {
 
 function hesapla() {
 	const anaPara = parseFloat(document.getElementById('anaPara').value);
+	const birikim = parseFloat(document.getElementById('birikim').value);
 	const faizOrani = parseFloat(document.getElementById('faizOrani').value) / 100;
-	const toplamAy = parseInt(document.getElementById('toplamAy').value);
-	const stopajOrani = 0.05;
+	const toplamAy = parseInt(document.getElementById('toplamAy').value)
 
-	let tablo = '<thead><tr><th>Ay</th><th>Net Ana Para (₺)</th><th>Brüt Faiz Tutarı (₺)</th><th>Stopaj (₺)</th><th>Net Faiz Getirisi (₺)</th></tr></thead><tbody>';
-	let mevcutAnaPara = anaPara;
+	if (anaPara && faizOrani && toplamAy) {
+		const stopajOrani = 0.05;
+		let tablo = '<thead><tr><th>Ay</th><th>Net Ana Para (₺)</th><th>Brüt Faiz Tutarı (₺)</th><th>Birikim (₺)</th><th>Stopaj (₺)</th><th>Net Faiz Getirisi (₺)</th></tr></thead><tbody>';
+		let mevcutAnaPara = anaPara;
 
-	for (let i = 1; i <= toplamAy; i++) {
-		const brutFaizTutari = (mevcutAnaPara * faizOrani) / 12;
-		const stopajTutari = brutFaizTutari * stopajOrani;
-		const netFaiz = brutFaizTutari - stopajTutari;
+		for (let i = 1; i <= toplamAy; i++) {
+			if (birikim) {
+				mevcutAnaPara += birikim;
+			}
+			const brutFaizTutari = (mevcutAnaPara * faizOrani) / 12;
+			const stopajTutari = brutFaizTutari * stopajOrani;
+			const netFaiz = brutFaizTutari - stopajTutari;
 
-		mevcutAnaPara += netFaiz;
+			mevcutAnaPara += netFaiz;
 
-		tablo += `<tr>
+			tablo += `<tr>
 		<td>${i}. Ay</td>
 		<td>${formatCurrency(mevcutAnaPara.toFixed(2))} ₺</td>
 		<td>${formatCurrency(brutFaizTutari.toFixed(2))} ₺</td>
+		<td>${formatCurrency(birikim.toFixed(2))} ₺</td>
 		<td class="negative">-${formatCurrency(stopajTutari.toFixed(2))} ₺</td>
 		<td class="positive">${formatCurrency(netFaiz.toFixed(2))} ₺</td>
 	  </tr>`;
+		}
+
+		tablo += '</tbody>';
+		document.getElementById('sonucTablosu').innerHTML = tablo;
 	}
 
-	tablo += '</tbody>';
-	document.getElementById('sonucTablosu').innerHTML = tablo;
 }
 
 function addProduct() {
@@ -899,7 +907,6 @@ function getLoggedUserInfo(callback) {
 						callback()
 					}
 				})
-				console.log('IP bilgileri:', data);
 			})
 			.catch(error => {
 				console.log(error);
