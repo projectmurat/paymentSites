@@ -12,6 +12,7 @@ let markets = [];
 let productInfo = {};
 let sumFundsAmount;
 const months_tr = ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"];
+const months_tr_short = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
 const INSERT_SUCCESS = "Kayit işlemi başarili";
 const INSERT_FAILED = "Kayit Başarisiz"
 const DELETE_SUCCESS = "Silme İşlemi başarili";

@@ -432,7 +432,52 @@ $('.btn-openFundsSnapshots').click(function (args) {
 			let previousValue;
 			const tableBody = document.getElementById('tableBody');
 			let tableList = [];
-			filteredData.forEach(item => {
+			var currentDate = new Date();
+
+
+
+
+
+			// Son 15 gün önceki zamanı al
+			var fifteenDaysAgo = new Date();
+			var CONST_DAY_AGO = 15;
+			fifteenDaysAgo.setDate(currentDate.getDate() - CONST_DAY_AGO);
+
+			// Son 15 gün içinde olanları filtrele
+			var filteredDataWithinLastFifteenDays = filteredData.filter(function (item) {
+
+				var dateString = item.insertDate;
+
+				// Tarih metnini boşluk karakterine göre bölelim
+				var parts = dateString.split(' ');
+
+				// Tarih parçasını Türkçe olarak çevirelim
+				var turkishMonthIndex = months_tr_short.indexOf(parts[1]);
+				var month = turkishMonthIndex + 1; // JavaScript ay indeksleri 0'dan başlar, bu yüzden 1 ekleyin
+
+				// Tarih bilgilerini alalım
+				var day = parseInt(parts[0]);
+				var year = parseInt(parts[2]);
+				var time = parts[4];
+
+				// Saat bilgilerini alalım
+				var timeParts = time.split(':');
+				var hour = parseInt(timeParts[0]);
+				var minute = parseInt(timeParts[1]);
+				var second = parseInt(timeParts[2]);
+
+				// Date nesnesini oluşturalım
+				var date = new Date(year, month - 1, day, hour, minute, second);
+				// Her bir öğenin "insertDate" alanını Date nesnesine çevir
+				var insertDate = new Date(date);
+
+				// Eğer insertDate, son 15 gün içindeyse true döndür ve bu öğeyi filtrele
+				return insertDate >= fifteenDaysAgo && insertDate <= currentDate;
+			});
+
+
+
+			filteredDataWithinLastFifteenDays.forEach(item => {
 				const row = document.createElement('tr');
 
 				const dateCell = document.createElement('td');
@@ -466,15 +511,16 @@ $('.btn-openFundsSnapshots').click(function (args) {
 				tableBody.appendChild(element);
 			}
 			// Grafik oluşturma
-			let dates = filteredData.map(item => item.insertDate);
+			let dates = filteredDataWithinLastFifteenDays.map(item => item.insertDate);
 			function kisaTarih(tarih) {
 				let parts = tarih.split(' ');
 				return parts[0] + " " + parts[1] + " " + parts[4];
 			}
+			document.getElementById("lastFundsHistoryCallbackTimeDiv").innerHTML = "Tarihçe verileri son " + CONST_DAY_AGO + " günlük kaydı göstermektedir.";
 			document.getElementById('snapshotSpan').innerText = 'Snapshot Veri Sayısı: ' + tableList.length;
 			dates = dates.map(tarih => kisaTarih(tarih));
 
-			const sunFunds = filteredData.map(item => parseFloat(item.sunFunds.replace(/\./g, '').replace(',', '.')));
+			const sunFunds = filteredDataWithinLastFifteenDays.map(item => parseFloat(item.sunFunds.replace(/\./g, '').replace(',', '.')));
 
 			if (myChart) {
 				myChart.destroy();
@@ -579,6 +625,6 @@ $('.familyRoutinMoneyOutSaveButton').click(function () {
 	console.log(form)
 })
 
-$('#mevduatHesaplaButon').click(function() {
+$('#mevduatHesaplaButon').click(function () {
 	hesapla();
 })
