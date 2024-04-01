@@ -199,6 +199,8 @@ function onDownload(downloadName) {
 }
 
 function backupValidation(callback) {
+	callback(true);
+	/*
 	firebase.auth().signInWithEmailAndPassword("imuratony@gmail.com", prompt("$root:"))
 		.then((userCredential) => {
 			callback(true);
@@ -206,6 +208,7 @@ function backupValidation(callback) {
 		.catch((error) => {
 			callback(false);
 		});
+	*/
 }
 
 function calculateStatistics(callback) {
@@ -997,7 +1000,7 @@ function displayPaidInstallments(installments) {
 			row.appendChild(itemNameCell);
 
 			const installmentAmountCell = document.createElement("td");
-			installmentAmountCell.textContent = installment.installmentAmount;
+			installmentAmountCell.textContent = formatCurrency(parseFloat(installment.installmentAmount));
 			row.appendChild(installmentAmountCell);
 
 			const month = installment.insertMonth || '-';
@@ -1008,7 +1011,8 @@ function displayPaidInstallments(installments) {
 			row.appendChild(addPaidMonthCell);
 
 			const lastPaidMonthCell = document.createElement("td");
-			lastPaidMonthCell.textContent = months_tr[installment.lastPaidMonth - 1] + "-" + installment.lastPaidYear;
+			let calculateMonth = installment.lastPaidMonth % 12 == 0 ? 1 : installment.lastPaidMonth % 12
+			lastPaidMonthCell.textContent = months_tr[calculateMonth  - 1] + "-" + installment.lastPaidYear;
 			row.appendChild(lastPaidMonthCell);
 
 			const totalMonthsCell = document.createElement("td");

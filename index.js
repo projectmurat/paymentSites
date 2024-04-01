@@ -165,6 +165,8 @@ $('.save').click(function () {
 $('.backup').click(function () {
 	backupValidation((validate) => {
 		if (validate) {
+			alert("Backup özelliği devredışı bırakıldı.");
+			/*
 			if (confirm('Veritabanı kayıtlarını yedekleyip indirmek istiyor musun?' + "\n" + "Dosya Boyutu: " + (JSON.stringify(fireData).length / 1024).toFixed(2) + " MB")) {
 				try {
 					$.ajax({
@@ -184,6 +186,7 @@ $('.backup').click(function () {
 					onDownload("GelirGider_backup_AJAXERR");
 				}
 			}
+			*/
 		}
 		else if (!validate) {
 			alert("Authentication Error")
