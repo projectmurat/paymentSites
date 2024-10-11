@@ -425,6 +425,68 @@ let PocketRealtime = (
             }
         }
 
+        function insertFundStatistic(args) {
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                let params = args.params;
+                firebase.database().ref("FonStatistics/").push().set(params, error => {
+                    if (error) {
+                        waitMe(false);
+                        fail(error);
+                    }
+                    else {
+                        waitMe(false);
+                        done(true);
+                    }
+                })
+            }
+            catch (error) {
+                waitMe(false);
+                throw new Error(error).stack;
+            }
+        }
+
+        function deleteFundStatistic(args) {
+            waitMe(true);
+            let fail = args.fail;
+            try {
+                let path = args.path;
+                let done = args.done;
+                firebase.database().ref("FonStatistics/" + path).remove((error) => {
+                    if (error) {
+                        waitMe(false);
+                        fail(error);
+                    } else {
+                        waitMe(false);
+                        done(true);
+                    }
+                })
+            }
+            catch (error) {
+                waitMe(false);
+                throw new Error(error).stack;
+            }
+        }
+
+        function getFundStatistic(args) {
+            waitMe(true);
+            let fail = args.fail;
+
+            try {
+                let done = args.done;
+
+                firebase.database().ref("FonStatistics/")
+                    .on("value", (snapshot) => {
+                        waitMe(false);
+                        done(snapshot.val());
+                    });
+            } catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
         return {
             getValue: getValue,
             setValue: setValue,
@@ -445,7 +507,10 @@ let PocketRealtime = (
             getStatistics: getStatistics,
             getFamilyIncome: getFamilyIncome,
             insertFamilyIncome: insertFamilyIncome,
-            getFamilyRoutinMoneyOut:getFamilyRoutinMoneyOut
+            getFamilyRoutinMoneyOut:getFamilyRoutinMoneyOut,
+            insertFundStatistic:insertFundStatistic,
+            deleteFundStatistic:deleteFundStatistic,
+            getFundStatistic:getFundStatistic
         }
     }
 )();

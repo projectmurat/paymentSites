@@ -1012,7 +1012,7 @@ function displayPaidInstallments(installments) {
 
 			const lastPaidMonthCell = document.createElement("td");
 			let calculateMonth = installment.lastPaidMonth % 12 == 0 ? 1 : installment.lastPaidMonth % 12
-			lastPaidMonthCell.textContent = months_tr[calculateMonth  - 1] + "-" + installment.lastPaidYear;
+			lastPaidMonthCell.textContent = months_tr[calculateMonth - 1] + "-" + installment.lastPaidYear;
 			row.appendChild(lastPaidMonthCell);
 
 			const totalMonthsCell = document.createElement("td");
@@ -1236,4 +1236,89 @@ function getPeriodTemplate() {
 	});
 	return templateElementList;
 
+}
+
+
+let uniqueTransactions = [];
+let uniqueTotalAmount = 0;
+let uniqueItemSummary = {};
+
+function addUniqueTransaction() {
+	const date = document.getElementById('uniqueDate').value;
+	const item = document.getElementById('uniqueItem').value;
+	const quantity = parseFloat(document.getElementById('uniqueQuantity').value);
+	const price = parseFloat(document.getElementById('uniquePrice').value);
+
+	// Boş veya geçersiz alan kontrolü
+	if (date == "" || isNaN(quantity) || isNaN(price) || item == "") {
+		alert("Bilgiler boş bırakılamaz.");
+		throw new Error("Bilgiler boş bırakılamaz");
+	}
+
+	// Veri ekleme işlemi
+	PocketRealtime.insertFundStatistic({
+		params: { date, item, quantity, price },
+		done: (response) => {
+			console.log(response);
+
+			// Ekleme başarılı olursa formu temizle
+			document.getElementById('uniqueDate').value = '';
+			document.getElementById('uniqueItem').value = '';
+			document.getElementById('uniqueQuantity').value = '';
+			document.getElementById('uniquePrice').value = '';
+		},
+		fail: (error) => {
+			console.error(error);
+		}
+	});
+}
+
+
+// Diğer fonksiyonlar aynı kalır
+function updateUniqueTable() {
+	const tableBody = document.getElementById('uniqueTransactionTable');
+	tableBody.innerHTML = '';
+
+	uniqueTransactions.forEach((transaction) => {
+		const row = document.createElement('tr');
+		row.innerHTML = `
+			<td>${transaction.date}</td>
+			<td>${transaction.item}</td>
+			<td>${transaction.quantity}</td>
+			<td>${transaction.price} TL</td>
+			<td>${transaction.total} TL</td>
+			<td><button onclick="deleteTransaction('${transaction.key}')">Sil</button></td>
+		`;
+		tableBody.appendChild(row);
+	});
+}
+
+function updateUniqueStatistics() {
+	document.getElementById('uniqueTotalAmount').innerText = uniqueTotalAmount.toFixed(2);
+
+	const itemStatsDiv = document.getElementById('uniqueItemStatistics');
+	itemStatsDiv.innerHTML = '';
+
+	Object.keys(uniqueItemSummary).forEach(item => {
+		const stat = document.createElement('p');
+		stat.innerHTML = `<strong>${item}:</strong> ${uniqueItemSummary[item]} adet`;
+		itemStatsDiv.appendChild(stat);
+	});
+}
+
+function updateUniqueRecordCount() {
+	document.getElementById('uniqueTotalRecords').innerText = uniqueTransactions.length;
+}
+function deleteTransaction(key) {
+	// Firebase'den kaydı sil
+	PocketRealtime.deleteFundStatistic({
+		path: key ,
+		done: function () {
+			// Silme başarılı olunca local veri yapısını güncelle
+			alert("Silme başarılı");
+		},
+		fail: function (error) {
+			console.error(error);
+		}
+	});
 }

@@ -43,6 +43,7 @@
         background-position: 0% 50%;
     }
 }
+
 @keyframes gradientMenu {
     0% {
         background-position: 0 0;
@@ -151,6 +152,7 @@ body {
 .modal-footer {
     border-top: 1px solid #e5e5e5;
     margin-top: 15px;
+
 }
 
 .btn {
@@ -358,8 +360,8 @@ tbody tr:hover {
     background-color: #2980b9;
 }
 
-.dropdown-item{
-    color:#bebebe !important;
+.dropdown-item {
+    color: #bebebe !important;
 }
 
 /* Dopdown Menu Genel Stil */
@@ -394,7 +396,8 @@ tbody tr:hover {
     font-size: 15px;
     background-color: transparent;
     /* Şeffaf arkaplan */
-    color: #e1e1e1;;
+    color: #e1e1e1;
+    ;
 
     /* Koyu gri metin rengi */
 }
@@ -1159,7 +1162,8 @@ input {
     font-weight: bold;
 }
 
-#popup-info-period-msg-count, #popup-info-period-msg-amount{
+#popup-info-period-msg-count,
+#popup-info-period-msg-amount {
     display: flex;
     justify-content: center;
     text-align: center;
@@ -1169,4 +1173,88 @@ input {
     color: navajowhite;
     padding: 5px;
     border-radius: 5px;
+}
+
+
+
+/* BİRİKİM FONLARI İSTATİSTİK CSS*/
+
+#uniqueContainer {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+#uniqueContainer h1 {
+    text-align: center;
+}
+
+#uniqueContainer .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#uniqueContainer .form-group {
+    margin-bottom: 20px;
+}
+
+#uniqueContainer label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#uniqueContainer select,
+#uniqueContainer input[type="number"],
+#uniqueContainer input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#uniqueContainer button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#uniqueContainer button:hover {
+    background-color: #0056b3;
+}
+
+/* Tablonun genişlik ayarı ve yatay kaydırma */
+#uniqueContainer .table-container {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 20px;
+    border: 1px solid #ddd;
+}
+
+#uniqueContainer table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#uniqueContainer th,
+#uniqueContainer td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+#uniqueContainer th {
+    background-color: #f2f2f2;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }

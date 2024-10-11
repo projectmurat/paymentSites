@@ -631,3 +631,55 @@ $('.familyRoutinMoneyOutSaveButton').click(function () {
 $('#mevduatHesaplaButon').click(function () {
 	hesapla();
 })
+
+$('.btn-openFundsStatistics').click(function () {
+	PocketRealtime.getFundStatistic({
+		done: function (fundStatisticInfo) {
+			const tableBody = document.getElementById('uniqueTransactionTable');
+			tableBody.innerHTML = ''; // Tabloyu temizle
+
+			uniqueTransactions = []; // Önceki verileri temizle
+			uniqueTotalAmount = 0; // Toplam tutarı sıfırla
+			uniqueItemSummary = {}; // İstatistik özetini sıfırla
+
+			// Firebase'den gelen JSON verisini işle
+			Object.keys(fundStatisticInfo).forEach(key => {
+				const transaction = fundStatisticInfo[key];
+				const { date, item, quantity, price } = transaction;
+				const total = quantity * price;
+
+				// İşlemi uniqueTransactions dizisine ekle
+				uniqueTransactions.push({ key, date, item, quantity, price, total });
+
+				// Toplam tutarı güncelle
+				uniqueTotalAmount += total;
+
+				// Her tür için toplam miktarı güncelle
+				if (uniqueItemSummary[item]) {
+					uniqueItemSummary[item] += quantity;
+				} else {
+					uniqueItemSummary[item] = quantity;
+				}
+
+				// Tablonun gövdesine işlem satırını ekle
+				const row = document.createElement('tr');
+				row.innerHTML = `
+					<td>${date}</td>
+					<td>${item}</td>
+					<td>${quantity}</td>
+					<td>${price} TL</td>
+					<td>${total} TL</td>
+					<td><button onclick="deleteTransaction('${key}')">Sil</button></td>
+				`;
+				tableBody.appendChild(row);
+			});
+
+			// İstatistikleri ve kayıt sayısını güncelle
+			updateUniqueStatistics();
+			updateUniqueRecordCount();
+		},
+		fail: function (error) {
+			console.error(error);
+		}
+	});
+});
