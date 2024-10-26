@@ -1294,7 +1294,7 @@ function updateUniqueTable() {
 }
 
 function updateUniqueStatistics() {
-	document.getElementById('uniqueTotalAmount').innerText = uniqueTotalAmount.toFixed(2);
+	document.getElementById('uniqueTotalAmount').innerText = uniqueTotalAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 	const itemStatsDiv = document.getElementById('uniqueItemStatistics');
 	itemStatsDiv.innerHTML = '';
