@@ -2,7 +2,6 @@ const dropdown = document.getElementById('userActivityDropdown');
 
 window.addEventListener('DOMContentLoaded', event => {
 
-
 	/*
 	firebase.auth().sendPasswordResetEmail('imuratony@gmail.com').then(function() {
 		alert("mail gönderildi")

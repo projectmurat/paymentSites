@@ -1,5 +1,3 @@
-const degisken = "1";
-
 let table;
 let fundsTable;
 let selectedData;
@@ -587,7 +585,9 @@ function renderInstallmentsTable(installmentData) {
 		paymentButton.innerText = `Ödendi olarak İşaretle`;
 		paymentButton.dataset.key = key; // Tıklama olayında hangi taksitin güncellendiğini belirlemek için
 
-		if ((data.lastPaidMonth % 12 >= currentMonthIndex + 1 || data.lastPaidYear < currentYear)) { // Ay 0'dan başladığı için +1 eklememiz gerekiyor
+		let adjustedLastPaidMonth = (data.lastPaidMonth % 12 === 0) ? 12 : data.lastPaidMonth % 12;
+
+		if ((adjustedLastPaidMonth >= currentMonthIndex + 1 || data.lastPaidYear < currentYear)) { // Ay 0'dan başladığı için +1 eklememiz gerekiyor
 			paymentButton.disabled = true;
 			paymentButton.innerText = `${monthsInTurkish[currentMonthIndex]}-${currentYear} Ödendi`;
 		}
@@ -1011,7 +1011,7 @@ function displayPaidInstallments(installments) {
 			row.appendChild(addPaidMonthCell);
 
 			const lastPaidMonthCell = document.createElement("td");
-			let calculateMonth = installment.lastPaidMonth % 12 == 0 ? 1 : installment.lastPaidMonth % 12
+			let calculateMonth = installment.lastPaidMonth % 12 == 0 ? 12 : installment.lastPaidMonth % 12
 			lastPaidMonthCell.textContent = months_tr[calculateMonth - 1] + "-" + installment.lastPaidYear;
 			row.appendChild(lastPaidMonthCell);
 
@@ -1119,9 +1119,27 @@ function setFamilyIncomeInformationForInstallmentModal() {
 
 function setFamilyMoneyOutInformationForInstallmentModal(outMoneyObject) {
 	let sumOutAmount = document.getElementById("rutinGider");
+	let totalAmountContainer = document.querySelector(".total-amount-container-expense");
 
-	sumOutAmount.innerText = outMoneyObject.reduce((total, item) => total + (parseInt(item.amount) || 0), 0) + " ₺";
+	// Toplam tutarı hesapla
+	const totalAmount = outMoneyObject.reduce((total, item) => total + (parseInt(item.amount) || 0), 0);
+
+	// Toplam tutarı içeriğe yazdır
+	sumOutAmount.innerText = totalAmount + " ₺";
+
+	// Fiyat aralıklarına göre arka plan rengini ayarla (koyu tonlar)
+	if (totalAmount < 1000) {
+		totalAmountContainer.style.backgroundColor = "#4CAF50"; // Koyu yeşil (düşük tutar)
+	} else if (totalAmount < 5000) {
+		totalAmountContainer.style.backgroundColor = "#FFA500"; // Turuncu (orta tutar)
+	} else if (totalAmount < 10000) {
+		totalAmountContainer.style.backgroundColor = "#FF4500"; // Koyu turuncu (yüksek tutar)
+	} else {
+		totalAmountContainer.style.backgroundColor = "#B22222"; // Koyu kırmızı (çok yüksek tutar)
+	}
 }
+
+
 
 
 function setRoutineMoneyOut(routineInfo) {
@@ -1312,7 +1330,7 @@ function updateUniqueRecordCount() {
 function deleteTransaction(key) {
 	// Firebase'den kaydı sil
 	PocketRealtime.deleteFundStatistic({
-		path: key ,
+		path: key,
 		done: function () {
 			// Silme başarılı olunca local veri yapısını güncelle
 			alert("Silme başarılı");
