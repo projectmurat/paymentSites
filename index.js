@@ -436,14 +436,10 @@ $('.btn-openFundsSnapshots').click(function (args) {
 			let tableList = [];
 			var currentDate = new Date();
 
-
-
-
-
-			// Son 15 gün önceki zamanı al
-			var fifteenDaysAgo = new Date();
-			var CONST_DAY_AGO = 15;
-			fifteenDaysAgo.setDate(currentDate.getDate() - CONST_DAY_AGO);
+			// Son 7 gün önceki zamanı al
+			var sevenDaysAgo = new Date();
+			var CONST_DAY_AGO = 7;
+			sevenDaysAgo.setDate(currentDate.getDate() - CONST_DAY_AGO);
 
 			// Son 15 gün içinde olanları filtrele
 			var filteredDataWithinLastFifteenDays = filteredData.filter(function (item) {
@@ -474,7 +470,7 @@ $('.btn-openFundsSnapshots').click(function (args) {
 				var insertDate = new Date(date);
 
 				// Eğer insertDate, son 15 gün içindeyse true döndür ve bu öğeyi filtrele
-				return insertDate >= fifteenDaysAgo && insertDate <= currentDate;
+				return insertDate >= sevenDaysAgo && insertDate <= currentDate;
 			});
 
 
@@ -498,10 +494,10 @@ $('.btn-openFundsSnapshots').click(function (args) {
 					const previousNumericValue = parseFloat(previousValue);
 
 					if (currentValue > previousNumericValue) {
-						row.children[1].innerHTML = row.children[1].innerHTML + " +" + Math.abs(parseFloat(previousNumericValue - currentValue).toPrecision(2))
+						row.children[1].innerHTML = row.children[1].innerHTML + " +" + Math.abs(parseFloat(previousNumericValue - currentValue).toFixed(2))
 						row.classList.add('change-up');
 					} else if (currentValue < previousNumericValue) {
-						row.children[1].innerHTML = row.children[1].innerHTML + " -" + parseFloat(previousNumericValue - currentValue).toPrecision(4)
+						row.children[1].innerHTML = row.children[1].innerHTML + " -" + parseFloat(previousNumericValue - currentValue).toFixed(2)
 						row.classList.add('change-down');
 					}
 				}
