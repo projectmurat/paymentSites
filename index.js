@@ -130,7 +130,7 @@ $('.btn-add-period').click(function () {
 	}
 })
 
-$('.save').click(function () {
+$('#save').click(function () {
 	var tableData = table.getData();
 	var restoredData = [];
 
@@ -161,7 +161,7 @@ $('.save').click(function () {
 	});
 })
 
-$('.backup').click(function () {
+$('#backup').click(function () {
 	backupValidation((validate) => {
 		if (validate) {
 			alert("Backup özelliği devredışı bırakıldı.");
@@ -253,11 +253,11 @@ $('.btn-close').click(function (arg) {
 	console.log("kapatıldı")
 })
 
-$('.statistics').click(function () {
+$('#statistics').click(function () {
 	calculateStatistics()
 })
 
-$('.funds').click(function () {
+$('#funds').click(function () {
 	PocketRealtime.getFunds({
 		done: (response) => {
 
@@ -325,7 +325,7 @@ $(".btn-saveFunds").click(function () {
 	})
 });
 
-$('.installments').click(function () {
+$('#installments').click(function () {
 	PocketRealtime.getInstallments({
 		done: (response) => {
 			renderInstallmentsTable(response);
@@ -557,7 +557,7 @@ $('.btn-openFundsSnapshots').click(function (args) {
 	})
 })
 
-$('.userActivity').click(function () {
+$('#userActivity').click(function () {
 	PocketRealtime.getserLoggedActivity({
 		params: { lastRecordCount: selectedUserActivityLimit },
 		done: (response) => {

@@ -1,69 +1,35 @@
-@keyframes gradientAnimation {
+@keyframes gradientSmoothFlow {
     0% {
         background-position: 0% 50%;
     }
-
-    10% {
-        background-position: 25% 50%;
-    }
-
-    20% {
-        background-position: 50% 50%;
-    }
-
-    30% {
-        background-position: 75% 50%;
-    }
-
-    40% {
+    50% {
         background-position: 100% 50%;
     }
-
-    50% {
-        background-position: 75% 50%;
-    }
-
-    60% {
-        background-position: 50% 50%;
-    }
-
-    70% {
-        background-position: 25% 50%;
-    }
-
-    80% {
-        background-position: 0% 50%;
-    }
-
-    90% {
-        background-position: 25% 50%;
-    }
-
     100% {
         background-position: 0% 50%;
     }
 }
-
-@keyframes gradientMenu {
-    0% {
-        background-position: 0 0;
-    }
-
-    100% {
-        background-position: 100% 0;
-    }
-}
-
 
 body {
     margin: 0;
-    height: 100vh;
-    background: linear-gradient(90deg, #ab014a, #eb1c74, #0661ff, #bbc1f9);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(120deg, #ab014a, #eb1c74, #0661ff, #bbc1f9);
     background-size: 300% 300%;
-    /* Bu değeri artırdık */
-    animation: gradientAnimation 8s infinite;
-    /* Süreyi 10 saniyeye çıkardık */
+    animation: gradientSmoothFlow 18s ease-in-out infinite;
+    color: white;
 }
+
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
 
 .mdl-button {
     background-color: rgb(229, 240, 144);
@@ -261,45 +227,76 @@ tbody tr:hover {
     transform: none;
 }
 
-.total-amount-container {
-    padding: 10px;
-    border: 1px solid #e5e5e5;
-    border-radius: 5px;
-    background-color: #e5e5e5;
-    display: inline-block;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    margin-top: 5px;
+.amount-box {
+    padding: 20px 24px;
+    border-radius: 16px;
+    margin: 12px 0;
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+    /* yarı saydam cam efekti */
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
 }
 
-.total-amount-container-remaining {
-    padding: 10px;
-    border: 1px solid #e5e5e5;
-    border-radius: 5px;
-    background-color: #50d2ff;
-    display: inline-block;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    margin-top: 5px;
+.amount-box:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
 }
 
-.total-amount-container-expense {
-    padding: 10px;
-    border: 1px solid #e5e5e5;
-    border-radius: 5px;
-    background-color: #a9a9a9;
-    display: inline-block;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    margin-top: 5px;
+.amount-box strong {
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
 }
 
-.total-amount-container-income {
-    padding: 10px;
-    border: 1px solid #e5e5e5;
-    border-radius: 5px;
-    background-color: #adffa2;
-    display: inline-block;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    margin-top: 5px;
+.amount-box .amount {
+    font-weight: bold;
+    font-size: 1.4rem;
+    letter-spacing: 0.8px;
+    border-radius: inherit;
 }
+
+/* Tema renkleri - daha doygun ve modern tonlar */
+.amount-box.info {
+    background: linear-gradient(135deg, #6a7bff, #5966e0);
+}
+
+.amount-box.warning {
+    background: linear-gradient(135deg, #ffbd59, #ff9e2c);
+}
+
+.amount-box.danger {
+    background: linear-gradient(135deg, #ff6b6b, #d94c4c);
+}
+
+.amount-box.success {
+    background: linear-gradient(135deg, #38ef7d, #11998e);
+}
+
+.amount-box.primary {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+/* Mobil uyum */
+@media screen and (max-width: 600px) {
+    .amount-box {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .amount-box .amount {
+        font-size: 1.2rem;
+    }
+}
+
+
 
 .amount {
     color: #2c3e50;
@@ -390,7 +387,7 @@ tbody tr:hover {
     width: 100%;
     text-align: left;
     padding: 10px 15px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 5px solid rgba(0, 0, 0, 0.05);
     /* Hafif gri sınır */
     transition: all 0.2s;
     font-size: 15px;
@@ -1299,5 +1296,3 @@ input {
 .unique-item-statistics p:hover {
     background-color: #e2e6ea;
 }
-
-

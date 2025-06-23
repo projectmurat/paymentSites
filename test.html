@@ -4,237 +4,242 @@
 <head>
      <meta charset="UTF-8">
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>Altın ve Döviz İstatistikleri</title>
-     <style>
-          #uniqueContainer {
-               font-family: Arial, sans-serif;
-               margin: 20px;
-               padding: 0;
-               background-color: #f4f4f4;
-          }
-
-          #uniqueContainer h1 {
-               text-align: center;
-          }
-
-          #uniqueContainer .container {
-               max-width: 800px;
-               margin: 0 auto;
-               padding: 20px;
-               background-color: #fff;
-               border-radius: 8px;
-               box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-          }
-
-          #uniqueContainer .form-group {
-               margin-bottom: 20px;
-          }
-
-          #uniqueContainer label {
-               display: block;
-               margin-bottom: 5px;
-               font-weight: bold;
-          }
-
-          #uniqueContainer select,
-          #uniqueContainer input[type="number"],
-          #uniqueContainer input[type="date"] {
-               width: 100%;
-               padding: 10px;
-               border: 1px solid #ccc;
-               border-radius: 5px;
-          }
-
-          #uniqueContainer button {
-               padding: 10px 15px;
-               background-color: #007bff;
-               color: white;
-               border: none;
-               border-radius: 5px;
-               cursor: pointer;
-          }
-
-          #uniqueContainer button:hover {
-               background-color: #0056b3;
-          }
-
-          /* Tablonun genişlik ayarı ve yatay kaydırma */
-          #uniqueContainer .table-container {
-               max-height: 300px;
-               overflow-y: auto;
-               margin-top: 20px;
-               border: 1px solid #ddd;
-          }
-
-          #uniqueContainer table {
-               width: 100%;
-               border-collapse: collapse;
-          }
-
-          #uniqueContainer th,
-          #uniqueContainer td {
-               border: 1px solid #ddd;
-               padding: 10px;
-               text-align: left;
-               white-space: nowrap;
-          }
-
-          #uniqueContainer th {
-               background-color: #f2f2f2;
-               position: sticky;
-               top: 0;
-               z-index: 10;
-          }
-
-          @media (max-width: 768px) {
-
-               #uniqueContainer th,
-               #uniqueContainer td {
-                    font-size: 14px;
-               }
-          }
-     </style>
+     <title>Fatura İstatistikleri</title>
+     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-     <div id="uniqueContainer">
 
-          <div class="container">
-               <div class="form-group">
-                    <label for="date">Tarih</label>
-                    <input type="date" id="uniqueDate">
-               </div>
-               <div class="form-group">
-                    <label for="item">Tür</label>
-                    <select id="uniqueItem">
-                         <option value="Çeyrek Altın">Çeyrek Altın</option>
-                         <option value="Yarım Altın">Yarım Altın</option>
-                         <option value="Tam Altın">Tam Altın</option>
-                         <option value="Cumhuriyet Altını">Cumhuriyet Altını</option>
-                         <option value="Gram Altın">Gram Altın</option>
-                         <option value="Dolar">Dolar</option>
-                         <option value="Euro">Euro</option>
-                         <option value="Sterlin">Sterlin</option>
-                    </select>
-               </div>
-               <div class="form-group">
-                    <label for="quantity">Adet</label>
-                    <input type="number" id="uniqueQuantity" placeholder="Örneğin: 1">
-               </div>
-               <div class="form-group">
-                    <label for="price">Birim Fiyat (TL)</label>
-                    <input type="number" id="uniquePrice" placeholder="Örneğin: 5000">
-               </div>
-               <button onclick="addUniqueTransaction()">İşlem Ekle</button>
+     <div class="container">
+          <h1>Fatura İstatistikleri</h1>
 
-               <!-- Toplam kayıt sayısı -->
-               <p><strong>Toplam Kayıt:</strong> <span id="uniqueTotalRecords">0</span></p>
-
-               <div class="table-container">
-                    <table>
-                         <thead>
-                              <tr>
-                                   <th>Tarih</th>
-                                   <th>Tür</th>
-                                   <th>Adet</th>
-                                   <th>Birim Fiyat</th>
-                                   <th>Toplam Tutar</th>
-                                   <th>İşlemler</th>
-                              </tr>
-                         </thead>
-                         <tbody id="uniqueTransactionTable">
-                         </tbody>
-                    </table>
+          <!-- Yıl seçimi için açılır menüler -->
+          <div class="year-selection">
+               <label for="year1Button">Karşılaştırma Yılı 1:</label>
+               <div class="dropdown">
+                    <button id="year1Button" class="dropdown-button" onclick="toggleDropdown('year1Dropdown')">Yıl
+                         Seçin</button>
+                    <div id="year1Dropdown" class="dropdown-content"></div>
                </div>
 
-               <h2>İstatistikler</h2>
-               <p><strong>Toplam Tutar:</strong> <span id="uniqueTotalAmount">0</span> TL</p>
-               <div id="uniqueItemStatistics"></div>
+               <label for="year2Button">Karşılaştırma Yılı 2:</label>
+               <div class="dropdown">
+                    <button id="year2Button" class="dropdown-button" onclick="toggleDropdown('year2Dropdown')">Yıl
+                         Seçin</button>
+                    <div id="year2Dropdown" class="dropdown-content"></div>
+               </div>
+          </div>
+
+          <div id="chartsContainer" class="charts-container">
+               <!-- Grafikler burada oluşturulacak -->
           </div>
      </div>
 
-     <script>
-          let uniqueTransactions = [];
-          let uniqueTotalAmount = 0;
-          let uniqueItemSummary = {};
+     <!-- Modal -->
+     <div id="detailsModal" class="modal">
+          <div class="modal-content">
+               <span class="close">&times;</span>
+               <h2 id="modalTitle">Ayrıntılı Fatura Analizi</h2>
+               <table id="detailsTable">
+                    <thead>
+                         <tr>
+                              <th>Ay</th>
+                              <th id="year1Header"></th>
+                              <th id="year2Header"></th>
+                              <th>Değişim</th>
+                         </tr>
+                    </thead>
+                    <tbody></tbody>
+               </table>
+          </div>
+     </div>
 
-          function addUniqueTransaction() {
-               const date = document.getElementById('uniqueDate').value;
-               const item = document.getElementById('uniqueItem').value;
-               const quantity = parseFloat(document.getElementById('uniqueQuantity').value);
-               const price = parseFloat(document.getElementById('uniquePrice').value);
+     <script type="module">
+          import { categorizedData } from './test.js';
 
-               const total = quantity * price;
-               const transaction = { date, item, quantity, price, total };
-               uniqueTransactions.push(transaction);
+          const chartsContainer = document.getElementById('chartsContainer');
+          const detailsModal = document.getElementById("detailsModal");
+          const closeModal = document.getElementsByClassName("close")[0];
+          const modalTitle = document.getElementById("modalTitle");
+          const detailsTable = document.getElementById("detailsTable").querySelector("tbody");
+          const year1Header = document.getElementById("year1Header");
+          const year2Header = document.getElementById("year2Header");
 
-               uniqueTotalAmount += total;
+          closeModal.onclick = () => detailsModal.style.display = "none";
+          window.onclick = event => { if (event.target === detailsModal) detailsModal.style.display = "none"; };
 
-               if (uniqueItemSummary[item]) {
-                    uniqueItemSummary[item] += quantity;
-               } else {
-                    uniqueItemSummary[item] = quantity;
-               }
+          const months = ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"];
+          let selectedYear1, selectedYear2;
+          let chartInstances = {}; // Grafik örneklerini saklamak için
 
-               updateUniqueTable();
-               updateUniqueStatistics();
-               updateUniqueRecordCount();
+          // Yıl seçim menüsünü doldurun
+          function populateYearOptions() {
+               const years = Object.keys(categorizedData["Elektrik Faturası"]).sort();
+               const year1Dropdown = document.getElementById("year1Dropdown");
+               const year2Dropdown = document.getElementById("year2Dropdown");
+
+               years.forEach(year => {
+                    const option1 = document.createElement('a');
+                    option1.innerText = year;
+                    option1.onclick = () => selectYear(year, "year1");
+
+                    const option2 = document.createElement('a');
+                    option2.innerText = year;
+                    option2.onclick = () => selectYear(year, "year2");
+
+                    year1Dropdown.appendChild(option1);
+                    year2Dropdown.appendChild(option2);
+               });
+
+               // Varsayılan olarak son iki yılı seçin
+               selectYear(years[years.length - 2], "year1");
+               selectYear(years[years.length - 1], "year2");
+
+               // Tüm fatura türleri için grafik kapsayıcılarını oluştur
+               Object.keys(categorizedData).forEach(billType => {
+                    createChartContainer(billType);
+               });
+
+               // Grafikleri başlat
+               updateComparison();
           }
 
-          function deleteTransaction(index) {
-               const transaction = uniqueTransactions[index];
-               uniqueTotalAmount -= transaction.total;
+          // Grafik kapsayıcıları oluştur
+          function createChartContainer(billType) {
+               const card = document.createElement('div');
+               card.className = 'chart-card';
 
-               // Türdeki miktarı düşür
-               uniqueItemSummary[transaction.item] -= transaction.quantity;
-               if (uniqueItemSummary[transaction.item] === 0) {
-                    delete uniqueItemSummary[transaction.item];
-               }
+               const title = document.createElement('h2');
+               title.innerText = billType;
+               card.appendChild(title);
 
-               // İlgili kaydı sil
-               uniqueTransactions.splice(index, 1);
+               const canvas = document.createElement('canvas');
+               canvas.id = `${billType}-chart`;
+               card.appendChild(canvas);
 
-               updateUniqueTable();
-               updateUniqueStatistics();
-               updateUniqueRecordCount();
+               chartsContainer.appendChild(card);
           }
 
-          function updateUniqueTable() {
-               const tableBody = document.getElementById('uniqueTransactionTable');
-               tableBody.innerHTML = '';
+          // Yıl seçildiğinde butonun metnini güncelle
+          function selectYear(year, buttonId) {
+               document.getElementById(buttonId + "Button").innerText = year;
+               if (buttonId === "year1") selectedYear1 = year;
+               if (buttonId === "year2") selectedYear2 = year;
+               updateComparison(); // Yıllar seçildiğinde grafik ve tabloyu güncelle
+          }
 
-               uniqueTransactions.forEach((transaction, index) => {
-                    const row = document.createElement('tr');
-                    row.id = "id";
+          // Açılır menüyü göster/gizle
+          function toggleDropdown(dropdownId) {
+               document.getElementById(dropdownId).classList.toggle("show");
+          }
+
+          // Tüm dropdown menüler dışına tıklandığında kapatma
+          window.onclick = function (event) {
+               if (!event.target.matches('.dropdown-button')) {
+                    const dropdowns = document.getElementsByClassName("dropdown-content");
+                    for (let i = 0; i < dropdowns.length; i++) {
+                         dropdowns[i].classList.remove('show');
+                    }
+               }
+          };
+
+          // updateComparison fonksiyonu, seçilen yıllara göre tüm grafikleri günceller
+          function updateComparison() {
+               if (selectedYear1 && selectedYear2) {
+                    Object.keys(categorizedData).forEach(billType => {
+                         createChart(billType);
+                    });
+               }
+          }
+
+          // Grafik oluşturma fonksiyonu
+          function createChart(billType) {
+               const canvas = document.getElementById(`${billType}-chart`);
+               if (!canvas) return; // Eğer canvas bulunamazsa, fonksiyondan çık
+
+               const ctx = canvas.getContext('2d');
+
+               // Mevcut grafik varsa önce sil
+               if (chartInstances[billType]) {
+                    chartInstances[billType].destroy();
+               }
+
+               const year1Data = categorizedData[billType][selectedYear1] || {};
+               const year2Data = categorizedData[billType][selectedYear2] || {};
+
+               const datasets = [
+                    {
+                         label: selectedYear1,
+                         data: months.map(month => month in year1Data ? year1Data[month] : null),
+                         borderColor: 'blue',
+                         fill: false
+                    },
+                    {
+                         label: selectedYear2,
+                         data: months.map(month => month in year2Data ? year2Data[month] : null),
+                         borderColor: 'green',
+                         fill: false
+                    }
+               ];
+
+               // Yeni grafik oluştur ve kaydet
+               chartInstances[billType] = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: months, datasets },
+                    options: {
+                         responsive: true,
+                         plugins: {
+                              legend: { position: 'top' }
+                         },
+                         onClick: () => showDetails(billType)
+                    }
+               });
+          }
+
+          // Yıl seçeneklerini doldurun ve grafik kapsayıcılarını oluşturun
+          populateYearOptions();
+
+          // Seçili yıllara göre tabloyu güncelleme
+          function showDetails(billType) {
+               modalTitle.innerText = `${billType} Ayrıntılı Analiz`;
+               detailsTable.innerHTML = "";
+
+               const year1Data = categorizedData[billType][selectedYear1] || {};
+               const year2Data = categorizedData[billType][selectedYear2] || {};
+
+               year1Header.textContent = selectedYear1;
+               year2Header.textContent = selectedYear2;
+
+               months.forEach(month => {
+                    const amount1 = month in year1Data ? year1Data[month] : null;
+                    const amount2 = month in year2Data ? year2Data[month] : null;
+
+                    const difference = amount1 !== null && amount2 !== null ? amount2 - amount1 : null;
+                    const change = difference > 0 ? "▲" : difference < 0 ? "▼" : "→";
+                    const color = difference > 0 ? "red" : difference < 0 ? "green" : "gray";
+
+                    const row = document.createElement("tr");
                     row.innerHTML = `
-                         <td>${transaction.date}</td>
-                         <td>${transaction.item}</td>
-                         <td>${transaction.quantity}</td>
-                         <td>${transaction.price} TL</td>
-                         <td>${transaction.total} TL</td>
-                         <td><button onclick="deleteTransaction(${index})">Sil</button></td>
+                         <td>${month}</td>
+                         <td>${amount1 !== null ? `${amount1.toFixed(2)} TL` : "--"}</td>
+                         <td>${amount2 !== null ? `${amount2.toFixed(2)} TL` : "--"}</td>
+                         <td style="color: ${color}; font-weight: bold;">
+                              ${difference !== null ? `${change} ${Math.abs(difference).toFixed(2)} TL` : "--"}
+                         </td>
                     `;
-                    tableBody.appendChild(row);
+                    detailsTable.appendChild(row);
                });
+
+               detailsModal.style.display = "block";
           }
 
-          function updateUniqueStatistics() {
-               document.getElementById('uniqueTotalAmount').innerText = uniqueTotalAmount.toFixed(2);
+          // Fonksiyonları window nesnesine ekleyin
+          window.updateComparison = updateComparison;
+          window.toggleDropdown = toggleDropdown;
 
-               const itemStatsDiv = document.getElementById('uniqueItemStatistics');
-               itemStatsDiv.innerHTML = '';
-
-               Object.keys(uniqueItemSummary).forEach(item => {
-                    const stat = document.createElement('p');
-                    stat.innerHTML = `<strong>${item}:</strong> ${uniqueItemSummary[item]} adet`;
-                    itemStatsDiv.appendChild(stat);
-               });
-          }
-
-          function updateUniqueRecordCount() {
-               document.getElementById('uniqueTotalRecords').innerText = uniqueTransactions.length;
-          }
      </script>
+
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 
 </html>

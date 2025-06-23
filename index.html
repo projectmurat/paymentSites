@@ -82,34 +82,28 @@
 		<span style="display: flex; justify-content: center;" id="infoSpan"></span>
 		<div class="deleteInfo" id="deleteInfo"></div><br>
 		<div class="dropdown">
-			<button class="btn btn-primary dropdown-toggle" type="button" id="menuButton" data-toggle="dropdown"
-				aria-haspopup="true" aria-expanded="false">
-				Menü
+			<button class="btn btn-primary dropdown-toggle" type="button" id="menuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			  Menü
 			</button>
-			<div class="dropdown-menu" aria-labelledby="menuButton">
-				<button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect" data-toggle="modal"
-					data-target="#registerModal">Yeni</button>
-				<button type="button" class="mdl-button save" id="save">Kaydet</button>
-				<button type="button" class="mdl-button backup button-color-2" id="backup">Get BackUp</button>
-				<button type="button" class="mdl-button statistics button-color-2" id="statistics"
-					data-target="#statisticsModal" data-toggle="modal">İstatistikler</button>
-				<button type="button" class="mdl-button funds button-color-1" id="funds" data-target="#fundsModal"
-					data-toggle="modal">Birikim Fonları</button>
-				<button type="button" class="mdl-button installments button-color-1" id="Installments"
-					data-target="#creditCardInstallmentModal" data-toggle="modal">Taksitler</button>
-				<button type="button" class="mdl-button simulation button-color-1" id="simulation"
-					data-target="#simulationModal" data-toggle="modal">Mevduat Simulasyon</button>
-				<button type="button" class="mdl-button shoppingSmimulation button-color-1" id="shoppingSmimulation"
-					data-target="#shoppingSmimulationModal" data-toggle="modal">Alışveriş Simulasyon</button>
-				<button type="button" class="mdl-button userActivity button-color-1" id="userActivity"
-					data-target="#userActivityModal" data-toggle="modal">Kullanıcı Aktivite</button>
-			</div>
 
-		</div>
+			<div class="dropdown-menu bank-menu" aria-labelledby="menuButton">
+				<button type="button" id="btn-add" class="menu-btn filled" data-toggle="modal" data-target="#registerModal">💾 Yeni</button>
+				<button type="button" id="save" class="menu-btn filled">💾 Kaydet</button>
+				<button type="button" id="backup" class="menu-btn outlined">🗂️ Get BackUp</button>
+				<button type="button" id="statistics" class="menu-btn filled" data-toggle="modal" data-target="#statisticsModal">📊 İstatistikler</button>
+				<button type="button" id="funds" class="menu-btn outlined" data-toggle="modal" data-target="#fundsModal">💰 Birikim Fonları</button>
+				<button type="button" id="installments" class="menu-btn outlined" data-toggle="modal" data-target="#creditCardInstallmentModal">📆 Taksitler</button>
+				<button type="button" id="simulation" class="menu-btn filled" data-toggle="modal" data-target="#simulationModal">📈 Mevduat Simülasyon</button>
+				<button type="button" id="shoppingSmimulation" class="menu-btn outlined" data-toggle="modal" data-target="#shoppingSmimulationModal">🛒 Alışveriş Simülasyon</button>
+				<button type="button" id="userActivity" class="menu-btn filled" data-toggle="modal" data-target="#userActivityModal">👤 Kullanıcı Aktivite</button>
+			</div>
+		   </div>
+
+		<!-- Yeni Harcama Ekleme Modalı -->
 		<div class="modal registerModal" id="registerModal" tabindex="-1" role="dialog"
 			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
-				<div class="modal-content" style="height: 400px !important">
+				<div class="modal-content" style="height: 450px !important">
 					<div class="modal-header">
 						<h4 class="modal-title modal-title-centered" id="myModalLabel">Ödeme Ekleme Paneli</h4>
 						<p id="popup-info-period-msg"></p>
@@ -127,7 +121,7 @@
 
 									<div class="row">
 										<div class="col-md-3"><label for="amount">Tutar:</label></div>
-										<div class="col-md-9"><input type="amount" name="amount"
+										<div class="col-md-9"><input type="number" name="amount"
 												class="form-control" id="amount"
 												placeholder="Ödeme Tutarı Ekleyin..."></div>
 									</div>
@@ -150,6 +144,8 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- Yeni Dönem Ekleme Modalı -->
 		<div class="modal addPeriod" id="addPeriod" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content" style="height: 400px !important">
@@ -186,6 +182,7 @@
 			</div>
 		</div>
 
+		<!-- İstatistikler Modalı -->
 		<div class="modal statisticsModal" id="statisticsModal" tabindex="-1" role="dialog"
 			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
@@ -209,9 +206,10 @@
 			</div>
 		</div>
 
+		<!-- Birikim Fonları Modalı -->
 		<div class="modal fundsModal" id="fundsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
-				<div class="modal-content">
+				<div class="modal-content" style="height: 675px !important">
 					<div class="modal-header">
 						<h4 class="modal-title modal-title-centered" id="myModalLabel">Birikim Fonları</h4>
 						<p id="popup-info-period-msg"></p>
@@ -252,6 +250,7 @@
 			</div>
 		</div>
 
+		<!-- Birikim Fonları - Tarihçe Modalı -->
 		<div class="modal fundsHistoryModal" id="fundsHistoryModal" tabindex="-1" role="dialog"
 			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
@@ -294,10 +293,90 @@
 			</div>
 		</div>
 
-		<div class="modal creditCardInstallmentModal" id="creditCardInstallmentModal" tabindex="-1" role="dialog"
+		<!-- Birikim Fonları - FonStat Modalı -->
+		<div class="modal fundsStatistics" id="fundsStatisticsModal" tabindex="-1" role="dialog"
 			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Fon İstatistikleri
+						</h4>
+						<p id="popup-info-period-msg"></p>
+					</div>
+
+					<div class="modal-body ">
+						<div id="uniqueContainer">
+
+							<div class="container">
+								<div class="form-group">
+									<label for="date">Tarih</label>
+									<input type="date" id="uniqueDate">
+								</div>
+								<div class="form-group">
+									<label for="item">Tür</label>
+									<select id="uniqueItem">
+										<option value="Çeyrek Altın">Çeyrek Altın</option>
+										<option value="Yarım Altın">Yarım Altın</option>
+										<option value="Tam Altın">Tam Altın</option>
+										<option value="Cumhuriyet Altını">Cumhuriyet Altını</option>
+										<option value="Gram Altın">Gram Altın</option>
+										<option value="Gümüş Gram">Gümüş Gram</option>
+										<option value="Dolar">Dolar</option>
+										<option value="Euro">Euro</option>
+										<option value="Sterlin">Sterlin</option>
+									</select>
+								</div>
+								<div class="form-group">
+									<label for="quantity">Adet</label>
+									<input type="number" id="uniqueQuantity" placeholder="Örneğin: 1">
+								</div>
+								<div class="form-group">
+									<label for="price">Birim Fiyat (TL)</label>
+									<input type="number" id="uniquePrice" placeholder="Örneğin: 5000">
+								</div>
+								<button onclick="addUniqueTransaction()">İşlem Ekle</button>
+
+								<!-- Toplam kayıt sayısı -->
+								<p><strong>Toplam Kayıt:</strong> <span id="uniqueTotalRecords">0</span></p>
+
+								<div class="table-container">
+									<table>
+										<thead>
+											<tr>
+												<th>Tarih</th>
+												<th>Tür</th>
+												<th>Adet</th>
+												<th>Birim Fiyat</th>
+												<th>Toplam Tutar</th>
+											</tr>
+										</thead>
+										<tbody id="uniqueTransactionTable">
+										</tbody>
+									</table>
+								</div>
+
+								<h2 class="unique-statistics-header">İstatistikler</h2>
+								<div class="unique-statistics-container">
+									<p class="unique-total-amount"><strong>Toplam Tutar:</strong> <span
+											id="uniqueTotalAmount">0</span> TL</p>
+									<div id="uniqueItemStatistics" class="unique-item-statistics"></div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Taksitler Modalı -->
+		<div class="modal creditCardInstallmentModal" id="creditCardInstallmentModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content" >
 					<div class="modal-header">
 						<h4 class="modal-title modal-title-centered" id="myModalLabel">Taksitler</h4>
 					</div>
@@ -318,29 +397,35 @@
 								<tbody id="taksitler">
 								</tbody>
 							</table>
-							<div class="mt-3 total-amount-container">
-								<strong>Toplam Kalan Tutar:</strong> <span id="toplamKalan" class="amount">0
-									₺</span>
+							<div class="mt-3 total-amount-container amount-box info">
+								<strong>Toplam Kalan Tutar:</strong>
+								<span id="toplamKalan" class="amount">0 ₺</span>
 							</div>
-							<div class="mt-3 total-amount-container-expense">
-								<strong>Toplam Aylık Tutar:</strong> <span id="toplamAylık" class="amount">0
-									₺</span>
+
+							<div class="mt-3 total-amount-container-expense amount-box warning">
+								<strong>Toplam Aylık Tutar:</strong>
+								<span id="toplamAylık" class="amount">0 ₺</span>
 							</div>
-							<div class="mt-3 total-amount-container-expense" data-target="#familyRoutinMoneyOut"
-								data-toggle="modal" id="familyRoutinMoneyOutButton">
-								<strong>Toplam Aylık Rutin Gider:</strong> <span id="rutinGider"
-									class="amount">0
-									₺</span>
+
+							<div class="mt-3 total-amount-container-expense amount-box danger"
+								data-target="#familyRoutinMoneyOut" data-toggle="modal"
+								id="familyRoutinMoneyOutButton">
+								<strong>Toplam Aylık Rutin Gider:</strong>
+								<span id="rutinGider" class="amount">0 ₺</span>
 							</div>
-							<div class="mt-3 total-amount-container-income" data-target="#familyIncomeModal"
-								data-toggle="modal" id="familyIncomeButton">
-								<strong>Toplam Aile Geliri:</strong> <span id="toplamAileGelir" class="amount">0
-									₺</span>
+
+							<div class="mt-3 total-amount-container-income amount-box success"
+								data-target="#familyIncomeModal" data-toggle="modal" id="familyIncomeButton">
+								<strong>Toplam Aile Geliri:</strong>
+								<span id="toplamAileGelir" class="amount">0 ₺</span>
 							</div>
-							<div class="mt-3 total-amount-container-remaining">
-								<strong>Kalan Para Miktarı:</strong> <span id="eldeKalanMiktar" class="amount">0
-									₺</span>
+
+							<div class="mt-3 total-amount-container-remaining amount-box primary">
+								<strong>Kalan Para Miktarı:</strong>
+								<span id="eldeKalanMiktar" class="amount">0 ₺</span>
 							</div>
+
+
 						</div>
 					</div>
 
@@ -357,6 +442,7 @@
 			</div>
 		</div>
 
+		<!-- Taksitler - Taksit Tarihçesi Modalı -->
 		<div class="modal creditCardInstallmentHistoryModal" id="creditCardInstallmentHistoryModal" tabindex="-1"
 			role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
@@ -397,6 +483,7 @@
 			</div>
 		</div>
 
+		<!-- Taksitler - Toplam Aile Geliri Modalı -->
 		<div class="modal familyIncomeModal" id="familyIncomeModal" tabindex="-1" role="dialog"
 			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
@@ -439,6 +526,7 @@
 			</div>
 		</div>
 
+		<!-- Taksitler - Rutin Giderler Modalı -->
 		<div class="modal familyRoutinMoneyOut" id="familyRoutinMoneyOut" tabindex="-1" role="dialog"
 			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
@@ -467,6 +555,7 @@
 			</div>
 		</div>
 
+		<!-- Taksitler - Taksit Ekle Modalı -->
 		<div class="modal addNewInstallment" id="addNewInstallment" tabindex="-1" role="dialog"
 			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
@@ -520,7 +609,7 @@
 			</div>
 		</div>
 
-
+		<!-- Mevduat Simülasyon Modalı -->
 		<div class="modal simulation" id="simulationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
@@ -553,7 +642,7 @@
 			</div>
 		</div>
 
-
+		<!-- Alışveriş Simülasyon Modalı -->
 		<div class="modal shoppingSmimulation" id="shoppingSmimulationModal" tabindex="-1" role="dialog"
 			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
@@ -642,6 +731,7 @@
 			</div>
 		</div>
 
+		<!-- Kullanıcı Aktivite Modalı -->
 		<div class="modal userActivity" id="userActivityModal" tabindex="-1" role="dialog"
 			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
@@ -695,6 +785,7 @@
 			</div>
 		</div>
 
+		<!-- Kullanıcı Aktivite - Detay Modalı -->
 		<div class="modal userActivityDetail" id="userActivityDetailModal" tabindex="-1" role="dialog"
 			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
@@ -750,83 +841,7 @@
 			</div>
 		</div>
 
-		<div class="modal fundsStatistics" id="fundsStatisticsModal" tabindex="-1" role="dialog"
-			aria-labelledby="myModalLabel">
-			<div class="modal-dialog modal-dialog-centered" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Fon İstatistikleri
-						</h4>
-						<p id="popup-info-period-msg"></p>
-					</div>
 
-					<div class="modal-body ">
-						<div id="uniqueContainer">
-
-							<div class="container">
-								<div class="form-group">
-									<label for="date">Tarih</label>
-									<input type="date" id="uniqueDate">
-								</div>
-								<div class="form-group">
-									<label for="item">Tür</label>
-									<select id="uniqueItem">
-										<option value="Çeyrek Altın">Çeyrek Altın</option>
-										<option value="Yarım Altın">Yarım Altın</option>
-										<option value="Tam Altın">Tam Altın</option>
-										<option value="Cumhuriyet Altını">Cumhuriyet Altını</option>
-										<option value="Gram Altın">Gram Altın</option>
-										<option value="Gümüş Gram">Gümüş Gram</option>
-										<option value="Dolar">Dolar</option>
-										<option value="Euro">Euro</option>
-										<option value="Sterlin">Sterlin</option>
-									</select>
-								</div>
-								<div class="form-group">
-									<label for="quantity">Adet</label>
-									<input type="number" id="uniqueQuantity" placeholder="Örneğin: 1">
-								</div>
-								<div class="form-group">
-									<label for="price">Birim Fiyat (TL)</label>
-									<input type="number" id="uniquePrice" placeholder="Örneğin: 5000">
-								</div>
-								<button onclick="addUniqueTransaction()">İşlem Ekle</button>
-
-								<!-- Toplam kayıt sayısı -->
-								<p><strong>Toplam Kayıt:</strong> <span id="uniqueTotalRecords">0</span></p>
-
-								<div class="table-container">
-									<table>
-										<thead>
-											<tr>
-												<th>Tarih</th>
-												<th>Tür</th>
-												<th>Adet</th>
-												<th>Birim Fiyat</th>
-												<th>Toplam Tutar</th>
-											</tr>
-										</thead>
-										<tbody id="uniqueTransactionTable">
-										</tbody>
-									</table>
-								</div>
-
-								<h2 class="unique-statistics-header">İstatistikler</h2>
-								<div class="unique-statistics-container">
-									<p class="unique-total-amount"><strong>Toplam Tutar:</strong> <span
-											id="uniqueTotalAmount">0</span> TL</p>
-									<div id="uniqueItemStatistics" class="unique-item-statistics"></div>
-								</div>
-
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
-					</div>
-				</div>
-			</div>
-		</div>
 	</div>
 
 	<script src="utility.js"></script>

@@ -1,0 +1,193 @@
+body {
+     font-family: Arial, sans-serif;
+     background-color: #f4f6f9;
+     color: #333;
+     margin: 0;
+     padding: 0;
+}
+
+.container {
+     width: 80%;
+     margin: auto;
+     padding: 20px;
+     text-align: center;
+}
+
+h1 {
+     color: #4a90e2;
+     font-size: 2.5em;
+     margin-bottom: 20px;
+}
+
+.charts-container {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 20px;
+     justify-content: center;
+}
+
+.chart-card {
+     width: 100%;
+     max-width: 500px;
+     background-color: #fff;
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+     border-radius: 10px;
+     padding: 10px;
+     transition: transform 0.3s, box-shadow 0.3s;
+     animation: fadeIn 1s ease;
+}
+
+.modal {
+     display: none;
+     position: fixed;
+     z-index: 1;
+     left: 0;
+     top: 0;
+     width: 100%;
+     height: 100%;
+     overflow: auto;
+     background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+     background-color: #fefefe;
+     margin: 5% auto;
+     padding: 20px;
+     width: 90%;
+     max-width: 700px;
+     border-radius: 8px;
+     overflow-y: auto;
+     max-height: 80vh;
+}
+
+.close {
+     float: right;
+     font-size: 24px;
+     font-weight: bold;
+     cursor: pointer;
+}
+
+.close:hover {
+     color: red;
+}
+
+table {
+     width: 100%;
+     border-collapse: collapse;
+     margin-top: 20px;
+}
+
+th,
+td {
+     border: 1px solid #ddd;
+     padding: 10px;
+     text-align: center;
+}
+
+th {
+     background-color: #4a90e2;
+     color: #fff;
+}
+
+.year-selection {
+     display: flex;
+     gap: 20px;
+     align-items: center;
+     justify-content: center;
+     margin: 20px 0;
+     flex-wrap: wrap;
+     /* Mobilde esnek olması için ekledik */
+}
+
+.dropdown {
+     position: relative;
+     display: inline-block;
+}
+
+.dropdown-button {
+     background-color: #4a90e2;
+     color: white;
+     padding: 10px 20px;
+     border: none;
+     border-radius: 5px;
+     cursor: pointer;
+     font-size: 1em;
+     transition: background-color 0.3s;
+}
+
+.dropdown-button:hover {
+     background-color: #3b78c6;
+}
+
+.dropdown-content {
+     display: none;
+     position: absolute;
+     background-color: #f9f9f9;
+     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+     border-radius: 5px;
+     z-index: 1;
+     min-width: 100px;
+}
+
+.dropdown-content a {
+     color: black;
+     padding: 8px 12px;
+     text-decoration: none;
+     display: block;
+     cursor: pointer;
+     transition: background-color 0.3s;
+}
+
+.dropdown-content a:hover {
+     background-color: #ddd;
+}
+
+.show {
+     display: block;
+}
+
+/* Mobil uyumluluk */
+@media only screen and (max-width: 600px) {
+     .container {
+          width: 95%;
+          padding: 10px;
+     }
+
+     h1 {
+          font-size: 1.8em;
+     }
+
+     .chart-card {
+          width: 100%;
+          padding: 10px;
+     }
+
+     .modal-content {
+          width: 95%;
+          padding: 10px;
+     }
+
+     /* Yıl seçme alanlarını mobilde daha küçük yap */
+     .year-selection {
+          flex-direction: column;
+          gap: 10px;
+     }
+
+     /* Dropdown buton boyutları mobilde küçülsün */
+     .dropdown-button {
+          padding: 8px 16px;
+          font-size: 0.9em;
+     }
+
+     table,
+     th,
+     td {
+          font-size: 0.9em;
+     }
+
+     /* Modal tabloya kaydırılabilirlik sağla */
+     .modal-content {
+          overflow-x: auto;
+          max-height: 80vh;
+     }
+}
