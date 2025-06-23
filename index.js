@@ -2,6 +2,7 @@ const dropdown = document.getElementById('userActivityDropdown');
 
 window.addEventListener('DOMContentLoaded', event => {
 
+
 	/*
 	firebase.auth().sendPasswordResetEmail('imuratony@gmail.com').then(function() {
 		alert("mail gönderildi")
@@ -159,6 +160,108 @@ $('#save').click(function () {
 			throwSaveChange(error)
 		}
 	});
+})
+
+$('#faturaStatistics').click(function () {
+	PocketRealtime.getStatistics({
+		done:(response)=>{
+			const categories = ["Doğalgaz Faturası", "Elektrik Faturası", "Su Faturası", "İnternet Faturası"];
+			const yearSums = {};
+			const monthlyData = {}; // Ay bazlı veri için eklendi
+			let data = response
+
+			Object.entries(data).forEach(([key, payments]) => {
+				const [month, year] = key.split('-');
+				if (!yearSums[year]) {
+					yearSums[year] = {};
+					categories.forEach(c => yearSums[year][c] = 0);
+				}
+				if (!monthlyData[year]) monthlyData[year] = {};
+				if (!monthlyData[year][month]) {
+					monthlyData[year][month] = {};
+					categories.forEach(c => monthlyData[year][month][c] = 0);
+				}
+
+				payments.forEach(p => {
+					if (categories.includes(p.name)) {
+						const amount = parseFloat(p.amount);
+						yearSums[year][p.name] += amount;
+						monthlyData[year][month][p.name] += amount;
+					}
+				});
+			});
+
+			const years = Object.keys(yearSums).sort();
+			const yearSelect = document.getElementById('yearSelect');
+			years.forEach(y => {
+				const opt = document.createElement('option');
+				opt.value = y;
+				opt.textContent = y;
+				yearSelect.appendChild(opt);
+			});
+
+			function renderChart(selectedYear = '') {
+				const labels = selectedYear ? Object.keys(monthlyData[selectedYear]).sort() : years;
+				const chartData = categories.map(cat => ({
+					label: cat,
+					data: labels.map(label => selectedYear ? (monthlyData[selectedYear][label]?.[cat] || 0) : yearSums[label][cat]),
+					backgroundColor: getColor(cat)
+				}));
+
+				const ctx = document.getElementById('expenseChart').getContext('2d');
+				if (window.expenseChartInstance) window.expenseChartInstance.destroy();
+				window.expenseChartInstance = new Chart(ctx, {
+					type: 'bar',
+					data: {
+						labels: labels,
+						datasets: chartData
+					},
+					options: {
+						responsive: true,
+						plugins: {
+							legend: { position: 'bottom' },
+							title: {
+								display: true,
+								text: selectedYear ? `${selectedYear} Aylık Fatura Dağılımı` : 'Yıllık Fatura Dağılımı'
+							}
+						}
+					}
+				});
+
+				// Özet
+				const summary = document.getElementById('expenseSummary');
+				summary.innerHTML = selectedYear
+					? (() => {
+						const total = categories.map(c => Object.values(monthlyData[selectedYear]).map(m => m[c]).reduce((a, b) => a + b, 0)).reduce((a, b) => a + b, 0);
+						return `<strong>${selectedYear}:</strong> ${total.toLocaleString('tr-TR')} ₺ toplam fatura harcaması`;
+					})()
+					: years.map(year => {
+						const sum = categories.map(c => yearSums[year][c]).reduce((a, b) => a + b, 0);
+						return `<strong>${year}:</strong> ${sum.toLocaleString('tr-TR')} ₺ toplam fatura harcaması`;
+					}).join('<br>');
+			}
+
+			// İlk çizim
+			renderChart();
+
+			// Yıl değişince grafiği filtrele
+			yearSelect.addEventListener('change', e => {
+				renderChart(e.target.value);
+			});
+		},
+		fail:(error)=>{
+
+		}
+	})
+
+	function getColor(name) {
+		return {
+			"Doğalgaz Faturası": "#e74c3c",
+			"Elektrik Faturası": "#f39c12",
+			"Su Faturası": "#3498db",
+			"İnternet Faturası": "#2ecc71"
+		}[name] || '#999';
+	}
 })
 
 $('#backup').click(function () {
