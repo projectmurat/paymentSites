@@ -164,8 +164,8 @@ $('#save').click(function () {
 
 $('#faturaStatistics').click(function () {
 	PocketRealtime.getStatistics({
-		done:(response)=>{
-			const categories = ["Doğalgaz Faturası", "Elektrik Faturası", "Su Faturası", "İnternet Faturası"];
+		done: (response) => {
+			const categories = ["Doğalgaz Faturası", "Elektrik Faturası", "Su Faturası", "İnternet Faturası", "Apartman Aidat"];
 			const yearSums = {};
 			const monthlyData = {}; // Ay bazlı veri için eklendi
 			let data = response
@@ -193,12 +193,16 @@ $('#faturaStatistics').click(function () {
 
 			const years = Object.keys(yearSums).sort();
 			const yearSelect = document.getElementById('yearSelect');
-			years.forEach(y => {
-				const opt = document.createElement('option');
-				opt.value = y;
-				opt.textContent = y;
-				yearSelect.appendChild(opt);
-			});
+
+			// Eğer zaten seçenekler eklenmişse tekrar ekleme
+			if (yearSelect.options.length === 1) {
+				years.forEach(y => {
+					const opt = document.createElement('option');
+					opt.value = y;
+					opt.textContent = y;
+					yearSelect.appendChild(opt);
+				});
+			}
 
 			function renderChart(selectedYear = '') {
 				const labels = selectedYear ? Object.keys(monthlyData[selectedYear]).sort() : years;
@@ -249,7 +253,7 @@ $('#faturaStatistics').click(function () {
 				renderChart(e.target.value);
 			});
 		},
-		fail:(error)=>{
+		fail: (error) => {
 
 		}
 	})
@@ -604,6 +608,58 @@ $('.btn-openFundsSnapshots').click(function (args) {
 						row.classList.add('change-down');
 					}
 				}
+				row.addEventListener('click', () => {
+					const existingTooltip = document.querySelector('.center-tooltip');
+					if (existingTooltip) existingTooltip.remove();
+					const tooltip = document.createElement('div');
+					tooltip.className = 'center-tooltip';
+
+					const closeBtn = document.createElement('span');
+					closeBtn.className = 'center-tooltip-close';
+					closeBtn.innerHTML = '&times;';
+					closeBtn.addEventListener('click', () => tooltip.remove());
+
+					tooltip.appendChild(closeBtn); // önce butonu ekle
+
+					const fundsDetail = item.fundsList?.[0] || [];
+
+					let tableHtml = `
+						<div class="tooltip-header"><strong>🗓️ ${item.insertDate}</strong></div>
+						<table class="tooltip-table">
+							<thead>
+								<tr>
+									<th>Tür</th>
+									<th>Adet</th>
+									<th>Endeks</th>
+									<th>TL</th>
+								</tr>
+							</thead>
+							<tbody>
+					`;
+
+					fundsDetail.filter(i => i.currencyType != "TL").forEach(fund => {
+						const formattedEndex = typeof fund.endex === "string" ? fund.endex : fund.endex.toLocaleString('tr-TR');
+						const formattedForTl = parseFloat(fund.forTl).toLocaleString('tr-TR');
+						tableHtml += `
+							<tr>
+								<td>${fund.currencyType}</td>
+								<td>${fund.amount}</td>
+								<td>${formattedEndex}</td>
+								<td>${formattedForTl} ₺</td>
+							</tr>
+						`;
+					});
+
+					tableHtml += `
+							</tbody>
+						</table>
+						<div class="tooltip-total"><strong>Toplam:</strong> ${item.sunFunds}₺</div>
+					`;
+
+					tooltip.insertAdjacentHTML('beforeend', tableHtml);
+					document.body.appendChild(tooltip);
+				});
+
 
 				previousValue = jsFormattedNumber;
 				tableList.push(row);
