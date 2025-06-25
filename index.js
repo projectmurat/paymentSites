@@ -608,9 +608,12 @@ $('.btn-openFundsSnapshots').click(function (args) {
 						row.classList.add('change-down');
 					}
 				}
+				row.__item = item; // Her satıra item'ı bağla
+
 				row.addEventListener('click', () => {
 					const existingTooltip = document.querySelector('.center-tooltip');
 					if (existingTooltip) existingTooltip.remove();
+
 					const tooltip = document.createElement('div');
 					tooltip.className = 'center-tooltip';
 
@@ -618,8 +621,7 @@ $('.btn-openFundsSnapshots').click(function (args) {
 					closeBtn.className = 'center-tooltip-close';
 					closeBtn.innerHTML = '&times;';
 					closeBtn.addEventListener('click', () => tooltip.remove());
-
-					tooltip.appendChild(closeBtn); // önce butonu ekle
+					tooltip.appendChild(closeBtn);
 
 					const fundsDetail = item.fundsList?.[0] || [];
 
@@ -637,7 +639,9 @@ $('.btn-openFundsSnapshots').click(function (args) {
 							<tbody>
 					`;
 
-					fundsDetail.filter(i => i.currencyType != "TL").forEach(fund => {
+					const fundsMap = Object.fromEntries(fundsDetail.map(f => [f.currencyType, parseFloat(f.forTl)]));
+
+					fundsDetail.filter(f => f.currencyType !== "TL").forEach(fund => {
 						const formattedEndex = typeof fund.endex === "string" ? fund.endex : fund.endex.toLocaleString('tr-TR');
 						const formattedForTl = parseFloat(fund.forTl).toLocaleString('tr-TR');
 						tableHtml += `
@@ -648,17 +652,71 @@ $('.btn-openFundsSnapshots').click(function (args) {
 								<td>${formattedForTl} ₺</td>
 							</tr>
 						`;
-					});
+										});
 
-					tableHtml += `
+										tableHtml += `
 							</tbody>
 						</table>
-						<div class="tooltip-total"><strong>Toplam:</strong> ${item.sunFunds}₺</div>
+						<div class="tooltip-total"><strong>Toplam:</strong> ${item.sunFunds.toLocaleString('tr-TR')} ₺</div>
 					`;
+
+					// Kur bazlı değişim ekle
+					const currentRow = row;
+					const allRows = Array.from(currentRow.parentElement.children);
+					const currentIndex = allRows.indexOf(currentRow);
+					const previousRow = allRows[currentIndex + 1]; // DOM'da üstten alta
+					const previousItem = previousRow?.__item;
+
+					if (previousItem) {
+						const prevFundsDetail = previousItem.fundsList?.[0] || [];
+						const prevFundsMap = Object.fromEntries(prevFundsDetail.map(f => [f.currencyType, parseFloat(f.forTl)]));
+
+						let diffTable = `
+							<div class="tooltip-diff-section">
+								<div class="tooltip-header"><strong>Kur Bazlı Değişim:</strong></div>
+								<table class="tooltip-table"> <!-- burada class değişti -->
+									<thead>
+										<tr>
+											<th>Tür</th>
+											<th>Fark</th>
+										</tr>
+									</thead>
+									<tbody>
+						`;
+
+
+						Object.keys(fundsMap).forEach(currency => {
+							const curr = fundsMap[currency] || 0;
+							const prev = prevFundsMap[currency] || 0;
+							const diff = curr - prev;
+
+							if (diff !== 0) {
+								const arrow = diff > 0 ? '▲' : '▼';
+								const color = diff > 0 ? 'green' : 'red';
+								const formattedDiff = Math.abs(diff).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+								diffTable += `
+									<tr>
+										<td>${currency}</td>
+										<td style="color: ${color};">${arrow} ${formattedDiff} ₺</td>
+									</tr>
+								`;
+							}
+						});
+
+						diffTable += `
+							</tbody>
+						</table>
+						</div>
+						`;
+
+
+						tableHtml += diffTable;
+					}
 
 					tooltip.insertAdjacentHTML('beforeend', tableHtml);
 					document.body.appendChild(tooltip);
 				});
+
 
 
 				previousValue = jsFormattedNumber;

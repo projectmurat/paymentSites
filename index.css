@@ -1408,3 +1408,47 @@ input {
 	font-size: 15px;
 }
 
+.tooltip-diff-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #1c1c1c;
+	border-radius: 6px;
+	margin-top: 8px;
+}
+
+.tooltip-diff-table th, .tooltip-diff-table td {
+	padding: 6px;
+	text-align: left;
+	font-size: 11px;
+	color: white; /* Ekledik */
+	border-bottom: 1px solid #333; /* Alt çizgi için */
+}
+
+.tooltip-diff-table th {
+	background-color: #333; /* Başlık zemin */
+	color: #ccc; /* Başlık rengi */
+}
+
+
+.tooltip-table th:nth-child(1),
+.tooltip-table td:nth-child(1),
+.tooltip-diff-table th:nth-child(1),
+.tooltip-diff-table td:nth-child(1) {
+	width: 60%;
+	word-break: break-word; /* Gerekirse kelimeyi böl */
+}
+
+.tooltip-table th:nth-child(2),
+.tooltip-table td:nth-child(2),
+.tooltip-diff-table th:nth-child(2),
+.tooltip-diff-table td:nth-child(2) {
+	width: 40%;
+	text-align: right;
+}
+
+.tooltip-table td, .tooltip-diff-table td {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
