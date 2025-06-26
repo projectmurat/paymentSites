@@ -708,14 +708,21 @@ $('.btn-openFundsSnapshots').click(function (args) {
 								const arrow = diff > 0 ? '▲' : '▼';
 								const color = diff > 0 ? '#00ff00' : '#ff0000';
 								const formattedDiff = Math.abs(diff).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+
+								// İlgili miktarı bul
+								const fund = fundsDetail.find(f => f.currencyType === currency);
+								const amount = parseFloat(fund?.amount || 1); // güvenlik için 1’e fallback
+								const unitDiff = (Math.abs(diff) / amount).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+
 								diffTable += `
 									<tr>
 										<td>${currency}</td>
-										<td style="color: ${color};">${arrow} ${formattedDiff} ₺</td>
+										<td style="color: ${color};">${arrow} ${formattedDiff} ₺ <span style="font-size: 10px; color: #aaa;">(${unitDiff} ₺ / adet)</span></td>
 									</tr>
 								`;
 							}
 						});
+
 
 						diffTable += `
 								</tbody>

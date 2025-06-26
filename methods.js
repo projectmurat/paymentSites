@@ -894,7 +894,7 @@ function toggleMarketDetails(market) {
 
 function getLoggedUserInfo(callback) {
 	try {
-		fetch('https://freeipapi.com/api/json')
+		fetch('https://free.freeipapi.com/api/json')
 			.then(response => response.json())
 			.then(data => {
 				let localInfo = {
