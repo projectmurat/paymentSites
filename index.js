@@ -698,6 +698,8 @@ $('.btn-openFundsSnapshots').click(function (args) {
 									</thead>
 									<tbody>
 						`;
+						let sumHistoryChangeAmount = 0;
+						let totalDiff = 0;
 
 						Object.keys(fundsMap).forEach(currency => {
 							const curr = fundsMap[currency] || 0;
@@ -711,24 +713,34 @@ $('.btn-openFundsSnapshots').click(function (args) {
 
 								// İlgili miktarı bul
 								const fund = fundsDetail.find(f => f.currencyType === currency);
-								const amount = parseFloat(fund?.amount || 1); // güvenlik için 1’e fallback
+								const amount = parseFloat(fund?.amount || 1);
 								const unitDiff = (Math.abs(diff) / amount).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
 
 								diffTable += `
 									<tr>
 										<td>${currency}</td>
-										<td style="color: ${color};">${arrow} ${formattedDiff} ₺ <span style="font-size: 10px; color: #aaa;">(${unitDiff} ₺ / adet)</span></td>
+										<td style="color: ${color};">${arrow} ${formattedDiff} ₺ <span style="font-size: 10px; font-weight: bolder;font-style: italic; color: #f9f9f9;">(${unitDiff} ₺ / adet)</span></td>
 									</tr>
 								`;
+
+								// Toplam farkı biriktir
+								totalDiff += diff;
 							}
 						});
 
+						const totalDiffArrow = totalDiff > 0 ? '▲' : (totalDiff < 0 ? '▼' : '');
+						const totalDiffColor = totalDiff > 0 ? '#00ff00' : (totalDiff < 0 ? '#ff0000' : '#aaa');
+						const formattedTotalDiff = Math.abs(totalDiff).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
 
 						diffTable += `
 								</tbody>
 							</table>
+							<div style="margin-top: 6px; font-size: 12px; color: ${totalDiffColor};">
+								<strong>Toplam Net Fark:</strong> ${totalDiffArrow} ${formattedTotalDiff} ₺
+							</div>
 						</div>
 						`;
+
 
 						tableHtml += diffTable;
 					}
