@@ -25,8 +25,6 @@ let familyIncomeAmount = 0;
 let globalTotalMontlyInstallmentAmount;
 let familyOutObject;
 
-
-
 document.getElementById("marketDropdown").addEventListener("change", updateProductDropdown);
 
 function restoreData(tableData) {

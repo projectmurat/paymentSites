@@ -1,0 +1,16 @@
+{
+    "_config": {
+        "backdrop": true,
+        "keyboard": true,
+        "focus": true,
+        "show": true
+    },
+    "_element": {},
+    "_dialog": null,
+    "_backdrop": null,
+    "_isShown": false,
+    "_isBodyOverflowing": false,
+    "_ignoreBackdropClick": false,
+    "_isTransitioning": false,
+    "_scrollbarWidth": 0
+}

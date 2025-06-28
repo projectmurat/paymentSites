@@ -1,3 +1,19 @@
+
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif; /* Kartlar için kullandığımız fontu burada da kullandım */
+
+    /* Güncellenmiş Degrade Renkler */
+    background: linear-gradient(120deg, #6f0057, #3a3a3a, #001f3f, #8d0078);
+    background-size: 300% 300%;
+
+    animation: gradientSmoothFlow 18s ease-in-out infinite;
+    color: white; /* Metin rengi beyaz kalabilir */
+}
+
+/* Önceki CSS'ten kalan animasyon */
 @keyframes gradientSmoothFlow {
     0% {
         background-position: 0% 50%;
@@ -10,15 +26,7 @@
     }
 }
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(120deg, #ab014a, #eb1c74, #0661ff, #bbc1f9);
-    background-size: 300% 300%;
-    animation: gradientSmoothFlow 18s ease-in-out infinite;
-    color: white;
-}
+/* Card ve diğer elementlerin CSS'i yukarıdaki haliyle kalabilir. */
 
 
 .glass-card {
@@ -109,10 +117,6 @@ body {
 }
 
 
-#popup-info-period-msg {
-    color: #666;
-    /* Metni daha soluk bir renge ayarlayalım */
-}
 
 
 .modal-footer {
@@ -120,6 +124,12 @@ body {
     margin-top: 15px;
 
 }
+
+#popup-info-period-msg {
+    color: #666;
+    /* Metni daha soluk bir renge ayarlayalım */
+}
+
 
 .btn {
     padding: 10px 20px;
@@ -131,13 +141,14 @@ body {
 
 .btn-add-installment,
 .btn-close {
-    background-color: #e74c3c;
+    background-color: #ff0000;
     color: white;
 }
 
 .btn-add-installment,
 .btn-close:hover {
-    background-color: #c0392b;
+    background-color: #ff0000;
+    color: white;
 }
 
 table {
@@ -429,7 +440,7 @@ tbody tr:hover {
 
 #menuButton {
     width: 100%;
-    background-color: inherit;
+    background-color: #495861;
 }
 
 
@@ -509,6 +520,7 @@ tbody tr:hover {
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     /* Hafif bir gölge ekleyerek derinlik hissi katalım */
 }
+
 .generalTitle,
 .subTitle {
     text-align: center;
@@ -1313,120 +1325,126 @@ input {
 
 
 .center-tooltip {
-	position: fixed;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	background-color: #1e1e2f;
-	color: #f1f1f1;
-	padding: 20px;
-	border-radius: 10px;
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-	min-width: 350px;
-	max-width: 90%;
-	z-index: 1050;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #1e1e2f;
+    color: #f1f1f1;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    min-width: 350px;
+    max-width: 90%;
+    z-index: 1050;
 }
 
 .center-tooltip table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-top: 10px;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
 }
 
 .center-tooltip table th,
 .center-tooltip table td {
-	padding: 6px;
-	text-align: right;
-	border-bottom: 1px solid #444;
+    padding: 6px;
+    text-align: right;
+    border-bottom: 1px solid #444;
 }
 
 .center-tooltip table th:first-child,
 .center-tooltip table td:first-child {
-	text-align: left;
+    text-align: left;
 }
 
 .center-tooltip-close {
-	position: absolute;
-	top: 8px;
-	right: 12px;
-	cursor: pointer;
-	color: #f1f1f1;
-	font-weight: bold;
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    cursor: pointer;
+    color: #f1f1f1;
+    font-weight: bold;
 }
 
 .center-tooltip {
-	position: fixed;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	background: #3e3e3e;
-	border-radius: 12px;
-	padding: 20px 30px;
-	box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
-	z-index: 10000;
-	width: 400px;
-	max-width: 95vw;
-	font-family: 'Segoe UI', sans-serif;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #3e3e3e;
+    border-radius: 12px;
+    padding: 20px 30px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    width: 400px;
+    max-width: 95vw;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 .center-tooltip-close {
-	position: absolute;
-	top: 8px;
-	right: 12px;
-	cursor: pointer;
-	color: #aaa;
-	font-size: 22px;
-	font-weight: bold;
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    cursor: pointer;
+    color: #aaa;
+    font-size: 22px;
+    font-weight: bold;
 }
 
 .center-tooltip-close:hover {
-	color: #000;
+    color: #000;
 }
 
 .tooltip-table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-top: 10px;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
 }
 
-.tooltip-table th, .tooltip-table td {
-	border: 1px solid #ccc;
-	padding: 8px;
-	text-align: center;
-	font-size: 14px;
+.tooltip-table th,
+.tooltip-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+    font-size: 14px;
 }
 
 .tooltip-table th {
-	background-color: #ffffff47;
-	font-weight: 600;
+    background-color: #ffffff47;
+    font-weight: 600;
 }
 
 .tooltip-total {
-	margin-top: 15px;
-	text-align: right;
-	font-weight: bold;
-	font-size: 15px;
+    margin-top: 15px;
+    text-align: right;
+    font-weight: bold;
+    font-size: 15px;
 }
 
 .tooltip-diff-table {
-	width: 100%;
-	border-collapse: collapse;
-	background: #1c1c1c;
-	border-radius: 6px;
-	margin-top: 8px;
+    width: 100%;
+    border-collapse: collapse;
+    background: #1c1c1c;
+    border-radius: 6px;
+    margin-top: 8px;
 }
 
-.tooltip-diff-table th, .tooltip-diff-table td {
-	padding: 6px;
-	text-align: left;
-	font-size: 11px;
-	color: white; /* Ekledik */
-	border-bottom: 1px solid #333; /* Alt çizgi için */
+.tooltip-diff-table th,
+.tooltip-diff-table td {
+    padding: 6px;
+    text-align: left;
+    font-size: 11px;
+    color: white;
+    /* Ekledik */
+    border-bottom: 1px solid #333;
+    /* Alt çizgi için */
 }
 
 .tooltip-diff-table th {
-	background-color: #333; /* Başlık zemin */
-	color: #ccc; /* Başlık rengi */
+    background-color: #333;
+    /* Başlık zemin */
+    color: #ccc;
+    /* Başlık rengi */
 }
 
 
@@ -1434,21 +1452,219 @@ input {
 .tooltip-table td:nth-child(1),
 .tooltip-diff-table th:nth-child(1),
 .tooltip-diff-table td:nth-child(1) {
-	width: 60%;
-	word-break: break-word; /* Gerekirse kelimeyi böl */
+    width: 60%;
+    word-break: break-word;
+    /* Gerekirse kelimeyi böl */
 }
 
 .tooltip-table th:nth-child(2),
 .tooltip-table td:nth-child(2),
 .tooltip-diff-table th:nth-child(2),
 .tooltip-diff-table td:nth-child(2) {
-	width: 40%;
-	text-align: right;
+    width: 40%;
+    text-align: right;
 }
 
-.tooltip-table td, .tooltip-diff-table td {
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+.tooltip-table td,
+.tooltip-diff-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
+
+/*
+ * Google Fonts: Poppins (or any other modern sans-serif font)
+ */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    /* Color Palette */
+    --background-color: #0b0b0b; /* Slightly darker */
+    --card-bg-start: #1c1c1c;
+    --card-bg-end: #252525;
+    --border-color: #404040; /* More visible border */
+    --text-primary: #ffffff; /* Pure white for better visibility */
+    --text-secondary: #c0c0c0; /* Brighter gray for description */
+    --highlight-color: #00ffff; /* A super vibrant cyan */
+    --hover-glow-color: #00e5ff;
+    --shadow-color: rgba(0, 0, 0, 0.7);
+}
+
+body {
+    background-color: var(--background-color);
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-primary);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Ana grid yapısı (geniş ekranlar için) */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+/* --- */
+
+/* Mobil görünüm için media query */
+@media (max-width: 768px) {
+    .menu-grid {
+        display: flex;
+        overflow-x: scroll; /* Kaydırma özelliğini aç */
+        overflow-y: hidden;
+        white-space: nowrap;
+        gap: 20px; /* Kartlar arası boşluğu biraz artır */
+        padding: 25px 20px; /* Kenarlara daha fazla boşluk */
+
+        /* Akıcı kaydırma animasyonu için scroll-snap */
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth; /* Kaydırma hareketini yumuşatır */
+
+        /* iOS'ta daha akıcı kaydırma için */
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* --- Kaydırma Çubuğunu Gizleme --- */
+    /* Firefox için */
+    .menu-grid {
+        scrollbar-width: none; /* Firefox'ta çubuğu gizler */
+    }
+
+    /* WebKit tabanlı tarayıcılar (Chrome, Safari, Edge) için */
+    .menu-grid::-webkit-scrollbar {
+        display: none; /* WebKit'te çubuğu tamamen gizler */
+        width: 0;
+        height: 0;
+    }
+
+    /* --- Kartlar için stil --- */
+    .menu-card {
+        flex: 0 0 auto;
+        width: 180px; /* Kart genişliğini ayarla */
+        scroll-snap-align: center; /* Kaydırma durduğunda kartın ortalanmasını sağla */
+
+        /* İçerik düzenini ayarla */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        /* Ekstil stil ve animasyonlar */
+        padding: 25px;
+        background-color: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Güzel bir geçiş efekti */
+        border: 1px solid #e0e0e0;
+    }
+
+    /* Hover ve aktif durum için daha iyi animasyon */
+    .menu-card:hover,
+    .menu-card:focus-visible {
+        transform: translateY(-10px) scale(1.05); /* Yukarı kayma ve büyüme */
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.15); /* Gölgeyi büyüt */
+    }
+
+    /* İkon ve içerik arasındaki boşluğu artır */
+    .menu-card .card-icon {
+        font-size: 3.9rem; /* İkon boyutunu büyüt */
+        margin-bottom: 15px;
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+}
+
+/* Menu Card Styling */
+.menu-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    padding: 30px 15px; /* Reduced padding for a smaller card */
+    border-radius: 16px; /* Slightly smaller radius */
+    background: linear-gradient(135deg, #270125, var(--card-bg-end));
+    border: 2px solid var(--border-color); /* Thicker border */
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.4s;
+    box-shadow: 0 6px 20px var(--shadow-color); /* Stronger shadow */
+}
+
+.menu-card:before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(0, 255, 255, 0.15), transparent 70%); /* Brighter glow */
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    pointer-events: none;
+}
+
+.menu-card:hover {
+    transform: translateY(-8px) scale(1.02); /* Slightly less lift */
+    border-color: var(--highlight-color);
+    box-shadow: 0 15px 40px rgba(0, 255, 255, 0.4), 0 0 50px rgba(0, 255, 255, 0.2); /* More intense glow on hover */
+}
+
+.menu-card:hover:before {
+    opacity: 1;
+}
+
+/* Icon Styling */
+.card-icon {
+    font-size: 4rem; /* Smaller icon size */
+    color: var(--highlight-color);
+    margin-bottom: 15px; /* Reduced margin */
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.8); /* Stronger glow effect */
+    transition: transform 0.4s ease, color 0.4s ease;
+}
+
+.menu-card:hover .card-icon {
+    transform: scale(1.1) rotate(5deg);
+    color: #fff;
+    text-shadow: 0 0 30px var(--hover-glow-color), 0 0 50px var(--hover-glow-color); /* Brighter icon on hover */
+}
+
+/* Content Styling */
+.card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px; /* Reduced gap */
+}
+
+.card-title {
+    font-size: 1.3rem; /* Smaller title font size */
+    font-weight: 600; /* Slightly less bold */
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+}
+
+.card-description {
+    font-size: 0.9rem; /* Smaller description font size */
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.3;
+    max-width: 180px;
+}
+
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 600px;
+        margin: 1.75rem auto;
+    }
+}

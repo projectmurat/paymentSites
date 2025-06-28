@@ -3,243 +3,149 @@
 
 <head>
      <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>Fatura İstatistikleri</title>
-     <link rel="stylesheet" href="style.css">
+     <title>Dark Mode Menü Kartları</title>
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+     <style>
+          body {
+               background-color: #121212;
+               color: white;
+          }
+
+          .card.menu-btn {
+               cursor: pointer;
+               border-radius: 12px;
+               border: 1px solid #3a3a3a;
+               box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+               transition: transform 0.2s ease, box-shadow 0.2s ease;
+               background-color: #1e1e1e;
+               color: #ffffff;
+               padding: 10px;
+               min-height: 130px;
+               display: flex;
+               align-items: center;
+               justify-content: center;
+          }
+
+          .card.menu-btn .card-body {
+               display: flex;
+               flex-direction: column;
+               align-items: center;
+               justify-content: center;
+               font-size: 16px;
+          }
+
+          .card.menu-btn .card-body strong {
+               margin-top: 8px;
+               font-size: 15px;
+               font-weight: 500;
+          }
+
+          .card.menu-btn.filled {
+               background-color: #263d6b;
+               border: 1px solid #4d6aa0;
+          }
+
+          .card.menu-btn.outlined {
+               background-color: #1e1e1e;
+               border: 1px solid #5c5c5c;
+          }
+
+          .card.menu-btn:hover {
+               transform: translateY(-4px);
+               box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+          }
+
+          .card.menu-btn.filled:hover {
+               background-color: #32528c;
+          }
+
+          .card.menu-btn.outlined:hover {
+               background-color: #2b2b2b;
+          }
+     </style>
 </head>
 
 <body>
 
-     <div class="container">
-          <h1>Fatura İstatistikleri</h1>
+     <div class="container mt-5">
+          <div class="row" style="gap: 20px; justify-content: center;">
 
-          <!-- Yıl seçimi için açılır menüler -->
-          <div class="year-selection">
-               <label for="year1Button">Karşılaştırma Yılı 1:</label>
-               <div class="dropdown">
-                    <button id="year1Button" class="dropdown-button" onclick="toggleDropdown('year1Dropdown')">Yıl
-                         Seçin</button>
-                    <div id="year1Dropdown" class="dropdown-content"></div>
+               <!-- 💾 Yeni -->
+               <div class="col-md-3">
+                    <div class="card menu-btn filled" data-toggle="modal" data-target="#registerModal">
+                         <div class="card-body text-center">
+                              💾
+                              <strong>Yeni</strong>
+                         </div>
+                    </div>
                </div>
 
-               <label for="year2Button">Karşılaştırma Yılı 2:</label>
-               <div class="dropdown">
-                    <button id="year2Button" class="dropdown-button" onclick="toggleDropdown('year2Dropdown')">Yıl
-                         Seçin</button>
-                    <div id="year2Dropdown" class="dropdown-content"></div>
+               <!-- 💾 Kaydet -->
+               <div class="col-md-3">
+                    <div class="card menu-btn filled" onclick="alert('Kaydedildi!')">
+                         <div class="card-body text-center">
+                              💾
+                              <strong>Kaydet</strong>
+                         </div>
+                    </div>
                </div>
-          </div>
 
-          <div id="chartsContainer" class="charts-container">
-               <!-- Grafikler burada oluşturulacak -->
+               <!-- 📊 İstatistikler -->
+               <div class="col-md-3">
+                    <div class="card menu-btn filled" data-toggle="modal" data-target="#statisticsModal">
+                         <div class="card-body text-center">
+                              📊
+                              <strong>İstatistikler</strong>
+                         </div>
+                    </div>
+               </div>
+
+               <!-- 🗂️ BackUp -->
+               <div class="col-md-3">
+                    <div class="card menu-btn outlined" onclick="alert('Yedek getirildi!')">
+                         <div class="card-body text-center">
+                              🗂️
+                              <strong>BackUp</strong>
+                         </div>
+                    </div>
+               </div>
+
           </div>
      </div>
 
-     <!-- Modal -->
-     <div id="detailsModal" class="modal">
-          <div class="modal-content">
-               <span class="close">&times;</span>
-               <h2 id="modalTitle">Ayrıntılı Fatura Analizi</h2>
-               <table id="detailsTable">
-                    <thead>
-                         <tr>
-                              <th>Ay</th>
-                              <th id="year1Header"></th>
-                              <th id="year2Header"></th>
-                              <th>Değişim</th>
-                         </tr>
-                    </thead>
-                    <tbody></tbody>
-               </table>
+     <!-- Modal örneği -->
+     <div class="modal fade" id="registerModal" tabindex="-1" role="dialog">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+               <div class="modal-content bg-dark text-white">
+                    <div class="modal-header">
+                         <h5 class="modal-title">Yeni Kayıt</h5>
+                         <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                         <p>Yeni kayıt modal içeriği buraya gelecek.</p>
+                    </div>
+               </div>
           </div>
      </div>
 
-     <script type="module">
-          import { categorizedData } from './test.js';
+     <div class="modal fade" id="statisticsModal" tabindex="-1" role="dialog">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+               <div class="modal-content bg-dark text-white">
+                    <div class="modal-header">
+                         <h5 class="modal-title">İstatistikler</h5>
+                         <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                         <p>İstatistik modal içeriği buraya gelecek.</p>
+                    </div>
+               </div>
+          </div>
+     </div>
 
-          const chartsContainer = document.getElementById('chartsContainer');
-          const detailsModal = document.getElementById("detailsModal");
-          const closeModal = document.getElementsByClassName("close")[0];
-          const modalTitle = document.getElementById("modalTitle");
-          const detailsTable = document.getElementById("detailsTable").querySelector("tbody");
-          const year1Header = document.getElementById("year1Header");
-          const year2Header = document.getElementById("year2Header");
-
-          closeModal.onclick = () => detailsModal.style.display = "none";
-          window.onclick = event => { if (event.target === detailsModal) detailsModal.style.display = "none"; };
-
-          const months = ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"];
-          let selectedYear1, selectedYear2;
-          let chartInstances = {}; // Grafik örneklerini saklamak için
-
-          // Yıl seçim menüsünü doldurun
-          function populateYearOptions() {
-               const years = Object.keys(categorizedData["Elektrik Faturası"]).sort();
-               const year1Dropdown = document.getElementById("year1Dropdown");
-               const year2Dropdown = document.getElementById("year2Dropdown");
-
-               years.forEach(year => {
-                    const option1 = document.createElement('a');
-                    option1.innerText = year;
-                    option1.onclick = () => selectYear(year, "year1");
-
-                    const option2 = document.createElement('a');
-                    option2.innerText = year;
-                    option2.onclick = () => selectYear(year, "year2");
-
-                    year1Dropdown.appendChild(option1);
-                    year2Dropdown.appendChild(option2);
-               });
-
-               // Varsayılan olarak son iki yılı seçin
-               selectYear(years[years.length - 2], "year1");
-               selectYear(years[years.length - 1], "year2");
-
-               // Tüm fatura türleri için grafik kapsayıcılarını oluştur
-               Object.keys(categorizedData).forEach(billType => {
-                    createChartContainer(billType);
-               });
-
-               // Grafikleri başlat
-               updateComparison();
-          }
-
-          // Grafik kapsayıcıları oluştur
-          function createChartContainer(billType) {
-               const card = document.createElement('div');
-               card.className = 'chart-card';
-
-               const title = document.createElement('h2');
-               title.innerText = billType;
-               card.appendChild(title);
-
-               const canvas = document.createElement('canvas');
-               canvas.id = `${billType}-chart`;
-               card.appendChild(canvas);
-
-               chartsContainer.appendChild(card);
-          }
-
-          // Yıl seçildiğinde butonun metnini güncelle
-          function selectYear(year, buttonId) {
-               document.getElementById(buttonId + "Button").innerText = year;
-               if (buttonId === "year1") selectedYear1 = year;
-               if (buttonId === "year2") selectedYear2 = year;
-               updateComparison(); // Yıllar seçildiğinde grafik ve tabloyu güncelle
-          }
-
-          // Açılır menüyü göster/gizle
-          function toggleDropdown(dropdownId) {
-               document.getElementById(dropdownId).classList.toggle("show");
-          }
-
-          // Tüm dropdown menüler dışına tıklandığında kapatma
-          window.onclick = function (event) {
-               if (!event.target.matches('.dropdown-button')) {
-                    const dropdowns = document.getElementsByClassName("dropdown-content");
-                    for (let i = 0; i < dropdowns.length; i++) {
-                         dropdowns[i].classList.remove('show');
-                    }
-               }
-          };
-
-          // updateComparison fonksiyonu, seçilen yıllara göre tüm grafikleri günceller
-          function updateComparison() {
-               if (selectedYear1 && selectedYear2) {
-                    Object.keys(categorizedData).forEach(billType => {
-                         createChart(billType);
-                    });
-               }
-          }
-
-          // Grafik oluşturma fonksiyonu
-          function createChart(billType) {
-               const canvas = document.getElementById(`${billType}-chart`);
-               if (!canvas) return; // Eğer canvas bulunamazsa, fonksiyondan çık
-
-               const ctx = canvas.getContext('2d');
-
-               // Mevcut grafik varsa önce sil
-               if (chartInstances[billType]) {
-                    chartInstances[billType].destroy();
-               }
-
-               const year1Data = categorizedData[billType][selectedYear1] || {};
-               const year2Data = categorizedData[billType][selectedYear2] || {};
-
-               const datasets = [
-                    {
-                         label: selectedYear1,
-                         data: months.map(month => month in year1Data ? year1Data[month] : null),
-                         borderColor: 'blue',
-                         fill: false
-                    },
-                    {
-                         label: selectedYear2,
-                         data: months.map(month => month in year2Data ? year2Data[month] : null),
-                         borderColor: 'green',
-                         fill: false
-                    }
-               ];
-
-               // Yeni grafik oluştur ve kaydet
-               chartInstances[billType] = new Chart(ctx, {
-                    type: 'line',
-                    data: { labels: months, datasets },
-                    options: {
-                         responsive: true,
-                         plugins: {
-                              legend: { position: 'top' }
-                         },
-                         onClick: () => showDetails(billType)
-                    }
-               });
-          }
-
-          // Yıl seçeneklerini doldurun ve grafik kapsayıcılarını oluşturun
-          populateYearOptions();
-
-          // Seçili yıllara göre tabloyu güncelleme
-          function showDetails(billType) {
-               modalTitle.innerText = `${billType} Ayrıntılı Analiz`;
-               detailsTable.innerHTML = "";
-
-               const year1Data = categorizedData[billType][selectedYear1] || {};
-               const year2Data = categorizedData[billType][selectedYear2] || {};
-
-               year1Header.textContent = selectedYear1;
-               year2Header.textContent = selectedYear2;
-
-               months.forEach(month => {
-                    const amount1 = month in year1Data ? year1Data[month] : null;
-                    const amount2 = month in year2Data ? year2Data[month] : null;
-
-                    const difference = amount1 !== null && amount2 !== null ? amount2 - amount1 : null;
-                    const change = difference > 0 ? "▲" : difference < 0 ? "▼" : "→";
-                    const color = difference > 0 ? "red" : difference < 0 ? "green" : "gray";
-
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                         <td>${month}</td>
-                         <td>${amount1 !== null ? `${amount1.toFixed(2)} TL` : "--"}</td>
-                         <td>${amount2 !== null ? `${amount2.toFixed(2)} TL` : "--"}</td>
-                         <td style="color: ${color}; font-weight: bold;">
-                              ${difference !== null ? `${change} ${Math.abs(difference).toFixed(2)} TL` : "--"}
-                         </td>
-                    `;
-                    detailsTable.appendChild(row);
-               });
-
-               detailsModal.style.display = "block";
-          }
-
-          // Fonksiyonları window nesnesine ekleyin
-          window.updateComparison = updateComparison;
-          window.toggleDropdown = toggleDropdown;
-
-     </script>
-
-     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <!-- Bootstrap JS -->
+     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

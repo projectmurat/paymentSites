@@ -7,8 +7,7 @@
 			document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
 		});
 	</script>
-	<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/9196/9196974.png"
-		type="image/png">
+	<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/9196/9196974.png" type="image/png">
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Finansal İşlem Merkezi</title>
@@ -71,39 +70,152 @@
 
 
 	<div class="container">
-		<div class="row">
-			<div>
-				<select id="periodDropDown" name="History"></select>
-			</div>
-			<div>
-				<button type="button" class="periodButton newPeriod" id="newPeriod" data-toggle="modal"
-					data-target="#addPeriod">Yeni Dönem</button>
-				<button type="button" class="periodButton deletePeriod" id="deletePeriod">Dönemi Sil</button>
+
+
+		<div class="container mt-5">
+			<div class="menu-grid">
+
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#mainHandsontable">
+					<div class="card-icon">
+						<i class="fas fa-table"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">Handsontable</div>
+						<div class="card-description">Ana tabloyu görüntüle</div>
+					</div>
+				</a>
+
+				<a href="#" class="menu-card" id="backup">
+					<div class="card-icon">
+						<i class="fas fa-history"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">Yedek</div>
+						<div class="card-description">Yedeği geri yükle</div>
+					</div>
+				</a>
+
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#statisticsModal" id="statistics">
+					<div class="card-icon">
+						<i class="fas fa-chart-line"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">İstatistik</div>
+						<div class="card-description">Finansal analizleri incele</div>
+					</div>
+				</a>
+
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#fundsModal" id="funds">
+					<div class="card-icon">
+						<i class="fas fa-piggy-bank"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">Birikim</div>
+						<div class="card-description">Fon detaylarını görüntüle</div>
+					</div>
+				</a>
+
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#creditCardInstallmentModal" id="installments">
+					<div class="card-icon">
+						<i class="fas fa-credit-card"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">Taksitler</div>
+						<div class="card-description">Kredi kartı taksit bilgisi</div>
+					</div>
+				</a>
+
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#simulationModal" id="simulation">
+					<div class="card-icon">
+						<i class="fas fa-chart-pie"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">Mevduat</div>
+						<div class="card-description">Birikim simülasyonu</div>
+					</div>
+				</a>
+
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#faturaModal" id="faturaStatistics">
+					<div class="card-icon">
+						<i class="fas fa-receipt"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">Fatura</div>
+						<div class="card-description">Fatura simülasyonuna göz at</div>
+					</div>
+				</a>
+
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#shoppingSmimulationModal" id="shoppingSmimulation">
+					<div class="card-icon">
+						<i class="fas fa-shopping-cart"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">Alışveriş</div>
+						<div class="card-description">Alışveriş simülasyonu</div>
+					</div>
+				</a>
+
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#userActivityModal" id="userActivity">
+					<div class="card-icon">
+						<i class="fas fa-user-circle"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">Aktivite</div>
+						<div class="card-description">Kullanıcı aktiviteleri</div>
+					</div>
+				</a>
 			</div>
 		</div>
 
 
-		<div class="handsontable-container" id="grid-table"></div><br>
-		<span style="display: flex; justify-content: center;" id="infoSpan"></span>
-		<div class="deleteInfo" id="deleteInfo"></div><br>
-		<div class="dropdown">
-			<button class="btn btn-primary dropdown-toggle" type="button" id="menuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-			  Menü
-			</button>
 
-			<div class="dropdown-menu bank-menu" aria-labelledby="menuButton">
-				<button type="button" id="btn-add" class="menu-btn filled" data-toggle="modal" data-target="#registerModal">💾 Yeni</button>
-				<button type="button" id="save" class="menu-btn filled">💾 Kaydet</button>
-				<button type="button" id="backup" class="menu-btn outlined">🗂️ Get BackUp</button>
-				<button type="button" id="statistics" class="menu-btn filled" data-toggle="modal" data-target="#statisticsModal">📊 İstatistikler</button>
-				<button type="button" id="funds" class="menu-btn outlined" data-toggle="modal" data-target="#fundsModal">💰 Birikim Fonları</button>
-				<button type="button" id="installments" class="menu-btn outlined" data-toggle="modal" data-target="#creditCardInstallmentModal">📆 Taksitler</button>
-				<button type="button" id="simulation" class="menu-btn filled" data-toggle="modal" data-target="#simulationModal">📈 Mevduat Simülasyon</button>
-				<button type="button" id="faturaStatistics" class="menu-btn outlined" data-toggle="modal" data-target="#faturaModal">📊 Fatura Simülasyon</button>
-				<button type="button" id="shoppingSmimulation" class="menu-btn outlined" data-toggle="modal" data-target="#shoppingSmimulationModal">🛒 Alışveriş Simülasyon</button>
-				<button type="button" id="userActivity" class="menu-btn filled" data-toggle="modal" data-target="#userActivityModal">👤 Kullanıcı Aktivite</button>
+		<!-- Main Handsontable Modalı -->
+		<div class="modal mainHandsontable" id="mainHandsontable" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content" style="height: 650px !important">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Harcama Ekleme Paneli</h4>
+						<p id="popup-info-period-msg"></p>
+					</div>
+					<form action="{{ route('register') }}" method="POST">
+						<div class="modal-body">
+							<div class="column">
+								<div>
+									<select id="periodDropDown" name="History"></select>
+								</div>
+								<div>
+									<button type="button" class="periodButton newPeriod" id="newPeriod"
+										data-toggle="modal" data-target="#addPeriod">Yeni Dönem</button>
+									<button type="button" class="periodButton deletePeriod"
+										id="deletePeriod">Dönemi Sil</button>
+								</div>
+							</div>
+
+
+							<div class="handsontable-container" id="grid-table"></div><br>
+							<span style="display: flex; justify-content: center;" id="infoSpan"></span>
+							<div class="deleteInfo" id="deleteInfo"></div><br>
+							<div class="dropdown">
+								<button class="btn btn-primary dropdown-toggle" type="button" id="menuButton"
+									data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									İşlem
+								</button>
+
+								<div class="dropdown-menu bank-menu" aria-labelledby="menuButton">
+									<button type="button" id="btn-add" class="menu-btn filled"
+										data-toggle="modal" data-target="#registerModal">💾 Yeni</button>
+									<button type="button" id="save" class="menu-btn filled">💾 Kaydet</button>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
+						</div>
+					</form>
+				</div>
 			</div>
-		   </div>
+		</div>
 
 		<!-- Yeni Harcama Ekleme Modalı -->
 		<div class="modal registerModal" id="registerModal" tabindex="-1" role="dialog"
@@ -152,12 +264,12 @@
 		</div>
 
 		<!-- Fatura Simülasyon Modalı -->
-		<div class="modal faturaModal" id="faturaModal" tabindex="-1" role="dialog"
-			aria-labelledby="myModalLabel">
+		<div class="modal faturaModal" id="faturaModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content" style="height: 650px !important">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Fatura Simülasyon Paneli</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Fatura Simülasyon Paneli
+						</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
 					<form action="{{ route('register') }}" method="POST">
@@ -185,7 +297,8 @@
 
 								<!-- İstatistikler -->
 								<div class="row mt-3">
-									<div class="col-12" id="expenseSummary" style="font-size: 14px; padding-left: 10px;"></div>
+									<div class="col-12" id="expenseSummary"
+										style="font-size: 14px; padding-left: 10px;"></div>
 								</div>
 
 							</div>
@@ -431,7 +544,7 @@
 		<div class="modal creditCardInstallmentModal" id="creditCardInstallmentModal" tabindex="-1" role="dialog"
 			aria-labelledby="myModalLabel">
 			<div class="modal-dialog modal-dialog-centered" role="document">
-				<div class="modal-content" >
+				<div class="modal-content">
 					<div class="modal-header">
 						<h4 class="modal-title modal-title-centered" id="myModalLabel">Taksitler</h4>
 					</div>

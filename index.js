@@ -1,8 +1,6 @@
 const dropdown = document.getElementById('userActivityDropdown');
 
 window.addEventListener('DOMContentLoaded', event => {
-
-
 	/*
 	firebase.auth().sendPasswordResetEmail('imuratony@gmail.com').then(function() {
 		alert("mail gönderildi")
@@ -11,11 +9,14 @@ window.addEventListener('DOMContentLoaded', event => {
 		alert("smtp hatası")
 	  });
 	  */
+	let myModal = new bootstrap.Modal(document.getElementById('mainHandsontable'));
+	myModal.show();
 	init((initData) => {
 		startTable(initData, (responseTable) => {
 			$('#hot-display-license-info').remove();
 		})
 	})
+
 });
 
 setTimeout(() => {
