@@ -1539,7 +1539,7 @@ body {
 
         /* İçerik düzenini ayarla */
         border-radius: 15px; /* Radius'u küçült */
-        padding: 8px 10px;
+        padding: 8px 5px;
         /* Ekstil stil ve animasyonlar */
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
         transition: transform 0.3s ease, box-shadow 0.3s;
@@ -1563,10 +1563,10 @@ body {
     }
 
     .card-description {
-        font-size: 0.8rem; /* Açıklama boyutunu küçült */
         max-width: none;
         white-space: normal;
         line-height: 1.2; /* Satır aralığını ayarla */
+        font-size: 0.9rem; /* Smaller description font size */
     }
 
     /* Scrollbar'ı gizleme kodunu kaldırın veya olduğu gibi bırakın */
@@ -1648,7 +1648,7 @@ body {
 }
 
 .card-description {
-    font-size: 0.9rem; /* Smaller description font size */
+    font-size: 0.6rem; /* Smaller description font size */
     font-weight: 400;
     color: var(--text-secondary);
     line-height: 1.3;
