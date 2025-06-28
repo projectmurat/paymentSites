@@ -1539,7 +1539,7 @@ body {
 
         /* İçerik düzenini ayarla */
         border-radius: 15px; /* Radius'u küçült */
-        padding: 0px 0px;
+        padding: 8px 10px;
         /* Ekstil stil ve animasyonlar */
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
         transition: transform 0.3s ease, box-shadow 0.3s;
@@ -1642,7 +1642,6 @@ body {
 }
 
 .card-title {
-    font-size: 1.3rem; /* Smaller title font size */
     font-weight: 600; /* Slightly less bold */
     color: var(--text-primary);
     letter-spacing: 0.5px;

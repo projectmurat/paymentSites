@@ -11,9 +11,12 @@ window.addEventListener('DOMContentLoaded', event => {
 	  });
 	  */
 	let myModal = new bootstrap.Modal(document.getElementById('mainHandsontable'));
-	myModal.show();
+
+
 	init((initData) => {
+		myModal.show();
 		startTable(initData, (responseTable) => {
+			myModal.hide();
 			$('#hot-display-license-info').remove();
 		})
 	})
