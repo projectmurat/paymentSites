@@ -1,6 +1,7 @@
 const dropdown = document.getElementById('userActivityDropdown');
 
 window.addEventListener('DOMContentLoaded', event => {
+
 	/*
 	firebase.auth().sendPasswordResetEmail('imuratony@gmail.com').then(function() {
 		alert("mail gönderildi")
@@ -235,15 +236,71 @@ $('#faturaStatistics').click(function () {
 
 				// Özet
 				const summary = document.getElementById('expenseSummary');
-				summary.innerHTML = selectedYear
-					? (() => {
-						const total = categories.map(c => Object.values(monthlyData[selectedYear]).map(m => m[c]).reduce((a, b) => a + b, 0)).reduce((a, b) => a + b, 0);
-						return `<strong>${selectedYear}:</strong> ${total.toLocaleString('tr-TR')} ₺ toplam fatura harcaması`;
-					})()
-					: years.map(year => {
-						const sum = categories.map(c => yearSums[year][c]).reduce((a, b) => a + b, 0);
-						return `<strong>${year}:</strong> ${sum.toLocaleString('tr-TR')} ₺ toplam fatura harcaması`;
-					}).join('<br>');
+				const formatCurrency = (value) => {
+					// Türk Lirası formatında, kuruşsuz ve "₺" sembolü ile formatlar
+					return new Intl.NumberFormat('tr-TR', {
+						style: 'currency',
+						currency: 'TRY',
+						minimumFractionDigits: 0,
+						maximumFractionDigits: 0,
+					}).format(value);
+				};
+
+				const createSummaryTable = (data) => {
+					// Tablo başlığını oluştur
+					let tableHTML = `
+						<table class="summary-table">
+							<thead>
+								<tr>
+									<th>Yıl</th>
+									<th>Toplam Fatura Harcaması</th>
+								</tr>
+							</thead>
+							<tbody>
+					`;
+
+										// Tablo satırlarını oluştur
+										data.forEach(item => {
+											tableHTML += `
+							<tr>
+								<td>${item.year}</td>
+								<td>${formatCurrency(item.total)}</td>
+							</tr>
+						`;
+										});
+
+										// Tabloyu kapat
+										tableHTML += `
+							</tbody>
+						</table>
+					`;
+
+					return tableHTML;
+				};
+
+				// Yıllık veya toplam özet verisini hesaplama ve tabloyu oluşturma
+				const getSummaryData = () => {
+					if (selectedYear) {
+						// Sadece seçili yılı hesapla
+						const totalForSelectedYear = categories.reduce((total, category) => {
+							const categoryTotal = Object.values(monthlyData[selectedYear] || {}).reduce((sum, monthData) => sum + (monthData[category] || 0), 0);
+							return total + categoryTotal;
+						}, 0);
+
+						// Tek bir yıl için veri dizisi döndür
+						return [{ year: selectedYear, total: totalForSelectedYear }];
+					} else {
+						// Tüm yılların özetini hesapla ve dizi olarak döndür
+						return years.map(year => {
+							const totalForYear = categories.reduce((total, category) => total + (yearSums[year][category] || 0), 0);
+							return { year: year, total: totalForYear };
+						});
+					}
+				};
+
+				// summary elementinin innerHTML'ini güncelle
+				const summaryData = getSummaryData();
+				summary.innerHTML = createSummaryTable(summaryData);
 			}
 
 			// İlk çizim

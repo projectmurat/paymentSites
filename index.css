@@ -1473,6 +1473,8 @@ input {
 }
 
 
+/*------------------ ana ekran menüsü CSS */
+
 /*
  * Google Fonts: Poppins (or any other modern sans-serif font)
  */
@@ -1501,6 +1503,11 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    margin-top: 0rem !important;
+}
+/* Konteyner seçiciyi daha spesifik hale getirerek önceliği artırıyoruz */
+.container.mt-5 {
+    margin-top: 0 !important; /* !important kuralını geçersiz kılmak için bu da !important olmalı */
 }
 
 /* Ana grid yapısı (geniş ekranlar için) */
@@ -1511,76 +1518,63 @@ body {
     padding: 20px 0;
 }
 
-/* --- */
-
 /* Mobil görünüm için media query */
 @media (max-width: 768px) {
+    /* Ana grid yapısı (mobil ekranlar için) */
     .menu-grid {
-        display: flex;
-        overflow-x: scroll; /* Kaydırma özelliğini aç */
-        overflow-y: hidden;
-        white-space: nowrap;
-        gap: 20px; /* Kartlar arası boşluğu biraz artır */
-        padding: 25px 20px; /* Kenarlara daha fazla boşluk */
-
-        /* Akıcı kaydırma animasyonu için scroll-snap */
-        scroll-snap-type: x mandatory;
-        scroll-behavior: smooth; /* Kaydırma hareketini yumuşatır */
-
-        /* iOS'ta daha akıcı kaydırma için */
-        -webkit-overflow-scrolling: touch;
-    }
-
-    /* --- Kaydırma Çubuğunu Gizleme --- */
-    /* Firefox için */
-    .menu-grid {
-        scrollbar-width: none; /* Firefox'ta çubuğu gizler */
-    }
-
-    /* WebKit tabanlı tarayıcılar (Chrome, Safari, Edge) için */
-    .menu-grid::-webkit-scrollbar {
-        display: none; /* WebKit'te çubuğu tamamen gizler */
-        width: 0;
-        height: 0;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* 2 sütunlu yapı oluştur */
+        gap: 15px; /* Kartlar arası boşluğu biraz azaltın */
+        padding: 20px 15px; /* Kenarlara boşluk ekleyin */
+        overflow-x: hidden; /* Yatay kaydırmayı tamamen devre dışı bırak */
+        white-space: normal; /* `nowrap` özelliğini kaldırın */
     }
 
     /* --- Kartlar için stil --- */
-    .menu-card {
-        flex: 0 0 auto;
-        width: 180px; /* Kart genişliğini ayarla */
-        scroll-snap-align: center; /* Kaydırma durduğunda kartın ortalanmasını sağla */
+    .menu-grid .menu-card {
+        flex: none; /* Flex özelliklerini sıfırla */
+        width: 100%; /* Kapsayıcıya tam genişlik ver */
+        max-width: none; /* Maksimum genişlik sınırlamasını kaldır */
+        margin: 0; /* Ortalamayı kaldır */
 
         /* İçerik düzenini ayarla */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-
+        border-radius: 15px; /* Radius'u küçült */
+        padding: 0px 0px;
         /* Ekstil stil ve animasyonlar */
-        padding: 25px;
-        background-color: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Güzel bir geçiş efekti */
-        border: 1px solid #e0e0e0;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+        transition: transform 0.3s ease, box-shadow 0.3s;
     }
 
-    /* Hover ve aktif durum için daha iyi animasyon */
+    /* Hover ve aktif durum için daha sade bir animasyon */
     .menu-card:hover,
     .menu-card:focus-visible {
-        transform: translateY(-10px) scale(1.05); /* Yukarı kayma ve büyüme */
-        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.15); /* Gölgeyi büyüt */
+        transform: translateY(-5px) scale(1.03); /* Hafif yukarı kayma ve büyüme */
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12); /* Gölgeyi büyüt */
     }
 
-    /* İkon ve içerik arasındaki boşluğu artır */
+    /* İkon ve içerik arasındaki boşluğu ayarla */
     .menu-card .card-icon {
-        font-size: 3.9rem; /* İkon boyutunu büyüt */
-        margin-bottom: 15px;
+        font-size: 2rem; /* İkon boyutunu küçült */
+        margin-bottom: 10px;
     }
 
     .card-title {
-        font-size: 1.4rem;
-        font-weight: 700;
+        font-weight: 600;
+    }
+
+    .card-description {
+        font-size: 0.8rem; /* Açıklama boyutunu küçült */
+        max-width: none;
+        white-space: normal;
+        line-height: 1.2; /* Satır aralığını ayarla */
+    }
+
+    /* Scrollbar'ı gizleme kodunu kaldırın veya olduğu gibi bırakın */
+    .menu-grid {
+        scrollbar-width: none;
+    }
+    .menu-grid::-webkit-scrollbar {
+        display: none;
     }
 }
 
@@ -1662,9 +1656,59 @@ body {
     max-width: 180px;
 }
 
-@media (min-width: 576px) {
-    .modal-dialog {
-        max-width: 600px;
-        margin: 1.75rem auto;
-    }
+/*------------------ FATURA SİMÜLASYON ÖZET TABLO CSS */
+
+
+.summary-table {
+    width: 100%;
+    border-collapse: separate; /* Ayrı kenarlıklar için */
+    border-spacing: 0; /* Boşluğu kaldır */
+    margin-top: 20px;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+    border-radius: 12px; /* Daha yumuşak köşeler */
+    overflow: hidden; /* Kenar yuvarlaklığı için önemli */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); /* Daha belirgin gölge */
+    background-color: #fff; /* Beyaz arka plan */
+}
+
+.summary-table th,
+.summary-table td {
+    padding: 12px 20px; /* Dikey boşluğu azalt, yatay boşluğu koru */
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0; /* Daha ince ve açık renkli çizgi */
+}
+/* Sadece son satırın alt çizgisini kaldır */
+.summary-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.summary-table thead th {
+    background-color: #f8f9fa; /* Açık gri başlık arka planı */
+    color: #555;
+    font-weight: 600; /* Kalınlığı azalt */
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 15px 20px; /* Başlıklar için biraz daha fazla dikey boşluk */
+}
+
+/* Yıl sütunu için genişlik ayarı */
+.summary-table th:first-child,
+.summary-table td:first-child {
+    width: 30%; /* Yıl sütununu daha dar yap */
+    max-width: 120px; /* Maksimum genişlik sınırı */
+    font-weight: 700;
+}
+
+/* Toplam harcama sütununu ayarla */
+.summary-table td:last-child {
+    font-weight: 700;
+    color: #007bff; /* Mavi renk vurgusu */
+    font-size: 15px;
+}
+
+/* Satırların üzerine gelindiğinde renk değişimi */
+.summary-table tbody tr:hover {
+    background-color: #fafafa;
+    transition: background-color 0.2s ease;
 }

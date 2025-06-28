@@ -73,6 +73,10 @@
 
 
 		<div class="container mt-5">
+
+
+
+
 			<div class="menu-grid">
 
 				<a href="#" class="menu-card" data-toggle="modal" data-target="#mainHandsontable">
@@ -80,18 +84,8 @@
 						<i class="fas fa-table"></i>
 					</div>
 					<div class="card-content">
-						<div class="card-title">Handsontable</div>
-						<div class="card-description">Ana tabloyu görüntüle</div>
-					</div>
-				</a>
-
-				<a href="#" class="menu-card" id="backup">
-					<div class="card-icon">
-						<i class="fas fa-history"></i>
-					</div>
-					<div class="card-content">
-						<div class="card-title">Yedek</div>
-						<div class="card-description">Yedeği geri yükle</div>
+						<div class="card-title">Harcama Yönetimi</div>
+						<div class="card-description">Ana Harcama Bilgilerini Görüntüle</div>
 					</div>
 				</a>
 
@@ -100,8 +94,8 @@
 						<i class="fas fa-chart-line"></i>
 					</div>
 					<div class="card-content">
-						<div class="card-title">İstatistik</div>
-						<div class="card-description">Finansal analizleri incele</div>
+						<div class="card-title">Dönemsel İstatistik</div>
+						<div class="card-description">Dönem Bazlı Finansal Analizleri İncele</div>
 					</div>
 				</a>
 
@@ -110,18 +104,19 @@
 						<i class="fas fa-piggy-bank"></i>
 					</div>
 					<div class="card-content">
-						<div class="card-title">Birikim</div>
-						<div class="card-description">Fon detaylarını görüntüle</div>
+						<div class="card-title">Varlıklarım</div>
+						<div class="card-description">Varlık Detaylarını Görüntüle</div>
 					</div>
 				</a>
 
-				<a href="#" class="menu-card" data-toggle="modal" data-target="#creditCardInstallmentModal" id="installments">
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#creditCardInstallmentModal"
+					id="installments">
 					<div class="card-icon">
 						<i class="fas fa-credit-card"></i>
 					</div>
 					<div class="card-content">
-						<div class="card-title">Taksitler</div>
-						<div class="card-description">Kredi kartı taksit bilgisi</div>
+						<div class="card-title">Ödeme Planım</div>
+						<div class="card-description">Ödeme Planları Bilgilerini Görüntüle</div>
 					</div>
 				</a>
 
@@ -130,8 +125,8 @@
 						<i class="fas fa-chart-pie"></i>
 					</div>
 					<div class="card-content">
-						<div class="card-title">Mevduat</div>
-						<div class="card-description">Birikim simülasyonu</div>
+						<div class="card-title">Mevduat Simülasyonu</div>
+						<div class="card-description">Mevduat Simülasyonu Oluştur</div>
 					</div>
 				</a>
 
@@ -140,28 +135,30 @@
 						<i class="fas fa-receipt"></i>
 					</div>
 					<div class="card-content">
-						<div class="card-title">Fatura</div>
-						<div class="card-description">Fatura simülasyonuna göz at</div>
+						<div class="card-title">Fatura Simülasyonu</div>
+						<div class="card-description">Fatura Simülasyonuna Göz At</div>
 					</div>
 				</a>
 
-				<a href="#" class="menu-card" data-toggle="modal" data-target="#shoppingSmimulationModal" id="shoppingSmimulation">
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#shoppingSmimulationModal"
+					id="shoppingSmimulation">
 					<div class="card-icon">
 						<i class="fas fa-shopping-cart"></i>
 					</div>
 					<div class="card-content">
-						<div class="card-title">Alışveriş</div>
-						<div class="card-description">Alışveriş simülasyonu</div>
+						<div class="card-title">Alışveriş Simülasyonu</div>
+						<div class="card-description">Alışveriş Simülasyonu Oluştur</div>
 					</div>
 				</a>
 
-				<a href="#" class="menu-card" data-toggle="modal" data-target="#userActivityModal" id="userActivity">
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#userActivityModal"
+					id="userActivity">
 					<div class="card-icon">
 						<i class="fas fa-user-circle"></i>
 					</div>
 					<div class="card-content">
-						<div class="card-title">Aktivite</div>
-						<div class="card-description">Kullanıcı aktiviteleri</div>
+						<div class="card-title">Kullanıcı Aktivite</div>
+						<div class="card-description">Kullanıcı Aktivite Detaylarını İncele</div>
 					</div>
 				</a>
 			</div>
@@ -175,7 +172,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content" style="height: 650px !important">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Harcama Ekleme Paneli</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Harcama Yönetimi</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
 					<form action="{{ route('register') }}" method="POST">
@@ -223,7 +220,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content" style="height: 450px !important">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Ödeme Ekleme Paneli</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Harcama Ekleme</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
 					<form action="{{ route('register') }}" method="POST">
@@ -268,7 +265,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content" style="height: 650px !important">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Fatura Simülasyon Paneli
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Fatura Simülasyonu
 						</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
@@ -318,7 +315,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content" style="height: 400px !important">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Dönem Ekleme Paneli</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Dönem Ekleme</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
 					<form action="{{ route('register') }}" method="POST">
@@ -356,7 +353,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">İstatistikler</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Dönemsel İstatistik</h4>
 
 					</div>
 					<div>
@@ -379,7 +376,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content" style="height: 675px !important">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Birikim Fonları</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Varlıklarım</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
 
@@ -424,7 +421,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Birikim Tarihçesi</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Varlık Tarihçe</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
 
@@ -467,7 +464,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Fon İstatistikleri
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Varlık İstatistik
 						</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
@@ -546,7 +543,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Taksitler</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Ödeme Planım</h4>
 					</div>
 
 					<div class="modal-body" style="padding: 0rem;">
@@ -616,7 +613,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Taksit Tarihçesi</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Ödeme Tarihçesi</h4>
 					</div>
 
 					<div class="modal-body" style="padding: 0rem;">
@@ -657,7 +654,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Gelir Hesaplayıcı</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Hane Geliri</h4>
 					</div>
 
 					<div class="modal-body" style="padding: 0rem;">
@@ -700,7 +697,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Rutin Giderler</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Rutin Ödemeler</h4>
 					</div>
 
 					<div class="modal-body" style="padding: 0rem;">
@@ -729,7 +726,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Taksit Ekle</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Ödeme Ekle</h4>
 
 					</div>
 					<div class="add-installment-container">
@@ -782,7 +779,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Mevduat Faiz Simülasyonu
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Mevduat Simülasyonu
 						</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
@@ -816,7 +813,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Alışeriş Simülasyonu</h4>
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">ALışveriş Simülasyonu</h4>
 						<p id="popup-info-period-msg"></p>
 					</div>
 
