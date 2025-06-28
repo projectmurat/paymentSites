@@ -1504,12 +1504,17 @@ body {
     margin: 0 auto;
     padding: 20px;
     margin-top: 0rem !important;
+    padding-right: 5px;
+    padding-left: 5px;
 }
 /* Konteyner seçiciyi daha spesifik hale getirerek önceliği artırıyoruz */
 .container.mt-5 {
     margin-top: 0 !important; /* !important kuralını geçersiz kılmak için bu da !important olmalı */
 }
-
+.container.container {
+    padding-right: 5px;
+    padding-left: 5px;
+}
 /* Ana grid yapısı (geniş ekranlar için) */
 .menu-grid {
     display: grid;
