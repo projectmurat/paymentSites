@@ -10,15 +10,11 @@ window.addEventListener('DOMContentLoaded', event => {
 		alert("smtp hatası")
 	  });
 	  */
-	let myModal = new bootstrap.Modal(document.getElementById('mainHandsontable'));
+
 
 
 	init((initData) => {
-		myModal.show();
-		startTable(initData, (responseTable) => {
-			myModal.hide();
-			$('#hot-display-license-info').remove();
-		})
+		//triggerNotification();
 	})
 
 });
@@ -52,6 +48,29 @@ dropdown.addEventListener('change', function () {
 	// Burada seçilen değeri kullanarak yapmak istediğiniz işlemleri gerçekleştirebilirsiniz.
 });
 
+$('#mainHandsontableButton').on('click', function(event) {
+    console.log("Harcama Yönetimi butonu tıklandı!");
+    let mainHandsontable = new bootstrap.Modal(document.getElementById('mainHandsontable'));
+    mainHandsontable.show();
+    startTable(selectedData, (responseTable) => {
+			$('#hot-display-license-info').remove();
+		})
+});
+
+$('#notesCard').on('click', function(event) {
+    let notesModal = new bootstrap.Modal(document.getElementById('notesModal'));
+    notesModal.show();
+    PocketRealtime.getNotes({
+		done:(response)=>{
+			notesModalOnOpen(response || []);
+		},
+		fail:(error)=>{
+			console.error("Hata, Note kayıtları getirilirken hata ile karşılaşıldı.");
+			throw new Error(error);
+		}
+    })
+});
+
 $('#periodDropDown').change(event => {
 	$("#grid-table").html("");
 	$('#hot-display-license-info').remove();
@@ -60,6 +79,7 @@ $('#periodDropDown').change(event => {
 	PocketRealtime.getValue({
 		path: "/" + changePeriod,
 		done: (response) => {
+			selectedData = response;
 			startTable(response, () => { });
 		},
 		fail: (error) => {
@@ -74,13 +94,17 @@ $('.btn-add').click(function () {
 	try {
 		let detail = document.getElementsByClassName("form-control").name.value;
 		let amount = document.getElementsByClassName("form-control").amount.value;
+		const categorySelect = document.getElementById('category-select');
+		const subcategorySelect = document.getElementById('subcategory-select');
 		if (detail.trim() == "" || amount.trim() == "") {
 			throw new Error("Kayıt Başarısız.\nAlanlar boş bırakılarak kayıt işlemi gerçekleştirilemez");
 		}
 		let tableOptions = document.getElementById("periodDropDown").options;
 		let historyPeriod = tableOptions[tableOptions.selectedIndex].innerText;
-		var pushData = {
+		let pushData = {
 			name: detail,
+			categoryNo:categorySelect.value,
+			subCategoryNo:subcategorySelect.value,
 			amount: amount,
 			date: new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
 		};
@@ -91,6 +115,7 @@ $('.btn-add').click(function () {
 			params: selectedData,
 			done: (response) => {
 				successAddPaymentValidation(historyPeriod);
+				alert("Harcama eklendi");
 			},
 			fail: (error) => {
 				throwAddPaymentValidation(error);
@@ -101,6 +126,79 @@ $('.btn-add').click(function () {
 		throwAddPaymentValidation(error);
 	}
 })
+
+$('#btn-openAddNewBillModal').click(function () {
+	let path = "Bill_Categories/";
+	// HTML'deki dropdown elementlerini seçin
+	const categorySelect = document.getElementById('category-select');
+	const subcategorySelect = document.getElementById('subcategory-select');
+
+	// PocketRealtime isteğini yapın
+	PocketRealtime.getRefData({
+		params: {
+			path: path
+		},
+		done: (response) => {
+			// API'den gelen veriyi bir değişkene atayın
+			const expenseCategories = response;
+
+			// Kategori dropdown'ını doldurmak için fonksiyon
+			function populateCategories() {
+				// Dropdown'ı temizle ve varsayılan seçeneği ekle
+				categorySelect.innerHTML = '<option value="" disabled selected>Kategori Seçin</option>';
+				subcategorySelect.innerHTML = '<option value="" disabled selected>Alt Kategori Seçin</option>';
+
+				// Gelen veriyi döngüye alarak seçenekleri oluştur
+				expenseCategories.forEach((cat) => {
+					const option = document.createElement('option');
+					// Değer olarak categoryNo'yu kullan
+					option.value = cat.categoryNo;
+					option.textContent = cat.category;
+					categorySelect.appendChild(option);
+				});
+			}
+
+			// Alt kategori dropdown'ını güncellemek için fonksiyon
+			function updateSubcategories(selectedCategoryNo) {
+				// Alt kategori dropdown'ını temizle ve varsayılan seçeneği ekle
+				subcategorySelect.innerHTML = '<option value="" disabled selected>Alt Kategori Seçin</option>';
+
+				// Eğer geçerli bir kategori numarası seçilmişse
+				if (selectedCategoryNo) {
+					// Seçilen categoryNo'ya sahip kategoriyi bul
+					const selectedCategory = expenseCategories.find(cat => cat.categoryNo == selectedCategoryNo);
+
+					if (selectedCategory) {
+						// Seçilen kategoriye ait alt kategorileri dropdown'a ekle
+						selectedCategory.subcategories.forEach((subcat) => {
+							const option = document.createElement('option');
+							// Değer olarak subcategoryNo'yu kullan
+							option.value = subcat.subcategoryNo;
+							option.textContent = subcat.name;
+							subcategorySelect.appendChild(option);
+						});
+					}
+				}
+			}
+
+			// Kategori seçimi değiştiğinde alt kategori dropdown'ını güncelle
+			categorySelect.addEventListener('change', (event) => {
+				// Seçilen option'ın value'su artık categoryNo'dur
+				const selectedCategoryNo = event.target.value;
+				updateSubcategories(selectedCategoryNo);
+			});
+
+			// Veri alındığında dropdown'ı hemen doldur
+			populateCategories();
+		},
+		fail: (error) => {
+			// Hata durumunda kullanıcıya bilgi ver
+			console.error("Referans veri isteği başarısız oldu:", error);
+			alert("Gider kategorileri yüklenirken bir hata oluştu. Lütfen tekrar deneyin.");
+		}
+	});
+})
+
 
 $('.btn-add-period').click(function () {
 
@@ -262,18 +360,18 @@ $('#faturaStatistics').click(function () {
 							<tbody>
 					`;
 
-										// Tablo satırlarını oluştur
-										data.forEach(item => {
-											tableHTML += `
+					// Tablo satırlarını oluştur
+					data.forEach(item => {
+						tableHTML += `
 							<tr>
 								<td>${item.year}</td>
 								<td>${formatCurrency(item.total)}</td>
 							</tr>
 						`;
-										});
+					});
 
-										// Tabloyu kapat
-										tableHTML += `
+					// Tabloyu kapat
+					tableHTML += `
 							</tbody>
 						</table>
 					`;

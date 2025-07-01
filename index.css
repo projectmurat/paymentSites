@@ -1716,3 +1716,555 @@ body {
     background-color: #fafafa;
     transition: background-color 0.2s ease;
 }
+
+
+
+
+
+
+
+/* Not Listesi Konteyneri */
+.notes-list-container {
+    max-height: 320px; /* Sabit yükseklik */
+    overflow-y: auto; /* Dikey kaydırma çubuğu */
+    padding-right: 10px; /* Kaydırma çubuğu için boşluk */
+}
+
+/* Scrollbar özelleştirmeleri (isteğe bağlı, webkit tarayıcılar için) */
+.notes-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.notes-list-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.notes-list-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.notes-list-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Her Bir Not Kartı Stili */
+.note-item { /* JavaScript'te bu sınıfı ekleyeceğiz */
+    background-color: #cfd8eb;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 15px; /* Notlar arasında boşluk */
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05); /* Hafif gölge */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.note-item:hover {
+    transform: translateY(-3px); /* Hover'da hafif yukarı kalkma efekti */
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1); /* Hover'da gölgeyi belirginleştirme */
+}
+
+.note-item .note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.note-item .note-title {
+    font-size: 1.15rem; /* Başlık boyutu */
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 0;
+}
+
+.note-item .note-timestamp {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.note-item .note-content {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
+    white-space: pre-wrap; /* Satır sonlarını koru */
+}
+
+.note-item .note-actions {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.note-item .note-actions .btn {
+    font-size: 0.85rem;
+    padding: 5px 12px;
+    border-radius: 5px;
+}
+
+/* Buton Renkleri ve Etkileşimleri */
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+.btn-info:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+/* Not Başlık ve Tarih Alanı */
+.note-item .note-header {
+    display: flex; /* Başlık ve tarihleri yan yana hizala */
+    justify-content: space-between; /* Alanları uçlara yay */
+    align-items: flex-start; /* İçerikleri üste hizala */
+    margin-bottom: 10px;
+    flex-wrap: wrap; /* Küçük ekranlarda alta geçmelerini sağla */
+}
+
+.note-item .note-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 5px; /* Başlık ile tarihlerin arasına boşluk */
+    flex-grow: 1; /* Başlığın mevcut alanı doldurmasını sağla */
+}
+
+.note-item .note-dates {
+    display: flex;
+    flex-direction: column; /* Tarihleri alt alta sırala */
+    align-items: flex-end; /* Sağ tarafa hizala */
+    font-size: 0.8rem; /* Tarih yazı boyutu */
+    color: #777; /* Daha yumuşak bir renk */
+    margin-top: 5px; /* Eğer başlık wrap olursa diye boşluk */
+}
+
+/* Her bir tarih etiketi */
+.note-item .note-timestamp {
+    display: flex; /* İkon ve metni yan yana hizala */
+    align-items: center; /* Dikeyde ortala */
+    margin-bottom: 3px; /* Tarihler arasında küçük boşluk */
+    white-space: nowrap; /* Tek satırda kalmasını sağla */
+}
+
+.note-item .note-timestamp i {
+    color: #999; /* İkon rengi */
+    font-size: 0.85rem; /* İkon boyutu */
+}
+
+.note-item .note-created {
+    /* Oluşturulma tarihi için özel stil */
+    color: #6c757d; /* Gri tonu */
+    font-weight: 500;
+}
+
+.note-item .note-updated {
+    /* Güncellenme tarihi için özel stil */
+    color: #28a745; /* Yeşil tonu (Bootstrap success rengi gibi) */
+    font-weight: 500;
+}
+
+/* Küçük ekranlar için responsive ayar */
+@media (max-width: 576px) {
+    .note-item .note-header {
+        flex-direction: column; /* Başlık ve tarihler alt alta geçsin */
+        align-items: flex-start;
+    }
+    .note-item .note-dates {
+        width: 100%; /* Tüm genişliği kaplasın */
+        align-items: flex-start; /* Sola hizala */
+        margin-top: 10px;
+    }
+    .note-item .note-updated.ml-3 { /* küçük ekranlarda margin-left'i kaldır */
+        margin-left: 0 !important;
+    }
+}
+
+/* Genel not kartı stillerini etkilemeden ekleyin */
+.note-item {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.note-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+/* ... diğer not kartı stilleri ... */
+
+
+
+
+
+
+/* Bildirim İkonu ve Sayacı */
+.notification-icon {
+    position: relative; /* Badge'in konumlandırılması için */
+    font-size: 1.5rem; /* İkon boyutu */
+    color: #007bff; /* Mavi renk (Bootstrap primary) */
+    padding: 0; /* Buton padding'ini kaldır */
+    margin-left: 15px; /* Başlıktan biraz uzaklaştır */
+    vertical-align: middle; /* Metinle dikeyde hizala */
+    border: none;
+    background: none;
+    outline: none;
+    box-shadow: none !important;
+}
+
+.notification-icon:hover {
+    color: #0056b3; /* Hover rengi */
+    text-decoration: none;
+}
+
+.notification-count {
+    position: absolute;
+    top: -5px; /* Konumlandırma */
+    right: -10px;
+    font-size: 0.7rem; /* Sayı boyutu */
+    padding: 3px 6px;
+    border-radius: 50%;
+    background-color: #dc3545; /* Kırmızı renk */
+    color: white;
+}
+
+/* Modal başlık ve içerik stilleri (eski not stillerini adapte edebiliriz) */
+/* .note-item yerine .notification-item kullanacağız */
+.notification-item {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.notification-item .notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.notification-item .notification-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 50%;
+}
+
+.notification-item .notification-scheduled-time {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 500;
+    white-space: nowrap;
+    margin-left: 15px; /* Başlıktan biraz uzaklaştır */
+    flex-shrink: 0;
+}
+
+.notification-item .notification-content {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    margin-top: 5px; /* Başlık/tarih ile içerik arasına boşluk */
+}
+
+.notification-item .notification-actions {
+    margin-top: 15px;
+    text-align: right;
+}
+
+@media (max-width: 768px) {
+    .notification-item .notification-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .notification-item .notification-title {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    .notification-item .notification-scheduled-time {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 5px;
+    }
+}
+
+
+
+
+/* --- Yaklaşan Bildirim Uyarısı (Ana Ekran) --- */
+.approaching-notification-alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    z-index: 1050;
+    /* Finansal tema için daha güven veren, profesyonel renk paleti */
+    background: linear-gradient(135deg, #e0f2f7 0%, #a7d9ed 100%); /* Açık mordan pastel turkuaza geçiş */
+    color: #2c3e50; /* Koyu gri/lacivert metin rengi */
+    padding: 22px 35px; /* Daha geniş ve premium bir his için padding */
+    border-radius: 18px; /* Daha da yuvarlak, modern köşeler */
+
+    /* Daha sofistike ve belirgin bir gölge */
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18), 0 5px 12px rgba(0, 0, 0, 0.1);
+    display: none;
+    max-width: 380px; /* Daha belirgin bir kart boyutu */
+    border: none;
+    /* Sağ tarafta vurgu çizgisi (ödeme onayına benzer) */
+    border-right: 6px solid #4a90e2; /* Canlı bir mavi tonu */
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    animation: fadeInSlideDown 0.6s ease-out forwards;
+    text-align: center;
+    width: max-content; /* İçeriğe göre genişlesin */
+}
+
+/* Giriş animasyonu (Yukarıdan aşağıya doğru süzülme) */
+@keyframes fadeInSlideDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -30px); /* Daha belirgin bir başlangıç pozisyonu */
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+.approaching-notification-alert:hover {
+    transform: translate(-50%, -8px) scale(1.03); /* Hover'da daha belirgin yukarı kayma ve büyüme */
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25), 0 8px 15px rgba(0, 0, 0, 0.15); /* Hover'da daha derin ve geniş gölge */
+    opacity: 1;
+}
+
+.approaching-notification-alert strong {
+    display: block;
+    font-size: 1.45rem; /* Ödeme başlığı gibi daha dikkat çekici */
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #1a2a3a; /* Çok koyu lacivert, güçlü bir başlık */
+    letter-spacing: 0.8px; /* Harfler arasında hafif boşluk */
+    text-transform: uppercase; /* Başlığı büyüt ve vurgula */
+}
+
+.approaching-notification-alert span { /* Bildirim içeriği/başlığı için */
+    display: block;
+    font-size: 1.1rem;
+    color: #3b506e; /* Hafif soluklaştırılmış, okunur metin */
+    margin-bottom: 10px;
+    line-height: 1.4; /* Satır aralığı */
+}
+
+.approaching-notification-alert small {
+    display: block;
+    font-size: 0.95rem; /* Biraz daha büyük ve okunabilir zaman bilgisi */
+    color: #6a7c93; /* Daha hafif bir gri */
+    margin-top: 12px; /* Üstte boşluk */
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+/* --- Bildirim Öğesi (Modal İçindeki Her Bir Bildirim Kartı) --- */
+/* Bu bölüm de finansal temaya uygun şekilde güncellendi */
+.notification-item {
+    background-color: #ffffff; /* Temiz beyaz arka plan */
+    border-radius: 14px; /* Modal içindeki kartlar için yuvarlak köşeler */
+    margin-bottom: 20px;
+    padding: 22px; /* İç boşluğu artır */
+    /* Daha zarif bir gölge */
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08), 0 2px 5px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.notification-item .notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* Çok ince ayırıcı */
+}
+
+.notification-item .notification-title {
+    font-size: 1.25rem; /* Modal başlığı da daha belirgin */
+    font-weight: 600;
+    color: #2c3e50; /* Ana bildirimle uyumlu koyu renk */
+    margin-bottom: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 50%;
+}
+
+.notification-item .notification-scheduled-time {
+    font-size: 0.95rem;
+    color: #6a7c93; /* Soluk ve şık gri */
+    font-weight: 500;
+    white-space: nowrap;
+    margin-left: 15px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+.notification-item .notification-scheduled-time i {
+    margin-right: 6px;
+    color: #7f8c8d;
+}
+
+.notification-item .notification-content {
+    font-size: 1.05rem; /* Biraz daha büyük içerik fontu */
+    color: #3b506e; /* Daha profesyonel metin rengi */
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-top: 12px;
+    margin-bottom: 18px;
+}
+
+.notification-item .notification-actions {
+    margin-top: 10px;
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px; /* Butonlar arasına boşluk */
+}
+
+.notification-item .notification-actions .text-muted {
+    font-size: 0.85rem;
+    color: #a0a0a0 !important;
+    flex-grow: 1;
+    text-align: left;
+    display: flex;
+    align-items: center;
+}
+.notification-item .notification-actions .text-muted i {
+    margin-right: 5px;
+    color: #b0b0b0;
+}
+
+/* Aksiyon butonları için finans uygulamalarına özel renkler */
+.notification-item .btn {
+    font-size: 0.9rem;
+    padding: 10px 18px;
+    border-radius: 8px; /* Daha da yuvarlak */
+    font-weight: 600;
+    transition: all 0.2s ease-out;
+    letter-spacing: 0.2px;
+}
+
+.notification-item .btn-info { /* Düzenle butonu */
+    background-color: #6c757d; /* Daha nötr bir gri */
+    border-color: #6c757d;
+    color: white;
+    box-shadow: 0 2px 5px rgba(108, 117, 125, 0.3);
+}
+.notification-item .btn-info:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.4);
+    transform: translateY(-1px);
+}
+
+.notification-item .btn-danger { /* Sil butonu */
+    background-color: #dc3545; /* Kırmızı hala gerekli olabilir */
+    border-color: #dc3545;
+    color: white;
+    box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3);
+}
+.notification-item .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+    transform: translateY(-1px);
+}
+
+/* Tetiklenmiş Bildirim Öğesi (Finans Teması) */
+.notification-item.notification-triggered {
+    opacity: 0.6; /* Biraz daha opak */
+    background-color: #f0f4f7; /* Çok açık gri/mavi tonu */
+    border-left: 4px solid #b0c4de; /* Pastel mavi sol çizgi */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    pointer-events: none;
+}
+
+.notification-item.notification-triggered .notification-header,
+.notification-item.notification-triggered .notification-title,
+.notification-item.notification-triggered .notification-content,
+.notification-item.notification-triggered .notification-scheduled-time,
+.notification-item.notification-triggered .text-muted {
+    color: #9ea8b7; /* Tüm metinleri soluklaştır */
+}
+
+.notification-item.notification-triggered .badge-success {
+    background-color: #28a745; /* Yeşil rengi koru (başarılı tamamlandı hissi) */
+    color: white;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-weight: 700;
+    margin-left: 10px;
+    letter-spacing: 0.5px;
+}
+
+
+/* Küçük ekranlar için responsive ayarlar */
+@media (max-width: 768px) {
+    .approaching-notification-alert {
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: calc(100% - 30px);
+        padding: 18px 25px;
+        border-radius: 12px;
+    }
+    .approaching-notification-alert strong {
+        font-size: 1.2rem;
+    }
+    .approaching-notification-alert span, .approaching-notification-alert small {
+        font-size: 0.98rem;
+    }
+
+    /* Modal içindeki bildirim öğeleri için mobil ayarlar */
+    .notification-item .notification-title {
+        font-size: 1.1rem;
+    }
+    .notification-item .notification-content {
+        font-size: 0.95rem;
+    }
+    .notification-item .btn {
+        padding: 8px 15px;
+        font-size: 0.85rem;
+    }
+}

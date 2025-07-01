@@ -43,6 +43,9 @@
 	<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+
 
 	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
@@ -60,26 +63,20 @@
 			<div id="loader"></div>
 			<p>Yükleniyor...</p>
 		</div>
-
 	</div>
 	<h1 class="generalTitle">
 		Finansal İşlem Merkezi
 		<p class="subTitle">Gelir, gider ve yatırım hareketlerinizi tek yerden yönetin.</p>
+		<button type="button" class="btn btn-link notification-icon" data-toggle="modal"
+			data-target="#notificationsModal" id="openNotificationsModal">
+			<i class="fas fa-bell"></i> <span class="badge badge-danger badge-pill notification-count"
+				id="notificationCount">0</span> </button>
 	</h1>
-
-
-
 	<div class="container">
-
-
 		<div class="container mt-5">
-
-
-
-
 			<div class="menu-grid">
-
-				<a href="#" class="menu-card" data-toggle="modal" data-target="#mainHandsontable">
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#mainHandsontable"
+					id="mainHandsontableButton">
 					<div class="card-icon">
 						<i class="fas fa-table"></i>
 					</div>
@@ -151,6 +148,16 @@
 					</div>
 				</a>
 
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#notesModal" id="notesCard">
+					<div class="card-icon">
+						<i class="fas fa-clipboard-list"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">Notlarım</div>
+						<div class="card-description">Kişisel Notlarınızı Yönetin</div>
+					</div>
+				</a>
+
 				<a href="#" class="menu-card" data-toggle="modal" data-target="#userActivityModal"
 					id="userActivity">
 					<div class="card-icon">
@@ -164,6 +171,50 @@
 			</div>
 		</div>
 
+		<div class="modal fade" id="notesModal" tabindex="-1" role="dialog" aria-labelledby="notesModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="notesModalLabel">Notlarım</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="card p-3 mb-4 shadow-sm">
+							<h6 class="card-title">Yeni Not Oluştur</h6>
+							<div class="form-group mb-2">
+								<label for="noteTitleInput" class="sr-only">Not Başlığı</label>
+								<input type="text" class="form-control form-control-sm" id="noteTitleInput"
+									placeholder="Not başlığı (örn: Alışveriş Listesi)">
+							</div>
+							<div class="form-group mb-3">
+								<label for="noteContentInput" class="sr-only">Not İçeriği</label>
+								<textarea class="form-control form-control-sm" id="noteContentInput" rows="3"
+									placeholder="Notunuzu buraya yazın..."></textarea>
+							</div>
+							<div class="d-flex justify-content-between"> <button type="button"
+									class="btn btn-primary btn-sm flex-fill mr-2" id="addNoteButton"> <i
+										class="fas fa-plus-circle mr-1"></i> Not Ekle
+								</button>
+								<button type="button" class="btn btn-danger btn-sm flex-fill"
+									id="clearNoteButton"> <i class="fas fa-eraser mr-1"></i> Temizle </button>
+							</div>
+						</div>
+
+						<h6 class="mb-3">Mevcut Notlarınız</h6>
+						<div id="notesList" class="notes-list-container">
+							<p class="text-muted text-center py-4" id="noNotesMessage">Henüz hiç notunuz yok.
+								Yeni bir not eklemek için yukarıdaki formu kullanın.</p>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
 
 		<!-- Main Handsontable Modalı -->
@@ -189,7 +240,6 @@
 								</div>
 							</div>
 
-
 							<div class="handsontable-container" id="grid-table"></div><br>
 							<span style="display: flex; justify-content: center;" id="infoSpan"></span>
 							<div class="deleteInfo" id="deleteInfo"></div><br>
@@ -200,7 +250,7 @@
 								</button>
 
 								<div class="dropdown-menu bank-menu" aria-labelledby="menuButton">
-									<button type="button" id="btn-add" class="menu-btn filled"
+									<button type="button" id="btn-openAddNewBillModal" class="menu-btn filled"
 										data-toggle="modal" data-target="#registerModal">💾 Yeni</button>
 									<button type="button" id="save" class="menu-btn filled">💾 Kaydet</button>
 								</div>
@@ -226,33 +276,53 @@
 					<form action="{{ route('register') }}" method="POST">
 						<div class="modal-body">
 							<div class="form-group">
-								<div class="form-group">
-									<div class="row">
-										<div class="col-md-3"><label for="name">Detay:</label></div>
-										<div class="col-md-9"><input type="text" name="name"
-												class="form-control" id="name"
-												placeholder="Ödeme Detayı Ekleyin..."></div>
+								<div class="row">
+									<div class="col-md-3"><label for="category-select">Kategori:</label></div>
+									<div class="col-md-9">
+										<select id="category-select" class="form-control">
+											<option value="" disabled selected>Kategori Seçin</option>
+										</select>
 									</div>
-
-									<div class="row">
-										<div class="col-md-3"><label for="amount">Tutar:</label></div>
-										<div class="col-md-9"><input type="number" name="amount"
-												class="form-control" id="amount"
-												placeholder="Ödeme Tutarı Ekleyin..."></div>
-									</div>
-
-									<div class="row"
-										style="display: flex; align-items: center; justify-content: center;">
-										<label class="infoLabel" style="text-align: center;" for="info">
-										</label>
-									</div>
-
 								</div>
+							</div>
 
+							<div class="form-group">
+								<div class="row">
+									<div class="col-md-3"><label for="subcategory-select">Alt Kategori:</label>
+									</div>
+									<div class="col-md-9">
+										<select id="subcategory-select" class="form-control">
+											<option value="" disabled selected>Alt Kategori Seçin</option>
+										</select>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<div class="row">
+									<div class="col-md-3"><label for="name">Detay:</label></div>
+									<div class="col-md-9"><input type="text" name="name" class="form-control"
+											id="name" placeholder="Ödeme Detayı Ekleyin..."></div>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<div class="row">
+									<div class="col-md-3"><label for="amount">Tutar:</label></div>
+									<div class="col-md-9"><input type="number" name="amount"
+											class="form-control" id="amount"
+											placeholder="Ödeme Tutarı Ekleyin..."></div>
+								</div>
+							</div>
+							<div class="row"
+								style="display: flex; align-items: center; justify-content: center;">
+								<label class="infoLabel" style="text-align: center;" for="info">
+								</label>
 							</div>
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
+							<button type="button" class="btn btn-close-add-bill"
+								data-dismiss="modal">Kapat</button>
 							<button type="button" class="btn btn-primary btn-add">Harcama Ekle</button>
 						</div>
 					</form>
@@ -1001,6 +1071,61 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="notificationsModal" tabindex="-1" role="dialog"
+			aria-labelledby="notificationsModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="notificationsModalLabel">Bildirimlerim</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="card p-3 mb-4 shadow-sm">
+							<h6 class="card-title">Yeni Bildirim Oluştur</h6>
+							<div class="form-group mb-2">
+								<label for="notificationTitleInput" class="sr-only">Bildirim Başlığı</label>
+								<input type="text" class="form-control form-control-sm"
+									id="notificationTitleInput"
+									placeholder="Bildirim başlığı (örn: Kira Ödemesi)">
+							</div>
+							<div class="form-group mb-3">
+								<label for="notificationContentInput" class="sr-only">Bildirim İçeriği</label>
+								<textarea class="form-control form-control-sm" id="notificationContentInput"
+									rows="3" placeholder="Bildirim detayları..."></textarea>
+							</div>
+							<div class="form-group mb-3">
+								<label for="notificationDateTimeInput" class="form-label">Bildirim
+									Zamanı:</label>
+								<input type="datetime-local" class="form-control form-control-sm"
+									id="notificationDateTimeInput">
+							</div>
+							<div class="d-flex justify-content-between">
+								<button type="button" class="btn btn-primary btn-sm flex-fill mr-2"
+									id="addNotificationButton">
+									<i class="fas fa-plus-circle mr-1"></i> Bildirim Ekle
+								</button>
+								<button type="button" class="btn btn-danger btn-sm flex-fill"
+									id="clearNotificationFormButton">
+									<i class="fas fa-eraser mr-1"></i> Temizle
+								</button>
+							</div>
+						</div>
+
+						<h6 class="mb-3">Yaklaşan Bildirimleriniz</h6>
+						<div id="notificationsList" class="notes-list-container">
+							<p class="text-muted text-center py-4" id="noNotificationsMessage">Henüz hiç bekleyen
+								bildiriminiz yok.</p>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
 					</div>
 				</div>
 			</div>

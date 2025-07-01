@@ -8,15 +8,19 @@ function successAddPaymentValidation(historyPeriod) {
 		document.getElementsByClassName("form-control")[1].value = "";
 		document.getElementsByClassName("infoLabel")[0].innerText = "";
 		setButtonReadOnly(false)
-		$('#registerModal').trigger('click');
+		//$('#registerModal').trigger('click');
 		let tableOptions = document.getElementById("periodDropDown").options;
-		for(let i=0;i<tableOptions.length;i++){
-			if(tableOptions[i].innerText == chooseHistoryPeriod){
+		for (let i = 0; i < tableOptions.length; i++) {
+			if (tableOptions[i].innerText == chooseHistoryPeriod) {
 				tableOptions.selectedIndex = i;
 			}
 		}
 		let changePeriod = tableOptions[tableOptions.selectedIndex].innerText;
-		startTable(selectedData, () => { });
+		let myModal = new bootstrap.Modal(document.getElementById('mainHandsontable'));
+		myModal.hide();
+		myModal.show();
+		$(".btn-close-add-bill").click()
+		//startTable(selectedData, () => { });
 	}, 1000);
 }
 
@@ -104,13 +108,18 @@ function successSaveChange(historyPeriod) {
 		document.getElementById('infoSpan').textContent = ""
 		setButtonReadOnly(false);
 		let tableOptions = document.getElementById("periodDropDown").options;
-		for(let i=0;i<tableOptions.length;i++){
-			if(tableOptions[i].innerText == chooseHistoryPeriod){
+		for (let i = 0; i < tableOptions.length; i++) {
+			if (tableOptions[i].innerText == chooseHistoryPeriod) {
 				tableOptions.selectedIndex = i;
 			}
 		}
 		let changePeriod = tableOptions[tableOptions.selectedIndex].innerText;
-		startTable(selectedData, () => { });
+		/*
+		startTable(selectedData, () => {
+			let myModal = new bootstrap.Modal(document.getElementById('mainHandsontable'));
+			myModal.hide();
+			myModal.show();
+		});*/
 	}, 2000);
 
 }
