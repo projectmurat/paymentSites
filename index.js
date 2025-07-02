@@ -12,9 +12,8 @@ window.addEventListener('DOMContentLoaded', event => {
 	  */
 
 
-
 	init((initData) => {
-		//triggerNotification();
+		triggerNotification();
 	})
 
 });

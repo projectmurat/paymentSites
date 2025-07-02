@@ -67,10 +67,14 @@
 	<h1 class="generalTitle">
 		Finansal İşlem Merkezi
 		<p class="subTitle">Gelir, gider ve yatırım hareketlerinizi tek yerden yönetin.</p>
-		<button type="button" class="btn btn-link notification-icon" data-toggle="modal"
+		<button type="button" class="btn btn-link position-relative notification-icon" data-toggle="modal"
 			data-target="#notificationsModal" id="openNotificationsModal">
-			<i class="fas fa-bell"></i> <span class="badge badge-danger badge-pill notification-count"
-				id="notificationCount">0</span> </button>
+			<i class="fas fa-bell fa-lg"></i>
+			<span class="badge badge-danger badge-pill notification-count" id="notificationCount">3</span>
+			<span class="notification-dot" id="notificationDot"></span>
+			<span id="newNotificationLabel" class="ml-1">Yeni!</span>
+		</button>
+
 	</h1>
 	<div class="container">
 		<div class="container mt-5">
@@ -83,16 +87,6 @@
 					<div class="card-content">
 						<div class="card-title">Harcama Yönetimi</div>
 						<div class="card-description">Ana Harcama Bilgilerini Görüntüle</div>
-					</div>
-				</a>
-
-				<a href="#" class="menu-card" data-toggle="modal" data-target="#statisticsModal" id="statistics">
-					<div class="card-icon">
-						<i class="fas fa-chart-line"></i>
-					</div>
-					<div class="card-content">
-						<div class="card-title">Dönemsel İstatistik</div>
-						<div class="card-description">Dönem Bazlı Finansal Analizleri İncele</div>
 					</div>
 				</a>
 
@@ -127,6 +121,16 @@
 					</div>
 				</a>
 
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#notesModal" id="notesCard">
+					<div class="card-icon">
+						<i class="fas fa-clipboard-list"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">Notlarım</div>
+						<div class="card-description">Kişisel Notlarınızı Yönetin</div>
+					</div>
+				</a>
+
 				<a href="#" class="menu-card" data-toggle="modal" data-target="#faturaModal" id="faturaStatistics">
 					<div class="card-icon">
 						<i class="fas fa-receipt"></i>
@@ -134,6 +138,16 @@
 					<div class="card-content">
 						<div class="card-title">Fatura Simülasyonu</div>
 						<div class="card-description">Fatura Simülasyonuna Göz At</div>
+					</div>
+				</a>
+
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#statisticsModal" id="statistics">
+					<div class="card-icon">
+						<i class="fas fa-chart-line"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">Dönemsel İstatistik</div>
+						<div class="card-description">Dönem Bazlı Finansal Analizleri İncele</div>
 					</div>
 				</a>
 
@@ -145,16 +159,6 @@
 					<div class="card-content">
 						<div class="card-title">Alışveriş Simülasyonu</div>
 						<div class="card-description">Alışveriş Simülasyonu Oluştur</div>
-					</div>
-				</a>
-
-				<a href="#" class="menu-card" data-toggle="modal" data-target="#notesModal" id="notesCard">
-					<div class="card-icon">
-						<i class="fas fa-clipboard-list"></i>
-					</div>
-					<div class="card-content">
-						<div class="card-title">Notlarım</div>
-						<div class="card-description">Kişisel Notlarınızı Yönetin</div>
 					</div>
 				</a>
 

@@ -527,7 +527,7 @@ tbody tr:hover {
 }
 
 .subTitle {
-    font-size: 1rem;
+    font-size: 0.7rem;
     color: #cccccc;
     margin-top: 8px;
     margin-bottom: 20px;
@@ -1506,10 +1506,12 @@ body {
     margin-top: 0rem !important;
     padding-right: 5px;
     padding-left: 5px;
+    padding-top: 0;
 }
 /* Konteyner seçiciyi daha spesifik hale getirerek önceliği artırıyoruz */
 .container.mt-5 {
     margin-top: 0 !important; /* !important kuralını geçersiz kılmak için bu da !important olmalı */
+    padding-top: 0;
 }
 .container.container {
     padding-right: 5px;
@@ -1907,116 +1909,6 @@ body {
 
 
 
-
-
-/* Bildirim İkonu ve Sayacı */
-.notification-icon {
-    position: relative; /* Badge'in konumlandırılması için */
-    font-size: 1.5rem; /* İkon boyutu */
-    color: #007bff; /* Mavi renk (Bootstrap primary) */
-    padding: 0; /* Buton padding'ini kaldır */
-    margin-left: 15px; /* Başlıktan biraz uzaklaştır */
-    vertical-align: middle; /* Metinle dikeyde hizala */
-    border: none;
-    background: none;
-    outline: none;
-    box-shadow: none !important;
-}
-
-.notification-icon:hover {
-    color: #0056b3; /* Hover rengi */
-    text-decoration: none;
-}
-
-.notification-count {
-    position: absolute;
-    top: -5px; /* Konumlandırma */
-    right: -10px;
-    font-size: 0.7rem; /* Sayı boyutu */
-    padding: 3px 6px;
-    border-radius: 50%;
-    background-color: #dc3545; /* Kırmızı renk */
-    color: white;
-}
-
-/* Modal başlık ve içerik stilleri (eski not stillerini adapte edebiliriz) */
-/* .note-item yerine .notification-item kullanacağız */
-.notification-item {
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    padding: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex;
-    flex-direction: column;
-}
-
-.notification-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-}
-
-.notification-item .notification-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-}
-
-.notification-item .notification-title {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: #343a40;
-    margin-bottom: 0;
-    flex-grow: 1;
-    flex-shrink: 1;
-    min-width: 50%;
-}
-
-.notification-item .notification-scheduled-time {
-    font-size: 0.85rem;
-    color: #6c757d;
-    font-weight: 500;
-    white-space: nowrap;
-    margin-left: 15px; /* Başlıktan biraz uzaklaştır */
-    flex-shrink: 0;
-}
-
-.notification-item .notification-content {
-    font-size: 0.95rem;
-    color: #555;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    margin-top: 5px; /* Başlık/tarih ile içerik arasına boşluk */
-}
-
-.notification-item .notification-actions {
-    margin-top: 15px;
-    text-align: right;
-}
-
-@media (max-width: 768px) {
-    .notification-item .notification-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .notification-item .notification-title {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-    .notification-item .notification-scheduled-time {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 5px;
-    }
-}
-
-
-
-
 /* --- Yaklaşan Bildirim Uyarısı (Ana Ekran) --- */
 .approaching-notification-alert {
     position: fixed;
@@ -2032,12 +1924,11 @@ body {
     border-radius: 18px; /* Daha da yuvarlak, modern köşeler */
 
     /* Daha sofistike ve belirgin bir gölge */
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18), 0 5px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1rem 3rem rgb(0 230 254) !important;
     display: none;
     max-width: 380px; /* Daha belirgin bir kart boyutu */
     border: none;
     /* Sağ tarafta vurgu çizgisi (ödeme onayına benzer) */
-    border-right: 6px solid #4a90e2; /* Canlı bir mavi tonu */
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     animation: fadeInSlideDown 0.6s ease-out forwards;
@@ -2083,7 +1974,7 @@ body {
 
 .approaching-notification-alert small {
     display: block;
-    font-size: 0.95rem; /* Biraz daha büyük ve okunabilir zaman bilgisi */
+    font-size: 0.80rem;; /* Biraz daha büyük ve okunabilir zaman bilgisi */
     color: #6a7c93; /* Daha hafif bir gri */
     margin-top: 12px; /* Üstte boşluk */
     opacity: 0.9;
@@ -2093,7 +1984,7 @@ body {
 /* --- Bildirim Öğesi (Modal İçindeki Her Bir Bildirim Kartı) --- */
 /* Bu bölüm de finansal temaya uygun şekilde güncellendi */
 .notification-item {
-    background-color: #ffffff; /* Temiz beyaz arka plan */
+    background-color: #75b9724f;; /* Temiz beyaz arka plan */
     border-radius: 14px; /* Modal içindeki kartlar için yuvarlak köşeler */
     margin-bottom: 20px;
     padding: 22px; /* İç boşluğu artır */
@@ -2256,15 +2147,133 @@ body {
         font-size: 0.98rem;
     }
 
-    /* Modal içindeki bildirim öğeleri için mobil ayarlar */
-    .notification-item .notification-title {
-        font-size: 1.1rem;
+
+}
+.ignore-duration-select {
+    min-width: 100px;
+}
+@media (max-width: 576px) {
+    .form-inline {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
     }
-    .notification-item .notification-content {
-        font-size: 0.95rem;
+    .form-inline .form-control,
+    .form-inline .btn {
+        width: 100%;
+        margin-bottom: 8px;
     }
-    .notification-item .btn {
-        padding: 8px 15px;
-        font-size: 0.85rem;
-    }
+}
+
+
+.ignore-today-btn {
+    margin-top: 12px;
+    background-color: #e57373;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.ignore-today-btn:hover {
+    background-color: #d32f2f;
+}
+
+.shadow-lg {
+    box-shadow: 0 1rem 3rem rgb(0 230 254) !important;
+}
+
+#approachingNotificationAlert.approaching-notification-alert {
+	box-shadow: 0 0 8px rgba(173, 216, 230, 0.4);
+	animation: fadeInSlideDown 0.5s ease-out forwards, glowPulse 2s infinite ease-in-out;
+}
+
+
+
+
+
+
+
+/* Zil simgesi kapsayıcı */
+.notification-icon {
+	position: relative;
+	display: inline-block;
+}
+
+/* Zil simgesi - gerçekçi sarkaç animasyonu */
+.notification-icon i {
+	animation: realisticSwing 2.2s ease-in-out infinite;
+	transform-origin: 50% 0%;
+	color: #ff0000;
+	font-size: 1.4rem;
+}
+
+/* Sallanma efekti (gerçekçi sarkaç) */
+@keyframes realisticSwing {
+	0%   { transform: rotate(0deg); }
+	10%  { transform: rotate(20deg); }
+	20%  { transform: rotate(-15deg); }
+	30%  { transform: rotate(10deg); }
+	40%  { transform: rotate(-8deg); }
+	50%  { transform: rotate(6deg); }
+	60%  { transform: rotate(-4deg); }
+	70%  { transform: rotate(2deg); }
+	80%  { transform: rotate(-1deg); }
+	90%  { transform: rotate(0.5deg); }
+	100% { transform: rotate(0deg); }
+}
+
+/* Bildirim sayısı (badge) - zıplama efekti */
+.notification-count {
+	animation: bounceBadge 2.5s ease-in-out infinite;
+	transform-origin: center;
+}
+
+@keyframes bounceBadge {
+	0%, 100%   { transform: translateY(0) scale(1); }
+	50%        { transform: translateY(-3px) scale(1.15); }
+}
+
+/* Kırmızı dot - ikonun üst köşesine parlama efekti */
+.notification-dot {
+	position: absolute;
+	top: -2px;
+	right: -2px;
+	width: 12px;
+	height: 12px;
+	background-color: #e53935;
+	border-radius: 50%;
+	box-shadow: 0 0 12px rgba(229, 57, 53, 0.6);
+	animation: pulseDot 1.2s infinite ease-in-out;
+	pointer-events: none;
+	z-index: 5;
+}
+
+@keyframes pulseDot {
+	0%   { transform: scale(1); opacity: 0.5; }
+	50%  { transform: scale(1.5); opacity: 1; }
+	100% { transform: scale(1); opacity: 0.5; }
+}
+
+/* "Yeni!" yazısı - zıplama ve dikkat çekme */
+#newNotificationLabel {
+	animation: bounceText 1.6s infinite;
+	font-size: 0.9rem;
+	color: #e53935;
+	font-weight: bold;
+	margin-left: 6px;
+}
+
+@keyframes bounceText {
+	0%, 100% {
+		transform: translateY(0);
+		opacity: 0.8;
+	}
+	50% {
+		transform: translateY(-5px) scale(1.2);
+		opacity: 1;
+	}
 }

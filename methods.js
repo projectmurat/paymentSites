@@ -1550,151 +1550,184 @@ function notesModalOnOpen(responseNoteList) {
 }
 
 function triggerNotification() {
-    // Değişken tanımlamaları
-    let currentlyEditingNotificationId = null;
-    let allNotificationsCache = [];
-    // Oturum boyunca gizlenecek bildirim ID'leri. Sayfa yenilenince sıfırlanır.
-    // Kalıcı olmasını isterseniz `localStorage` kullanmalısınız.
-    let hiddenApproachingNotifications = [];
+	// Değişken tanımlamaları
+	let currentlyEditingNotificationId = null;
+	let allNotificationsCache = [];
+	// Oturum boyunca gizlenecek bildirim ID'leri. Sayfa yenilenince sıfırlanır.
+	// Kalıcı olmasını isterseniz `localStorage` kullanmalısınız.
+	let hiddenApproachingNotifications = [];
 
-    const notificationsModal = $('#notificationsModal');
-    const openNotificationsModalButton = $('#openNotificationsModal');
-    const addNotificationButton = $('#addNotificationButton');
-    const clearNotificationFormButton = $('#clearNotificationFormButton');
-    const notificationTitleInput = $('#notificationTitleInput');
-    const notificationContentInput = $('#notificationContentInput');
-    const notificationDateTimeInput = $('#notificationDateTimeInput');
-    const notificationsList = $('#notificationsList');
-    const noNotificationsMessage = $('#noNotificationsMessage');
-    const notificationCount = $('#notificationCount');
+	const notificationsModal = $('#notificationsModal');
+	const openNotificationsModalButton = $('#openNotificationsModal');
+	const addNotificationButton = $('#addNotificationButton');
+	const clearNotificationFormButton = $('#clearNotificationFormButton');
+	const notificationTitleInput = $('#notificationTitleInput');
+	const notificationContentInput = $('#notificationContentInput');
+	const notificationDateTimeInput = $('#notificationDateTimeInput');
+	const notificationsList = $('#notificationsList');
+	const noNotificationsMessage = $('#noNotificationsMessage');
+	const notificationCount = $('#notificationCount');
 
-    // Yaklaşan bildirim alert elementini ilk başta al (veya daha sonra oluşturulacaksa referans tutmak için)
-    let approachingAlert = $('#approachingNotificationAlert');
+	// Yaklaşan bildirim alert elementini ilk başta al (veya daha sonra oluşturulacaksa referans tutmak için)
+	let approachingAlert = $('#approachingNotificationAlert');
 
-    // --- Yardımcı Fonksiyonlar ---
+	// --- Yardımcı Fonksiyonlar ---
 
-    // Zaman formatlama fonksiyonu (dışarıda tanımlı olduğunu varsayıyorum)
-    // Eğer fundsLastCallbackTime fonksiyonunuz tanımlı değilse, aşağıdaki gibi basit bir versiyon kullanabilirsiniz:
-    function fundsLastCallbackTime(isoString) {
-        const date = new Date(isoString);
-        const options = {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        };
-        return date.toLocaleString('tr-TR', options);
-    }
+	// Zaman formatlama fonksiyonu (dışarıda tanımlı olduğunu varsayıyorum)
+	// Eğer fundsLastCallbackTime fonksiyonunuz tanımlı değilse, aşağıdaki gibi basit bir versiyon kullanabilirsiniz:
+	function fundsLastCallbackTime(isoString) {
+		const date = new Date(isoString);
+		const options = {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false
+		};
+		return date.toLocaleString('tr-TR', options);
+	}
 
-    // ISO formatını input type="datetime-local" için dönüştürme fonksiyonu
-    function toDateTimeLocal(isoString) {
-        const date = new Date(isoString);
-        // Zaman dilimi farkını düzeltmek için (eğer input yerel saati bekliyorsa)
-        date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-        return date.toISOString().slice(0, 16);
-    }
+	// ISO formatını input type="datetime-local" için dönüştürme fonksiyonu
+	function toDateTimeLocal(isoString) {
+		const date = new Date(isoString);
+		// Zaman dilimi farkını düzeltmek için (eğer input yerel saati bekliyorsa)
+		date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+		return date.toISOString().slice(0, 16);
+	}
 
-    // Bildirimleri DOM'a ekleme fonksiyonu
-    function addNotificationToDOM(notification) {
-        const scheduledFormatted = fundsLastCallbackTime(notification.scheduledTime);
-        const createdFormatted = fundsLastCallbackTime(notification.createdAt);
+	// Bildirimleri DOM'a ekleme fonksiyonu
+	function addNotificationToDOM(notification) {
+		const scheduledFormatted = fundsLastCallbackTime(notification.scheduledTime);
+		const createdFormatted = fundsLastCallbackTime(notification.createdAt);
+		const ignoredFormatted = notification.ignoredUntil ? fundsLastCallbackTime(notification.ignoredUntil) : null;
 
-        const notificationElement = `
-            <div class="notification-item ${notification.isTriggered ? 'notification-triggered' : ''}" data-firebase-id="${notification.firebaseId}" data-id="${notification.id || ''}">
-                <div class="notification-header">
-                    <h5 class="notification-title">${notification.title}</h5>
-                    <small class="notification-scheduled-time" data-iso-time="${notification.scheduledTime}">
-                        <i class="far fa-calendar-check mr-1"></i> Zaman: ${scheduledFormatted}
-                    </small>
-                </div>
-                <p class="notification-content">${notification.content}</p>
-                <div class="notification-actions">
-                    <small class="text-muted mr-3"><i class="far fa-clock mr-1"></i> Oluşturuldu: ${createdFormatted}</small>
-                    ${notification.isTriggered ? `
-                        <span class="badge badge-success ml-2"><i class="fas fa-check-circle mr-1"></i> Tetiklendi</span>
-                    ` : `
-                        <button type="button" class="btn btn-sm btn-info edit-notification mr-2">
-                            <i class="fas fa-edit mr-1"></i> Düzenle
-                        </button>
-                        <button type="button" class="btn btn-sm btn-danger delete-notification">
-                            <i class="fas fa-trash-alt mr-1"></i> Sil
-                        </button>
-                    `}
-                </div>
-            </div>
-        `;
-        notificationsList.prepend(notificationElement);
-    }
+		const notificationElement = `
+		<div class="notification-item ${notification.isTriggered ? 'notification-triggered' : ''}" data-firebase-id="${notification.firebaseId}" data-id="${notification.id || ''}">
+			<div class="notification-header">
+				<div>
+					<h5 class="notification-title mb-1">${notification.title}</h5>
+					<small class="notification-scheduled-time text-muted d-block" data-iso-time="${notification.scheduledTime}">
+						<i class="far fa-calendar-check mr-1"></i> Zaman: ${scheduledFormatted}
+					</small>
+				</div>
+				${notification.isTriggered ? `
+					<span class="badge badge-success ml-md-3 mt-2 mt-md-0"><i class="fas fa-check-circle mr-1"></i> Tetiklendi</span>
+				` : ''}
+			</div>
 
-    // Bildirim listesini güncelleme ve DOM'a yansıtma
-    function renderNotifications(notifications) {
-        notificationsList.empty();
-        allNotificationsCache = notifications; // Cache'i güncelle
+			<p class="notification-content mb-3">${notification.content}</p>
 
-        const activeOrUpcomingNotifications = notifications.filter(n =>
-            !n.isTriggered || new Date(n.scheduledTime) >= new Date(Date.now() - (24 * 60 * 60 * 1000))
-        );
+			<div class="notification-actions d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+				<small class="text-muted mb-2 mb-md-0">
+					<i class="far fa-clock mr-1"></i> Oluşturuldu: ${createdFormatted}
+				</small>
 
-        if (activeOrUpcomingNotifications.length === 0) {
-            noNotificationsMessage.show();
-        } else {
-            noNotificationsMessage.hide();
-            activeOrUpcomingNotifications.sort((a, b) => {
-                const dateA = new Date(a.scheduledTime);
-                const dateB = new Date(b.scheduledTime);
-                if (a.isTriggered && !b.isTriggered) return 1;
-                if (!a.isTriggered && b.isTriggered) return -1;
-                return dateA - dateB;
-            });
-            activeOrUpcomingNotifications.forEach(notification => {
-                addNotificationToDOM(notification);
-            });
-        }
-        updateNotificationCount(activeOrUpcomingNotifications.filter(n => !n.isTriggered && new Date(n.scheduledTime) > new Date()).length);
-    }
+				${!notification.isTriggered ? `
+					<div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center mb-2 mb-md-0">
+						<button type="button" class="btn btn-sm btn-info mr-0 mr-sm-2 mb-2 mb-sm-0 edit-notification">
+						<i class="fas fa-edit mr-1"></i> Düzenle
+						</button>
+						<button type="button" class="btn btn-sm btn-danger delete-notification mb-2 mb-sm-0">
+						<i class="fas fa-trash-alt mr-1"></i> Sil
+						</button>
+					</div>
 
-    // ** Ana Bildirim Kontrol ve Tetikleme Mantığı (Client-Side Simulation) **
-    function checkAndTriggerNotifications() {
-        const now = new Date();
-        const tenSecondsAgo = new Date(now.getTime() - (10 * 1000));
+					<!-- Yoksay Alanı -->
+					<div class="form-inline d-flex flex-wrap mt-2 mt-md-0 ml-md-3">
+						<select class="form-control form-control-sm mr-2 ignore-duration-select">
+						<option value="1">1 gün</option>
+						<option value="3">3 gün</option>
+						<option value="7">7 gün</option>
+						<option value="30">30 gün</option>
+						</select>
+						<button type="button" class="btn btn-outline-secondary btn-sm ignore-notification-btn">
+						Yoksay
+						</button>
+					</div>
+				` : ''}
+			</div>
 
-        const notificationsToTrigger = allNotificationsCache.filter(n =>
-            !n.isTriggered &&
-            new Date(n.scheduledTime) <= now &&
-            new Date(n.scheduledTime) >= tenSecondsAgo
-        );
+			${ignoredFormatted ? `
+			<div class="mt-2">
+				<small class="text-muted">
+					<i class="fas fa-eye-slash mr-1"></i> Bu bildirim <strong>${ignoredFormatted}</strong> tarihine kadar yoksayılacak.
+				</small>
+			</div>
+			` : ''}
+		</div>
+		`;
 
-        if (notificationsToTrigger.length > 0) {
-            notificationsToTrigger.forEach(notification => {
-                showAppNotification(notification.title, notification.content);
-                console.log(`Bildirim Tetiklendi: ${notification.title}`);
+		notificationsList.prepend(notificationElement);
+	}
 
-                PocketRealtime.updateNotification({
-                    params: {
-                        firebaseId: notification.firebaseId,
-                        data: {
-                            isTriggered: true,
-                            triggeredTime: new Date().toISOString()
-                        }
-                    },
-                    done: () => {
-                        console.log(`Bildirim ${notification.title} Firebase'de tetiklendi olarak işaretlendi.`);
-                    },
-                    fail: (error) => {
-                        console.error(`Bildirim ${notification.title} güncellenirken hata oluştu:`, error);
-                    }
-                });
-            });
-        }
-        // Ana ekrandaki yaklaşan bildirimleri kontrol et ve göster
-        checkApproachingNotificationsDisplay(allNotificationsCache);
-    }
+	// Bildirim listesini güncelleme ve DOM'a yansıtma
+	function renderNotifications(notifications) {
+		notificationsList.empty();
+		allNotificationsCache = notifications; // Cache'i güncelle
 
-    // Uygulama içi bildirim gösteren basit bir fonksiyon (Popup/Toast)
-    function showAppNotification(title, content) {
-        $('body').append(`
+		const activeOrUpcomingNotifications = notifications.filter(n =>
+			!n.isTriggered || new Date(n.scheduledTime) >= new Date(Date.now() - (24 * 60 * 60 * 1000))
+		);
+
+		if (activeOrUpcomingNotifications.length === 0) {
+			noNotificationsMessage.show();
+		} else {
+			noNotificationsMessage.hide();
+			activeOrUpcomingNotifications.sort((a, b) => {
+				const dateA = new Date(a.scheduledTime);
+				const dateB = new Date(b.scheduledTime);
+				if (a.isTriggered && !b.isTriggered) return 1;
+				if (!a.isTriggered && b.isTriggered) return -1;
+				return dateA - dateB;
+			});
+			activeOrUpcomingNotifications.forEach(notification => {
+				addNotificationToDOM(notification);
+			});
+		}
+		updateNotificationCount(activeOrUpcomingNotifications.filter(n => !n.isTriggered && new Date(n.scheduledTime) > new Date()).length);
+	}
+
+	// ** Ana Bildirim Kontrol ve Tetikleme Mantığı (Client-Side Simulation) **
+	function checkAndTriggerNotifications() {
+		const now = new Date();
+		const tenSecondsAgo = new Date(now.getTime() - (10 * 1000));
+
+		const notificationsToTrigger = allNotificationsCache.filter(n =>
+			!n.isTriggered &&
+			new Date(n.scheduledTime) <= now &&
+			new Date(n.scheduledTime) >= tenSecondsAgo
+		);
+
+		if (notificationsToTrigger.length > 0) {
+			notificationsToTrigger.forEach(notification => {
+				showAppNotification(notification.title, notification.content);
+				console.log(`Bildirim Tetiklendi: ${notification.title}`);
+
+				PocketRealtime.updateNotification({
+					params: {
+						firebaseId: notification.firebaseId,
+						data: {
+							isTriggered: true,
+							triggeredTime: new Date().toISOString()
+						}
+					},
+					done: () => {
+						console.log(`Bildirim ${notification.title} Firebase'de tetiklendi olarak işaretlendi.`);
+					},
+					fail: (error) => {
+						console.error(`Bildirim ${notification.title} güncellenirken hata oluştu:`, error);
+					}
+				});
+			});
+		}
+		// Ana ekrandaki yaklaşan bildirimleri kontrol et ve göster
+		checkApproachingNotificationsDisplay(allNotificationsCache);
+	}
+
+	// Uygulama içi bildirim gösteren basit bir fonksiyon (Popup/Toast)
+	function showAppNotification(title, content) {
+		$('body').append(`
             <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
                 <div class="toast-header">
                     <strong class="mr-auto">${title}</strong>
@@ -1707,235 +1740,328 @@ function triggerNotification() {
                 </div>
             </div>
         `);
-        $('.toast').toast('show');
-    }
+		$('.toast').toast('show');
+	}
 
-    // --- Güncellenmiş Kısım: Yaklaşan Bildirim Uyarısı Gösterimi ---
-    function checkApproachingNotificationsDisplay(allNotifications) {
-        const now = new Date();
-        const futureThreshold = new Date(now.getTime() + (15 * 24 * 60 * 60 * 1000)); // 15 gün sonrası
+	// --- Güncellenmiş Kısım: Yaklaşan Bildirim Uyarısı Gösterimi ---
+	function checkApproachingNotificationsDisplay(allNotifications) {
+		const now = new Date();
+		const futureThreshold = new Date(now.getTime() + (15 * 24 * 60 * 60 * 1000)); // 15 gün sonrası
 
-        const approaching = allNotifications.filter(n =>
-            !n.isTriggered &&
-            new Date(n.scheduledTime) > now &&
-            new Date(n.scheduledTime) <= futureThreshold &&
-            !hiddenApproachingNotifications.includes(n.firebaseId) // Gizlenenleri hariç tut
-        );
+		const approaching = allNotifications.filter(n => {
+			const now = new Date();
+			const scheduled = new Date(n.scheduledTime);
+			const ignoredUntil = n.ignoredUntil ? new Date(n.ignoredUntil) : null;
 
-        // `approachingAlert` elemanının DOM'da var olup olmadığını kontrol et ve yoksa oluştur
-        if (approachingAlert.length === 0) {
-            $('body').append(`
-                <div id="approachingNotificationAlert" class="approaching-notification-alert">
-                    <strong>Yaklaşan Bildirim!</strong>
-                    <span id="approachingNotificationTitle"></span>
-                    <small id="approachingNotificationTime"></small>
-                </div>
-            `);
-            approachingAlert = $('#approachingNotificationAlert'); // Oluşturulduktan sonra tekrar seç
+			return (
+				!n.isTriggered &&
+				scheduled > now &&
+				scheduled <= futureThreshold &&
+				(!ignoredUntil || ignoredUntil < now) // ignoredUntil bugünün öncesindeyse göster
+			);
 
-            // Alert'e tıklayınca gizleme ve listeye ekleme olay dinleyicisini burada, sadece BİR KEZ bağla
-            approachingAlert.off('click').on('click', function() {
-                const clickedNotificationId = $(this).data('notification-id'); // Alert'in data-notification-id'sinden al
+		}
 
-                if (clickedNotificationId) {
-                    if (!hiddenApproachingNotifications.includes(clickedNotificationId)) {
-                        hiddenApproachingNotifications.push(clickedNotificationId);
-                        // localStorage'a da kaydetmek isterseniz burada yapın:
-                        // localStorage.setItem('hiddenApproachingNotifications', JSON.stringify(hiddenApproachingNotifications));
-                        console.log(`Bildirim ID ${clickedNotificationId} bu oturum için gizlendi.`);
-                    }
-                    $(this).fadeOut(() => {
-                        // FadeOut tamamlandıktan sonra sıradaki bildirimi kontrol et
-                        checkApproachingNotificationsDisplay(allNotificationsCache);
-                    });
-                } else {
-                    $(this).fadeOut(); // Data ID yoksa sadece gizle
-                }
-            });
-        }
 
-        const nearestApproaching = approaching.sort((a, b) => new Date(a.scheduledTime) - new Date(b.scheduledTime))[0];
+		);
 
-        if (nearestApproaching) {
-            approachingAlert.data('notification-id', nearestApproaching.firebaseId); // Gösterilen bildirimin ID'sini ata
-            approachingAlert.find('#approachingNotificationTitle').text(nearestApproaching.title);
-            approachingAlert.find('#approachingNotificationTime').text(`Zamanı: ${fundsLastCallbackTime(nearestApproaching.scheduledTime)}`);
-            approachingAlert.fadeIn();
-        } else {
-            approachingAlert.fadeOut();
-            // Eğer gösterilecek bildirim yoksa, localStorage'ı temizlemek isterseniz burada yapabilirsiniz
-            // localStorage.removeItem('hiddenApproachingNotifications');
-        }
-    }
+		// `approachingAlert` elemanının DOM'da var olup olmadığını kontrol et ve yoksa oluştur
+		if (approachingAlert.length === 0) {
+			$('body').append(`
+				<div id="approachingNotificationAlert" class="approaching-notification-alert">
+					<div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between">
+						<div class="text-section">
+							<strong class="d-block mb-2">Yaklaşan Bildirim</strong>
+							<span id="approachingNotificationTitle" class="d-block mb-1"></span>
+							<small id="approachingNotificationTime" class="d-block text-muted"></small>
+						</div>
+						<div class="mt-3 mt-sm-0 ml-sm-4">
+							<button id="ignoreTodayBtn" class="btn btn-sm btn-outline-dark px-4 py-2 font-weight-semibold rounded-pill shadow-sm">
+								<i class="fas fa-eye-slash mr-1"></i> Bugün Yoksay
+							</button>
+						</div>
+					</div>
+				</div>
+			`);
 
-    // --- Diğer Olay İşleyiciler ---
 
-    // Bildirim Ekle/Güncelle Butonunun Logic'i
-    addNotificationButton.off('click').on('click', function() {
-        const title = notificationTitleInput.val().trim();
-        const content = notificationContentInput.val().trim();
-        const scheduledDateTime = notificationDateTimeInput.val();
+			approachingAlert = $('#approachingNotificationAlert'); // Oluşturulduktan sonra tekrar seç
 
-        if (title === '' || content === '' || scheduledDateTime === '') {
-            alert('Başlık, içerik ve bildirim zamanı boş olamaz!');
-            return;
-        }
+			// Alert'e tıklayınca gizleme ve listeye ekleme olay dinleyicisini burada, sadece BİR KEZ bağla
+			approachingAlert.off('click').on('click', function () {
+				const clickedNotificationId = $(this).data('notification-id'); // Alert'in data-notification-id'sinden al
 
-        const scheduledISO = new Date(scheduledDateTime).toISOString();
+				if (clickedNotificationId) {
+					if (!hiddenApproachingNotifications.includes(clickedNotificationId)) {
+						hiddenApproachingNotifications.push(clickedNotificationId);
+						// localStorage'a da kaydetmek isterseniz burada yapın:
+						// localStorage.setItem('hiddenApproachingNotifications', JSON.stringify(hiddenApproachingNotifications));
+						console.log(`Bildirim ID ${clickedNotificationId} bu oturum için gizlendi.`);
+					}
+					$(this).fadeOut(() => {
+						// FadeOut tamamlandıktan sonra sıradaki bildirimi kontrol et
+						checkApproachingNotificationsDisplay(allNotificationsCache);
+					});
+				} else {
+					$(this).fadeOut(); // Data ID yoksa sadece gizle
+				}
+			});
+		}
 
-        if (currentlyEditingNotificationId) {
-            const updatedNotificationData = {
-                title: title,
-                content: content,
-                scheduledTime: scheduledISO,
-            };
+		const nearestApproaching = approaching.sort((a, b) => new Date(a.scheduledTime) - new Date(b.scheduledTime))[0];
 
-            PocketRealtime.updateNotification({
-                params: {
-                    firebaseId: currentlyEditingNotificationId,
-                    data: updatedNotificationData
-                },
-                done: () => {
-                    console.log("Bildirim başarıyla güncellendi.");
-                    resetNotificationForm();
-                },
-                fail: (error) => {
-                    console.error("Bildirim güncellenirken hata oluştu:", error);
-                    alert("Bildirim güncellenirken bir sorun oluştu.");
-                }
-            });
+		if (nearestApproaching) {
+			approachingAlert.data('notification-id', nearestApproaching.firebaseId); // Gösterilen bildirimin ID'sini ata
+			approachingAlert.find('#approachingNotificationTitle').text(nearestApproaching.title);
+			approachingAlert.find('#approachingNotificationTime').text(`Zamanı: ${fundsLastCallbackTime(nearestApproaching.scheduledTime)}`);
+			approachingAlert.fadeIn();
+		} else {
+			approachingAlert.fadeOut();
+			// Eğer gösterilecek bildirim yoksa, localStorage'ı temizlemek isterseniz burada yapabilirsiniz
+			// localStorage.removeItem('hiddenApproachingNotifications');
+		}
+	}
 
-        } else {
-            const newNotification = {
-                title: title,
-                content: content,
-                scheduledTime: scheduledISO,
-                isTriggered: false,
-                triggeredTime: null,
-                createdAt: new Date().toISOString()
-            };
+	// --- Diğer Olay İşleyiciler ---
 
-            PocketRealtime.addNotification({
-                params: newNotification,
-                done: () => {
-                    console.log("Bildirim başarıyla eklendi.");
-                    resetNotificationForm();
-                },
-                fail: (error) => {
-                    console.error("Bildirim eklenirken hata oluştu:", error);
-                    alert("Bildirim eklenirken bir sorun oluştu.");
-                }
-            });
-        }
-    });
+	// Bildirim Ekle/Güncelle Butonunun Logic'i
+	addNotificationButton.off('click').on('click', function () {
+		const title = notificationTitleInput.val().trim();
+		const content = notificationContentInput.val().trim();
+		const scheduledDateTime = notificationDateTimeInput.val();
 
-    // Temizle Butonu Olayı
-    clearNotificationFormButton.on('click', function() {
-        resetNotificationForm();
-    });
+		if (title === '' || content === '' || scheduledDateTime === '') {
+			alert('Başlık, içerik ve bildirim zamanı boş olamaz!');
+			return;
+		}
 
-    // Bildirim Silme Olayı (Event Delegation)
-    notificationsList.on('click', '.delete-notification', function() {
-        if (!confirm('Bu bildirimi silmek istediğinize emin misiniz?')) {
-            return;
-        }
+		const scheduledISO = new Date(scheduledDateTime).toISOString();
 
-        const notificationElement = $(this).closest('.notification-item');
-        const firebaseIdToDelete = notificationElement.data('firebase-id');
+		if (currentlyEditingNotificationId) {
+			const updatedNotificationData = {
+				title: title,
+				content: content,
+				scheduledTime: scheduledISO,
+			};
 
-        PocketRealtime.deleteNotification({
-            params: {
-                firebaseId: firebaseIdToDelete
-            },
-            done: () => {
-                console.log("Bildirim başarıyla silindi.");
-            },
-            fail: (error) => {
-                console.error("Bildirim silinirken hata oluştu:", error);
-                alert("Bildirim silinirken bir sorun oluştu.");
-            }
-        });
-    });
+			PocketRealtime.updateNotification({
+				params: {
+					firebaseId: currentlyEditingNotificationId,
+					data: updatedNotificationData
+				},
+				done: () => {
+					console.log("Bildirim başarıyla güncellendi.");
+					resetNotificationForm();
+				},
+				fail: (error) => {
+					console.error("Bildirim güncellenirken hata oluştu:", error);
+					alert("Bildirim güncellenirken bir sorun oluştu.");
+				}
+			});
 
-    // Bildirim Düzenleme Olayı (Event Delegation)
-    notificationsList.on('click', '.edit-notification', function() {
-        const notificationElement = $(this).closest('.notification-item');
-        currentlyEditingNotificationId = notificationElement.data('firebase-id');
+		} else {
+			const newNotification = {
+				title: title,
+				content: content,
+				scheduledTime: scheduledISO,
+				isTriggered: false,
+				triggeredTime: null,
+				createdAt: new Date().toISOString()
+			};
 
-        const currentTitle = notificationElement.find('.notification-title').text();
-        const currentContent = notificationElement.find('.notification-content').text();
-        const currentScheduledTime = notificationElement.find('.notification-scheduled-time').data('iso-time');
+			PocketRealtime.addNotification({
+				params: newNotification,
+				done: () => {
+					console.log("Bildirim başarıyla eklendi.");
+					resetNotificationForm();
+				},
+				fail: (error) => {
+					console.error("Bildirim eklenirken hata oluştu:", error);
+					alert("Bildirim eklenirken bir sorun oluştu.");
+				}
+			});
+		}
+	});
 
-        notificationTitleInput.val(currentTitle);
-        notificationContentInput.val(currentContent);
-        notificationDateTimeInput.val(toDateTimeLocal(currentScheduledTime));
+	// Temizle Butonu Olayı
+	clearNotificationFormButton.on('click', function () {
+		resetNotificationForm();
+	});
 
-        addNotificationButton.html('<i class="fas fa-save mr-1"></i> Bildirimi Güncelle').removeClass('btn-primary').addClass('btn-success');
-        clearNotificationFormButton.removeClass('btn-danger').addClass('btn-secondary');
-    });
+	// Bildirim Silme Olayı (Event Delegation)
+	notificationsList.on('click', '.delete-notification', function () {
+		if (!confirm('Bu bildirimi silmek istediğinize emin misiniz?')) {
+			return;
+		}
 
-    // Yardımcı fonksiyon: Formu ve butonları sıfırla
-    function resetNotificationForm() {
-        currentlyEditingNotificationId = null;
-        notificationTitleInput.val('');
-        notificationContentInput.val('');
-        notificationDateTimeInput.val('');
-        addNotificationButton.html('<i class="fas fa-plus-circle mr-1"></i> Bildirim Ekle').removeClass('btn-success').addClass('btn-primary');
-        clearNotificationFormButton.removeClass('btn-secondary').addClass('btn-danger');
-    }
+		const notificationElement = $(this).closest('.notification-item');
+		const firebaseIdToDelete = notificationElement.data('firebase-id');
 
-    // Bildirim sayacını güncelle
-    function updateNotificationCount(count) {
-        notificationCount.text(count);
-        if (count > 0) {
-            notificationCount.show();
-        } else {
-            notificationCount.hide();
-        }
-    }
+		PocketRealtime.deleteNotification({
+			params: {
+				firebaseId: firebaseIdToDelete
+			},
+			done: () => {
+				console.log("Bildirim başarıyla silindi.");
+			},
+			fail: (error) => {
+				console.error("Bildirim silinirken hata oluştu:", error);
+				alert("Bildirim silinirken bir sorun oluştu.");
+			}
+		});
+	});
 
-    // --- Başlangıç ve Periyodik Kontroller ---
+	// Bildirim Düzenleme Olayı (Event Delegation)
+	notificationsList.on('click', '.edit-notification', function () {
+		const notificationElement = $(this).closest('.notification-item');
+		currentlyEditingNotificationId = notificationElement.data('firebase-id');
 
-    // Uygulama başladığında ilk yüklemeyi yap ve Firebase'den dinlemeye başla
-    PocketRealtime.getNotifications({
-        done: (notifications) => {
-            renderNotifications(notifications);
-            checkAndTriggerNotifications();
-        },
-        fail: (error) => {
-            console.error("Başlangıç bildirimleri yüklenirken hata:", error);
-            noNotificationsMessage.show();
-            updateNotificationCount(0);
-        }
-    });
+		const currentTitle = notificationElement.find('.notification-title').text();
+		const currentContent = notificationElement.find('.notification-content').text();
+		const currentScheduledTime = notificationElement.find('.notification-scheduled-time').data('iso-time');
 
-    // Her 10 saniyede bir bildirimleri kontrol et ve tetikle
-    setInterval(checkAndTriggerNotifications, 10 * 1000);
+		notificationTitleInput.val(currentTitle);
+		notificationContentInput.val(currentContent);
+		notificationDateTimeInput.val(toDateTimeLocal(currentScheduledTime));
 
-    // Bildirim modalı açıldığında listeyi yükle
-    notificationsModal.on('show.bs.modal', function() {
-        renderNotifications(allNotificationsCache);
-    });
+		addNotificationButton.html('<i class="fas fa-save mr-1"></i> Bildirimi Güncelle').removeClass('btn-primary').addClass('btn-success');
+		clearNotificationFormButton.removeClass('btn-danger').addClass('btn-secondary');
+	});
 
-    // Modal kapandığında formu sıfırla
-    notificationsModal.on('hidden.bs.modal', function() {
-        resetNotificationForm();
-        // İsteğe bağlı: Modal kapanınca gizlenen bildirimleri sıfırlayabilirsiniz
-        // hiddenApproachingNotifications = [];
-        // checkApproachingNotificationsDisplay(allNotificationsCache);
-    });
+	// Yardımcı fonksiyon: Formu ve butonları sıfırla
+	function resetNotificationForm() {
+		currentlyEditingNotificationId = null;
+		notificationTitleInput.val('');
+		notificationContentInput.val('');
+		notificationDateTimeInput.val('');
+		addNotificationButton.html('<i class="fas fa-plus-circle mr-1"></i> Bildirim Ekle').removeClass('btn-success').addClass('btn-primary');
+		clearNotificationFormButton.removeClass('btn-secondary').addClass('btn-danger');
+	}
 
-    // İkon butonuna tıklandığında (Modalı açan buton)
-    openNotificationsModalButton.on('click', function() {
-        // Bu kısım muhtemelen modalı açmalıdır, `hide()` yerine `show()` kullanın.
-        // Eğer modal otomatik olarak açılıyorsa veya bu düğmenin farklı bir işlevi varsa bu satırı değiştirmeyin.
-        notificationsModal.modal('show');
-    });
+	// Bildirim sayacını güncelle
+	function updateNotificationCount(count) {
+		notificationCount.text(count);
+		if (count > 0) {
+			notificationCount.show();
+		} else {
+			notificationCount.hide();
+		}
+	}
 
-    // Eğer kullanıcı çıkış yaparsa dinleyiciyi kapatma örneği (FirebaseAuth ile)
-    // firebase.auth().onAuthStateChanged(user => {
-    //     if (!user) {
-    //         firebase.database().ref("notifications/").off("value"); // Dinleyiciyi kapat
-    //     }
-    // });
+	// --- Başlangıç ve Periyodik Kontroller ---
+
+	// Uygulama başladığında ilk yüklemeyi yap ve Firebase'den dinlemeye başla
+	PocketRealtime.getNotifications({
+		done: (notifications) => {
+			renderNotifications(notifications);
+			checkAndTriggerNotifications();
+		},
+		fail: (error) => {
+			console.error("Başlangıç bildirimleri yüklenirken hata:", error);
+			noNotificationsMessage.show();
+			updateNotificationCount(0);
+		}
+	});
+
+	// Her 10 saniyede bir bildirimleri kontrol et ve tetikle
+	setInterval(checkAndTriggerNotifications, 10 * 1000);
+
+	// Bildirim modalı açıldığında listeyi yükle
+	notificationsModal.on('show.bs.modal', function () {
+		renderNotifications(allNotificationsCache);
+	});
+
+	// Modal kapandığında formu sıfırla
+	notificationsModal.on('hidden.bs.modal', function () {
+		resetNotificationForm();
+		// İsteğe bağlı: Modal kapanınca gizlenen bildirimleri sıfırlayabilirsiniz
+		// hiddenApproachingNotifications = [];
+		// checkApproachingNotificationsDisplay(allNotificationsCache);
+	});
+
+	// İkon butonuna tıklandığında (Modalı açan buton)
+	openNotificationsModalButton.on('click', function () {
+		// Bu kısım muhtemelen modalı açmalıdır, `hide()` yerine `show()` kullanın.
+		// Eğer modal otomatik olarak açılıyorsa veya bu düğmenin farklı bir işlevi varsa bu satırı değiştirmeyin.
+		notificationsModal.show();
+	});
+
+	$(document).on('click', '#ignoreTodayBtn', function () {
+		const notificationId = approachingAlert.data('notification-id');
+		if (!notificationId) return;
+
+		const now = new Date();
+		const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+		PocketRealtime.updateNotification({
+			params: {
+				firebaseId: notificationId,
+				data: {
+					ignoredUntil: endOfToday.toISOString()
+				}
+			},
+			done: () => {
+				approachingAlert.fadeOut();
+				console.log(`Bildirim ${notificationId} bu gün için yoksayıldı.`);
+			},
+			fail: (error) => {
+				console.error("Yoksayma güncellemesi başarısız:", error);
+			}
+		});
+	});
+
+	function ignoreNotificationForDays(notificationId, dayCount) {
+		const now = new Date();
+		const ignoredUntil = new Date(now.getTime() + dayCount * 24 * 60 * 60 * 1000);
+
+		PocketRealtime.updateNotification({
+			params: {
+				firebaseId: notificationId,
+				data: {
+					ignoredUntil: ignoredUntil.toISOString()
+				}
+			},
+			done: () => {
+				console.log(`Bildirim ${notificationId}, ${dayCount} gün yoksayıldı.`);
+			},
+			fail: (error) => {
+				console.error("Günlük yoksayma başarısız:", error);
+			}
+		});
+	}
+
+	notificationsList.on('click', '.ignore-notification-btn', function () {
+		const card = $(this).closest('.notification-item');
+		const notificationId = card.data('firebase-id');
+		const dayCount = parseInt(card.find('.ignore-duration-select').val());
+
+		const now = new Date();
+		const ignoredUntil = new Date(now.getTime() + dayCount * 24 * 60 * 60 * 1000);
+
+		PocketRealtime.updateNotification({
+			params: {
+				firebaseId: notificationId,
+				data: {
+					ignoredUntil: ignoredUntil.toISOString()
+				}
+			},
+			done: () => {
+				console.log(`Bildirim ${notificationId}, ${dayCount} gün yoksayıldı.`);
+				card.fadeOut(); // istersen bildirimi gizle
+			},
+			fail: (error) => {
+				console.error("Yoksayma işlemi başarısız:", error);
+				alert("Bildirim yoksanamadı!");
+			}
+		});
+	});
+
+
+
+	// Eğer kullanıcı çıkış yaparsa dinleyiciyi kapatma örneği (FirebaseAuth ile)
+	// firebase.auth().onAuthStateChanged(user => {
+	//     if (!user) {
+	//         firebase.database().ref("notifications/").off("value"); // Dinleyiciyi kapat
+	//     }
+	// });
 }
