@@ -332,7 +332,7 @@ let PocketRealtime = (
             try {
                 let done = args.done;
                 let params = args.params;
-                firebase.database().ref("UserLoggedActivity/").orderByChild('loginDate').limitToLast(params.lastRecordCount).once('value', snapshot => {
+                firebase.database().ref("UserLoggedActivity/").orderByChild('timestamp').limitToLast(params.lastRecordCount).once('value', snapshot => {
                     const latestTenRecords = [];
                     snapshot.forEach(childSnapshot => {
                         const key = childSnapshot.key;

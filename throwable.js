@@ -20,7 +20,7 @@ function successAddPaymentValidation(historyPeriod) {
 		myModal.hide();
 		myModal.show();
 		$(".btn-close-add-bill").click()
-		//startTable(selectedData, () => { });
+		startTable(selectedData, () => { });
 	}, 1000);
 }
 

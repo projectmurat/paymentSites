@@ -124,60 +124,97 @@ function startTable(data, callback) {
 
 function init(callback) {
 	getLoggedUserInfo((dummy) => {
+
 		const countriesDropDown = document.getElementById("periodDropDown");
+		const countriesSubDropDown = document.getElementById("subPeriodDropDown");
+
 		PocketRealtime.getPaymentDates({
 			done: (paymentDates) => {
 				countriesDropDown.innerHTML = "";
+				countriesSubDropDown.innerHTML = "";
+
 				if (!isNull(paymentDates)) {
 					selectedData = paymentDates;
-					let countriesData = {};
-					let keys = Object.values(paymentDates).map(i => i.date);
-					keys = keys.sort(compareDates);
-					for (const element of keys) {
-						let key = "".concat(element)
-						let temp = {}
-						temp[key] = ""
-						Object.assign(countriesData, temp);
-					}
-					for (let key in countriesData) {
-						let option = document.createElement("option");
-						option.setAttribute("value", keys[key]);
 
-						let optionText = document.createTextNode(key);
-						option.appendChild(optionText);
+					// Date formatı: "Ocak-2024"
+					// Ay ve yılı ayır
+					const parsedDates = Object.entries(paymentDates).map(([id, item]) => {
+						const [month, year] = item.date.split("-");
+						return {
+							id,
+							date: item.date,
+							month,
+							year
+						};
+					});
 
-						for (let key in paymentDates) {
-							if (paymentDates.hasOwnProperty(key)) {
-								paymentDates[key]["id"] = key;
-							}
-						}
+					// Tüm yılları çıkar
+					const uniqueYears = [...new Set(parsedDates.map(item => item.year))].sort((a, b) => b - a);
 
-						option.className = Object.values(paymentDates).filter(i => i.date == option.innerText)[0].id;
 
+					// Yılları dropdown'a ekle
+					uniqueYears.forEach(year => {
+						const option = document.createElement("option");
+						option.value = year;
+						option.textContent = year;
 						countriesDropDown.appendChild(option);
-						countriesDropDown.selectedIndex = 0;
-					}
+					});
+
+					// 🔄 Alt dropdown'ı güncelleyen fonksiyon
+					const updateSubPeriods = (selectedYear) => {
+						countriesSubDropDown.innerHTML = "";
+
+						const filteredMonths = parsedDates
+							.filter(item => item.year === selectedYear)
+							.sort((a, b) => compareDates(a.date, b.date)); // Burada compareDates aynı kalsın
+
+						filteredMonths.forEach(item => {
+							const option = document.createElement("option");
+							option.value = item.date;
+							option.textContent = item.month;
+							option.className = item.id;
+							countriesSubDropDown.appendChild(option);
+						});
+					};
+
+					// İlk yıl için alt dropdown'ı başlat
+					const firstYear = uniqueYears[0];
+					countriesDropDown.value = firstYear;
+					updateSubPeriods(firstYear);
+
+					// Yıl değiştiğinde ayları güncelle
+					countriesDropDown.addEventListener("change", (e) => {
+						const selectedYear = e.target.value;
+						updateSubPeriods(selectedYear);
+					});
+
+					// İlk seçili path'e göre veri çek
+					let selectedYear = countriesDropDown.value;
+					let selectedMonth = countriesSubDropDown.options[countriesSubDropDown.selectedIndex]?.textContent;
+					let selectedFullDate = `${selectedMonth}-${selectedYear}`;
+
 					let tableOptions = document.getElementById("periodDropDown").options;
-					let path = tableOptions[tableOptions.selectedIndex].innerText;
+					let path = selectedFullDate;
+
 					PocketRealtime.getValue({
 						path: "/" + path,
 						done: (response) => {
 							selectedData = response;
-							callback(response)
+							callback(response);
 						},
 						fail: (error) => {
 							alert("Başlangıç ajax hatası meydana geldi.");
 						}
-					})
-				}
-				else {
-					callback([])
+					});
+				} else {
+					callback([]);
 				}
 			},
 			fail: (error) => {
-				alert.alert("Periyot tarihleri alınırken hata alındı.")
+				alert("Periyot tarihleri alınırken hata alındı.");
 			}
-		})
+		});
+
 	})
 }
 
@@ -900,7 +937,8 @@ function getLoggedUserInfo(callback) {
 			.then(response => response.json())
 			.then(data => {
 				let localInfo = {
-					loginDate: new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
+					loginDate: new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR'),
+					timestamp:Date.now()
 				}
 				Object.assign(data, localInfo);
 				PocketRealtime.saveUserLoggedActivity({
@@ -931,7 +969,8 @@ function renderUserActivityModal(data) {
 
 	const userData = document.getElementById('userData');
 	userData.innerHTML = '';
-	data.sort((a, b) => convertDate(b.loginDate).getTime() - convertDate(a.loginDate).getTime());
+	data.sort((a, b) => b.timestamp - a.timestamp);
+
 	Object.values(data).forEach(item => {
 		const row = document.createElement('tr');
 
@@ -1356,6 +1395,25 @@ function notesModalOnOpen(responseNoteList) {
 
 	let currentlyEditingNoteId = null; // Hangi notun düzenlendiğini takip etmek için (Firebase ID)
 
+	$('#toggleNoteCardBtn').off('click').on('click', function () {
+		const noteCard = $('.newNoteAddCard');
+		const icon = $('#noteEyeIcon');
+		const isHidden = noteCard.is(':hidden');
+
+		if (isHidden) {
+			noteCard.slideDown('fast');
+			icon.removeClass('fa-eye-slash').addClass('fa-eye');
+			$(this).html('<i class="fas fa-eye"></i>');
+		} else {
+			noteCard.slideUp('fast');
+			icon.removeClass('fa-eye').addClass('fa-eye-slash');
+			$(this).html('<i class="fas fa-eye-slash"></i>');
+		}
+	});
+
+
+
+
 	// Notları Firebase'den yükle ve DOM'a ekle
 	function loadNotes() {
 		PocketRealtime.getNotes({
@@ -1575,6 +1633,23 @@ function triggerNotification() {
 
 	// Zaman formatlama fonksiyonu (dışarıda tanımlı olduğunu varsayıyorum)
 	// Eğer fundsLastCallbackTime fonksiyonunuz tanımlı değilse, aşağıdaki gibi basit bir versiyon kullanabilirsiniz:
+
+	$('#toggleNotificationCardBtn').on('click', function () {
+		const notificationCard = $('.newNotificationAddCard');
+		const icon = $('#notificationEyeIcon');
+		const isHidden = notificationCard.is(':hidden');
+
+		if (isHidden) {
+			notificationCard.slideDown('fast');
+			icon.removeClass('fa-eye-slash').addClass('fa-eye');
+			$(this).html('<i class="fas fa-eye"></i>');
+		} else {
+			notificationCard.slideUp('fast');
+			icon.removeClass('fa-eye').addClass('fa-eye-slash');
+			$(this).html('<i class="fas fa-eye-slash"></i>');
+		}
+	});
+
 	function fundsLastCallbackTime(isoString) {
 		const date = new Date(isoString);
 		const options = {
@@ -1624,12 +1699,12 @@ function triggerNotification() {
 				</small>
 
 				${!notification.isTriggered ? `
-					<div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center mb-2 mb-md-0">
-						<button type="button" class="btn btn-sm btn-info mr-0 mr-sm-2 mb-2 mb-sm-0 edit-notification">
-						<i class="fas fa-edit mr-1"></i> Düzenle
+					<div class="d-flex flex-row flex-wrap align-items-center gap-2 mb-2">
+						<button type="button" class="btn btn-xs btn-outline-info edit-notification custom-btn-sm">
+							<i class="fas fa-edit me-1"></i> Düzenle
 						</button>
-						<button type="button" class="btn btn-sm btn-danger delete-notification mb-2 mb-sm-0">
-						<i class="fas fa-trash-alt mr-1"></i> Sil
+						<button type="button" class="btn btn-xs btn-outline-danger delete-notification custom-btn-sm">
+							<i class="fas fa-trash-alt me-1"></i> Sil
 						</button>
 					</div>
 
@@ -2055,9 +2130,6 @@ function triggerNotification() {
 			}
 		});
 	});
-
-
-
 	// Eğer kullanıcı çıkış yaparsa dinleyiciyi kapatma örneği (FirebaseAuth ile)
 	// firebase.auth().onAuthStateChanged(user => {
 	//     if (!user) {

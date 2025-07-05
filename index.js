@@ -70,13 +70,28 @@ $('#notesCard').on('click', function(event) {
     })
 });
 
+
 $('#periodDropDown').change(event => {
+	//console.log("periodDropDown");
+
+})
+
+$('#subPeriodDropDown').change(event => {
+	//console.log("subPeriodDropDown");
+
 	$("#grid-table").html("");
 	$('#hot-display-license-info').remove();
-	let tableOptions = document.getElementById("periodDropDown").options;
-	let changePeriod = tableOptions[tableOptions.selectedIndex].innerText;
+
+	let yearOptions = document.getElementById("periodDropDown").options;
+	let monthOptions = document.getElementById("subPeriodDropDown").options;
+
+	let yearPeriod = yearOptions[yearOptions.selectedIndex].innerText;
+	let monthPeriod = monthOptions[monthOptions.selectedIndex].innerText;
+
+	let path = "/" + monthPeriod + "-" + yearPeriod;
+
 	PocketRealtime.getValue({
-		path: "/" + changePeriod,
+		path: path,
 		done: (response) => {
 			selectedData = response;
 			startTable(response, () => { });
@@ -85,7 +100,6 @@ $('#periodDropDown').change(event => {
 			alert("Başlangıç ajax hatası meydana geldi.");
 		}
 	})
-
 })
 
 $('.btn-add').click(function () {
@@ -98,8 +112,12 @@ $('.btn-add').click(function () {
 		if (detail.trim() == "" || amount.trim() == "") {
 			throw new Error("Kayıt Başarısız.\nAlanlar boş bırakılarak kayıt işlemi gerçekleştirilemez");
 		}
-		let tableOptions = document.getElementById("periodDropDown").options;
-		let historyPeriod = tableOptions[tableOptions.selectedIndex].innerText;
+		let yearPeriod = document.getElementById("periodDropDown").options;
+		let monthPeriod = document.getElementById("subPeriodDropDown").options;
+
+		let historyPeriod = yearPeriod[yearPeriod.selectedIndex].innerText;
+		let subHistoryPeriod = monthPeriod[monthPeriod.selectedIndex].innerText;
+
 		let pushData = {
 			name: detail,
 			categoryNo:categorySelect.value,
@@ -110,11 +128,10 @@ $('.btn-add').click(function () {
 		selectedData.push(pushData);
 
 		PocketRealtime.setValue({
-			path: historyPeriod,
+			path: subHistoryPeriod + "-" + historyPeriod,
 			params: selectedData,
 			done: (response) => {
 				successAddPaymentValidation(historyPeriod);
-				alert("Harcama eklendi");
 			},
 			fail: (error) => {
 				throwAddPaymentValidation(error);
@@ -131,6 +148,8 @@ $('#btn-openAddNewBillModal').click(function () {
 	// HTML'deki dropdown elementlerini seçin
 	const categorySelect = document.getElementById('category-select');
 	const subcategorySelect = document.getElementById('subcategory-select');
+	const name = document.getElementById('name');
+	const amount = document.getElementById('amount');
 
 	// PocketRealtime isteğini yapın
 	PocketRealtime.getRefData({
@@ -187,6 +206,9 @@ $('#btn-openAddNewBillModal').click(function () {
 				updateSubcategories(selectedCategoryNo);
 			});
 
+			// Her açılışta harcama adı ve tutarını sıfırla
+			name.value = "";
+			amount.value = "";
 			// Veri alındığında dropdown'ı hemen doldur
 			populateCategories();
 		},
@@ -247,11 +269,14 @@ $('#save').click(function () {
 			restoredData.push(rowData);
 		}
 	}
-	let tableOptions = document.getElementById("periodDropDown").options;
-	let historyPeriod = tableOptions[tableOptions.selectedIndex].innerText;
+	let yearOptions = document.getElementById("periodDropDown").options;
+	let monthOptions = document.getElementById("subPeriodDropDown").options;
+
+	let historyPeriod = yearOptions[yearOptions.selectedIndex].innerText;
+	let historySubPeriod = monthOptions[monthOptions.selectedIndex].innerText;
 
 	PocketRealtime.setValue({
-		path: historyPeriod,
+		path: historySubPeriod + "-" + historyPeriod,
 		params: restoredData,
 		done: (response) => {
 			if (response) successSaveChange(historyPeriod)
@@ -486,12 +511,19 @@ $('.importFile').click(function () {
 
 $('.deletePeriod').click(function () {
 	try {
-		let tableOptions = document.getElementById("periodDropDown").options;
-		let historyPeriod = tableOptions[tableOptions.selectedIndex].innerText;
-		let deletedId = tableOptions[tableOptions.selectedIndex].className;
-		if (confirm(historyPeriod + " dönemi silinmek üzere. Onaylıyor musunuz?")) {
+		let yearOptions = document.getElementById("periodDropDown").options;
+		let monthOptions = document.getElementById("subPeriodDropDown").options;
+
+		let historyPeriod = yearOptions[yearOptions.selectedIndex].innerText;
+		let historySubPeriod = monthOptions[monthOptions.selectedIndex].innerText;
+
+		let historyFullPath = historySubPeriod + "-" + historyPeriod;
+
+		let deletedId = yearOptions[yearOptions.selectedIndex].className;
+
+		if (confirm(historyFullPath + " dönemi silinmek üzere. Onaylıyor musunuz?")) {
 			PocketRealtime.deleteValue({
-				path: historyPeriod,
+				path: historyFullPath,
 				done: (response) => {
 					PocketRealtime.deletePaymentDates({
 						path: deletedId,
@@ -502,7 +534,7 @@ $('.deletePeriod').click(function () {
 							throw new Error("error");
 						}
 					})
-					alert(historyPeriod + " dönemi silindi");
+					alert(historyFullPath + " dönemi silindi");
 				},
 				fail: (error) => {
 					throw new Error(error);
