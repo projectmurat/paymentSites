@@ -95,10 +95,21 @@
 						<i class="fas fa-piggy-bank"></i>
 					</div>
 					<div class="card-content">
-						<div class="card-title">Varlıklarım</div>
-						<div class="card-description">Varlık Detaylarını Görüntüle</div>
+						<div class="card-title">Nakdi Varlıklarım</div>
+						<div class="card-description">Nakit Varlık Detaylarını Görüntüle</div>
 					</div>
 				</a>
+
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#physicalAssetsModal" id="physicalAssets">
+					<div class="card-icon">
+						<i class="fas fa-warehouse"></i> <!-- Alternatif: fas fa-building, fas fa-car -->
+					</div>
+					<div class="card-content">
+						<div class="card-title">Gayrimenkul ve Taşıt Varlıkları</div>
+						<div class="card-description">Taşınır ve Taşınmaz Detaylarını Görüntüle</div>
+					</div>
+				</a>
+
 
 				<a href="#" class="menu-card" data-toggle="modal" data-target="#creditCardInstallmentModal"
 					id="installments">
@@ -500,6 +511,38 @@
 							data-toggle="modal">Tarihçe</button>
 						<button type="button" class="btn btn-reCalculate">Hesapla</button>
 						<button type="button" class="btn btn-saveFunds">Kaydet</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+
+		<!-- Gayrimenkul ve Taşıt Modalı -->
+		<div class="modal physicalAssetsModal" id="physicalAssetsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content" style="height: 675px !important">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Gayrimenkul ve Taşıt Varlıkları</h4>
+						<p id="popup-info-period-msg"></p>
+					</div>
+
+					<div class="modal-body physicalAssetsModal-modal-body">
+					<div class="summary-box text-center mb-4">
+						<h5 class="text-light">Toplam Fiziksel Varlık Değeri</h5>
+						<h3 id="totalPhysicalAssetsValue" class="text-success">₺0,00</h3>
+					</div>
+
+					<div class="info-box-assets mt-2 mb-4">
+						<div class="info-icon-assets">ⓘ</div>
+						<div class="info-text-assets">Varlıklarınızın detaylı dökümünü ve yaklaşan son ödeme tarihlerini aşağıda bulabilirsiniz.</div>
+					</div>
+
+					<div id="physicalAssetsList">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
 					</div>
 
 				</div>

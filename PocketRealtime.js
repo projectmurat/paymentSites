@@ -745,6 +745,28 @@ let PocketRealtime = (
             }
         }
 
+        function getRealEstatesAndVehicles(args) {
+            waitMe(true);
+            let fail = args.fail;
+            let done = args.done;
+
+            try {
+                firebase.database().ref("/RealEstatesAndVehicles")
+                    .on("value", (snapshot) => {
+                        waitMe(false);
+
+                        done(snapshot.val());
+                    }, (error) => {
+                        waitMe(false);
+                        console.error("Firebase bildirim dinleyicisinde hata:", error);
+                        fail(error);
+                    });
+            } catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
         return {
             getValue: getValue,
             setValue: setValue,
@@ -774,10 +796,11 @@ let PocketRealtime = (
             addNotes: addNotes,
             deleteNotes: deleteNotes,
             updateNotes: updateNotes,
-            getNotifications:getNotifications,
-            addNotification:addNotification,
-            updateNotification:updateNotification,
-            deleteNotification:deleteNotification
+            getNotifications: getNotifications,
+            addNotification: addNotification,
+            updateNotification: updateNotification,
+            deleteNotification: deleteNotification,
+            getRealEstatesAndVehicles: getRealEstatesAndVehicles
         }
     }
 )();

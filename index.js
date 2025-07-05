@@ -47,27 +47,146 @@ dropdown.addEventListener('change', function () {
 	// Burada seçilen değeri kullanarak yapmak istediğiniz işlemleri gerçekleştirebilirsiniz.
 });
 
-$('#mainHandsontableButton').on('click', function(event) {
-    console.log("Harcama Yönetimi butonu tıklandı!");
-    let mainHandsontable = new bootstrap.Modal(document.getElementById('mainHandsontable'));
-    mainHandsontable.show();
-    startTable(selectedData, (responseTable) => {
-			$('#hot-display-license-info').remove();
-		})
+$('#mainHandsontableButton').on('click', function (event) {
+	console.log("Harcama Yönetimi butonu tıklandı!");
+	let mainHandsontable = new bootstrap.Modal(document.getElementById('mainHandsontable'));
+	mainHandsontable.show();
+	startTable(selectedData, (responseTable) => {
+		$('#hot-display-license-info').remove();
+	})
 });
 
-$('#notesCard').on('click', function(event) {
-    let notesModal = new bootstrap.Modal(document.getElementById('notesModal'));
-    notesModal.show();
-    PocketRealtime.getNotes({
-		done:(response)=>{
+$('#notesCard').on('click', function (event) {
+	let notesModal = new bootstrap.Modal(document.getElementById('notesModal'));
+	notesModal.show();
+	PocketRealtime.getNotes({
+		done: (response) => {
 			notesModalOnOpen(response || []);
 		},
-		fail:(error)=>{
+		fail: (error) => {
 			console.error("Hata, Note kayıtları getirilirken hata ile karşılaşıldı.");
 			throw new Error(error);
 		}
-    })
+	})
+});
+
+
+$('#physicalAssets').on('click', function (event) {
+
+	/**
+	 * Bitiş tarihine kalan gün sayısını hesaplar.
+	 * @param {string} endDateString - 'YYYY-MM-DD' formatında tarih.
+	 * @returns {number|null} Kalan gün sayısı veya tarih geçmişse null.
+	 */
+	function calculateDaysLeft(endDateString) {
+		if (!endDateString) return null;
+		const endDate = new Date(endDateString);
+		const today = new Date();
+		// Saat, dakika, saniye farklarını sıfırlayarak sadece gün bazlı hesaplama yap
+		endDate.setHours(0, 0, 0, 0);
+		today.setHours(0, 0, 0, 0);
+
+		const differenceInTime = endDate.getTime() - today.getTime();
+		if (differenceInTime < 0) return -1; // Geçmiş tarih
+
+		return Math.ceil(differenceInTime / (1000 * 3600 * 24));
+	}
+
+	/**
+	 * Kalan gün sayısına göre durum rozeti (badge) oluşturur.
+	 * @param {number} daysLeft - Kalan gün sayısı.
+	 * @param {string} label - Rozet etiketi (örn: "Kasko Bitişine").
+	 * @returns {string} HTML olarak formatlanmış rozet.
+	 */
+	function createStatusBadge(daysLeft, label) {
+		if (daysLeft === null || daysLeft === undefined) return `<div><span class="status-badge-none">${label}: Yok</span></div>`;
+		if (daysLeft < 0) return `<div><span class="status-badge danger">${label}: Süresi Doldu</span></div>`;
+
+		let badgeClass = 'safe';
+		if (daysLeft <= 30) {
+			badgeClass = 'danger';
+		} else if (daysLeft <= 90) {
+			badgeClass = 'warning';
+		}
+		return `<div><span class="status-badge ${badgeClass}">${label}: <strong>${daysLeft} gün</strong> kaldı</span></div>`;
+	}
+
+	function renderAssets(data) {
+		const container = document.getElementById("physicalAssetsList");
+		let htmlContent = "";
+		let total = 0;
+
+		// DÜZELTME: Firebase'den gelen 'vehicles' nesnesini bir diziye çeviriyoruz.
+		// data.vehicles varsa Object.values() kullan, yoksa boş bir dizi ata.
+		const vehicleList = data.vehicles ? Object.values(data.vehicles) : [];
+
+		// Araçlar
+		vehicleList.forEach(v => { // Artık dizi üzerinde güvenle forEach kullanabiliriz.
+			total += v.estimatedValue;
+			const insuranceDaysLeft = calculateDaysLeft(v.insuranceEndDate);
+
+			htmlContent += `
+        <div class="asset-card">
+            <div class="card-header">🚗 ${v.brand} ${v.model} (${v.year})</div>
+            <div class="card-value-wrapper">
+                <span class="card-value-label">Tahmini Piyasa Değeri</span>
+                <div class="card-value">₺${v.estimatedValue.toLocaleString('tr-TR')}</div>
+            </div>
+            <div class="card-details">
+                <span>Plaka</span>         <strong>${v.licensePlate}</strong>
+                <span>Alım Tarihi</span>    <span>${new Date(v.purchaseDate).toLocaleDateString('tr-TR')}</span>
+                <span>Alım Fiyatı</span>    <span>₺${v.purchasePrice.toLocaleString('tr-TR')}</span>
+                <span>Notlar</span>         <span>${v.notes}</span>
+            </div>
+            <div class="card-status">
+                ${createStatusBadge(insuranceDaysLeft, 'Sigorta Bitişine')}
+            </div>
+        </div>`;
+		});
+
+		// DÜZELTME: Firebase'den gelen 'estates' nesnesini bir diziye çeviriyoruz.
+		const estateList = data.estates ? Object.values(data.estates) : [];
+
+		// Gayrimenkuller
+		estateList.forEach(p => { // Artık dizi üzerinde güvenle forEach kullanabiliriz.
+			total += p.estimatedValue;
+			const daskDaysLeft = calculateDaysLeft(p.daskEndDate);
+			const insuranceDaysLeft = calculateDaysLeft(p.homeInsuranceEndDate);
+
+			htmlContent += `
+        <div class="asset-card">
+            <div class="card-header">🏠 ${p.type} - ${p.location}</div>
+            <div class="card-value-wrapper">
+                <span class="card-value-label">Tahmini Piyasa Değeri</span>
+                <div class="card-value">₺${p.estimatedValue.toLocaleString('tr-TR')}</div>
+            </div>
+            <div class="card-details">
+                <span>Oda Sayısı</span>     <strong>${p.rooms}</strong>
+                <span>Büyüklük</span>       <span>${p.size} m²</span>
+                <span>Alım Tarihi</span>      <span>${new Date(p.purchaseDate).toLocaleDateString('tr-TR')}</span>
+                <span>Alım Fiyatı</span>      <span>₺${p.purchasePrice.toLocaleString('tr-TR')}</span>
+                <span>İpotek Durumu</span>  <strong>${p.mortgage ? "Var" : "Yok"}</strong>
+                <span>Notlar</span>         <span>${p.notes}</span>
+            </div>
+            <div class="card-status">
+                ${createStatusBadge(daskDaysLeft, 'DASK Bitişine')}
+                ${createStatusBadge(insuranceDaysLeft, 'Konut Sigortası')}
+            </div>
+        </div>`;
+		});
+
+		container.innerHTML = htmlContent;
+		document.getElementById("totalPhysicalAssetsValue").innerText = `₺${total.toLocaleString('tr-TR')}`;
+	}
+
+	PocketRealtime.getRealEstatesAndVehicles({
+		done: (response) => {
+			renderAssets(response);
+		},
+		fail: (error) => {
+			throw new Error(error);
+		}
+	})
 });
 
 
@@ -120,8 +239,8 @@ $('.btn-add').click(function () {
 
 		let pushData = {
 			name: detail,
-			categoryNo:categorySelect.value,
-			subCategoryNo:subcategorySelect.value,
+			categoryNo: categorySelect.value,
+			subCategoryNo: subcategorySelect.value,
 			amount: amount,
 			date: new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
 		};

@@ -90,6 +90,8 @@ function startTable(data, callback) {
 					return '<b>Harcama Tutarı</b>';
 				case 2:
 					return '<b>Tarih</b>';
+				case 3: return ''; // Kategori başlığı (gizli)
+				case 4: return ''; // AltKategori başlığı (gizli)
 			}
 		},
 		fixedRowsBottom: 1,
@@ -114,8 +116,14 @@ function startTable(data, callback) {
 				dateFormat: "DD/MM/YYYY",
 				correctFormat: true,
 				defaultDate: new Date().toDateString()
-			}
-		]
+			},
+			{ data: "categoryNo" },
+			{ data: "subCategoryNo" }
+		],
+		hiddenColumns: {
+			columns: [3, 4], // 3: kategori, 4: altKategori
+			indicators: false // sağda gizli kolon işareti çıkmasın
+		}
 	});
 
 	$('#hot-display-license-info').remove();
@@ -938,7 +946,7 @@ function getLoggedUserInfo(callback) {
 			.then(data => {
 				let localInfo = {
 					loginDate: new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR'),
-					timestamp:Date.now()
+					timestamp: Date.now()
 				}
 				Object.assign(data, localInfo);
 				PocketRealtime.saveUserLoggedActivity({
@@ -1819,26 +1827,27 @@ function triggerNotification() {
 	}
 
 	// --- Güncellenmiş Kısım: Yaklaşan Bildirim Uyarısı Gösterimi ---
+	// --- Güncellenmiş Kısım: Yaklaşan Bildirim Uyarısı Gösterimi ---
 	function checkApproachingNotificationsDisplay(allNotifications) {
 		const now = new Date();
-		const futureThreshold = new Date(now.getTime() + (15 * 24 * 60 * 60 * 1000)); // 15 gün sonrası
+		// 15 GÜNLÜK SINIRLAMAYI KALDIRIYORUZ.
+		// const futureThreshold = new Date(now.getTime() + (15 * 24 * 60 * 60 * 1000)); // 15 gün sonrası
 
 		const approaching = allNotifications.filter(n => {
-			const now = new Date();
 			const scheduled = new Date(n.scheduledTime);
 			const ignoredUntil = n.ignoredUntil ? new Date(n.ignoredUntil) : null;
 
+			// "Bugün Yoksay" butonu doğru çalışıyor. Bu mantık, yoksayma süresi
+			// dolduğunda (örneğin ertesi gün) bildirimin tekrar görünmesini sağlar.
+			// Asıl sorun, bildirimin gösterilmesi için 15 günden daha yakın olmasını
+			// gerektiren "futureThreshold" kontrolüydü. O satırı kaldırdık.
 			return (
 				!n.isTriggered &&
 				scheduled > now &&
-				scheduled <= futureThreshold &&
-				(!ignoredUntil || ignoredUntil < now) // ignoredUntil bugünün öncesindeyse göster
+				// scheduled <= futureThreshold && <-- İSTEDİĞİNİZ DAVRANIŞ İÇİN BU SATIRI SİLİN/YORUM SATIRI YAPIN
+				(!ignoredUntil || ignoredUntil < now) // Yoksayma süresi dolmuşsa veya hiç yoksayılmamışsa göster
 			);
-
-		}
-
-
-		);
+		});
 
 		// `approachingAlert` elemanının DOM'da var olup olmadığını kontrol et ve yoksa oluştur
 		if (approachingAlert.length === 0) {
@@ -1846,54 +1855,46 @@ function triggerNotification() {
 				<div id="approachingNotificationAlert" class="approaching-notification-alert">
 					<div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between">
 						<div class="text-section">
-							<strong class="d-block mb-2">Yaklaşan Bildirim</strong>
-							<span id="approachingNotificationTitle" class="d-block mb-1"></span>
-							<small id="approachingNotificationTime" class="d-block text-muted"></small>
+						<strong class="d-block mb-2">Yaklaşan Bildirim</strong>
+						<span id="approachingNotificationTitle" class="d-block mb-1"></span>
+						<small id="approachingNotificationTime" class="d-block text-muted"></small>
 						</div>
 						<div class="mt-3 mt-sm-0 ml-sm-4">
-							<button id="ignoreTodayBtn" class="btn btn-sm btn-outline-dark px-4 py-2 font-weight-semibold rounded-pill shadow-sm">
-								<i class="fas fa-eye-slash mr-1"></i> Bugün Yoksay
-							</button>
+						<button id="ignoreTodayBtn" class="btn btn-sm btn-outline-dark px-4 py-2 font-weight-semibold rounded-pill shadow-sm">
+							<i class="fas fa-eye-slash mr-1"></i> Bugün Yoksay
+						</button>
 						</div>
 					</div>
 				</div>
 			`);
 
+			approachingAlert = $('#approachingNotificationAlert');
 
-			approachingAlert = $('#approachingNotificationAlert'); // Oluşturulduktan sonra tekrar seç
-
-			// Alert'e tıklayınca gizleme ve listeye ekleme olay dinleyicisini burada, sadece BİR KEZ bağla
 			approachingAlert.off('click').on('click', function () {
-				const clickedNotificationId = $(this).data('notification-id'); // Alert'in data-notification-id'sinden al
-
+				const clickedNotificationId = $(this).data('notification-id');
 				if (clickedNotificationId) {
 					if (!hiddenApproachingNotifications.includes(clickedNotificationId)) {
 						hiddenApproachingNotifications.push(clickedNotificationId);
-						// localStorage'a da kaydetmek isterseniz burada yapın:
-						// localStorage.setItem('hiddenApproachingNotifications', JSON.stringify(hiddenApproachingNotifications));
-						console.log(`Bildirim ID ${clickedNotificationId} bu oturum için gizlendi.`);
 					}
 					$(this).fadeOut(() => {
-						// FadeOut tamamlandıktan sonra sıradaki bildirimi kontrol et
 						checkApproachingNotificationsDisplay(allNotificationsCache);
 					});
 				} else {
-					$(this).fadeOut(); // Data ID yoksa sadece gizle
+					$(this).fadeOut();
 				}
 			});
 		}
 
+		// En yakın tarihli ve gösterilmesi gereken bildirimi bul
 		const nearestApproaching = approaching.sort((a, b) => new Date(a.scheduledTime) - new Date(b.scheduledTime))[0];
 
 		if (nearestApproaching) {
-			approachingAlert.data('notification-id', nearestApproaching.firebaseId); // Gösterilen bildirimin ID'sini ata
+			approachingAlert.data('notification-id', nearestApproaching.firebaseId);
 			approachingAlert.find('#approachingNotificationTitle').text(nearestApproaching.title);
 			approachingAlert.find('#approachingNotificationTime').text(`Zamanı: ${fundsLastCallbackTime(nearestApproaching.scheduledTime)}`);
 			approachingAlert.fadeIn();
 		} else {
 			approachingAlert.fadeOut();
-			// Eğer gösterilecek bildirim yoksa, localStorage'ı temizlemek isterseniz burada yapabilirsiniz
-			// localStorage.removeItem('hiddenApproachingNotifications');
 		}
 	}
 

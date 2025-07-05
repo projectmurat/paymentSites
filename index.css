@@ -2523,3 +2523,164 @@ body {
 .btn-finance-icon i {
     font-size: 16px;
 }
+
+
+
+
+
+
+
+
+
+
+/* Genel Modal Gövdesi ve Arka Plan */
+.physicalAssetsModal-modal-body {
+    background-color: #1a1c23;
+    /* Koyu ana arka plan */
+    color: #f0f0f0;
+    padding: 16px; /* Mobil için daha uygun bir padding */
+}
+
+
+/* Toplam Değer Kutusu */
+.summary-box {
+    background: linear-gradient(145deg, #2c2f3a, #23252d);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    border: 1px solid #3a3d4a;
+}
+.summary-box h5 {
+    color: #a0a4b8;
+    font-weight: 500;
+}
+.summary-box h3 {
+    color: #23e8af;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* Bilgilendirme Kutusu */
+.info-box-assets {
+    background-color: rgba(43, 88, 118, 0.2);
+    border-left: 4px solid #367fbf;
+    padding: 12px 18px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.info-icon-assets {
+    font-size: 22px;
+    color: #367fbf;
+}
+.info-text-assets {
+    color: #c0c5d9;
+    font-size: 0.7rem;
+}
+
+/* Kartların Konteyneri (Responsive Grid) */
+#physicalAssetsList {
+    display: grid;
+    /* DÜZELTME: Minimum kart genişliği 300px'e düşürüldü */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    padding: 0;
+}
+
+/* Modern Varlık Kartı Tasarımı */
+.asset-card {
+    background: #242731;
+    border: 1px solid #3a3d4a;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.asset-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(35, 232, 175, 0.2);
+}
+
+/* Kart Başlığı */
+.card-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e0e4f4;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #3a3d4a;
+}
+
+/* Karttaki Ana Değer (Tahmini Değer) - Yeni stil eklendi */
+.card-value-wrapper {
+    text-align: center;
+    margin-bottom: 16px;
+}
+.card-value-label {
+    font-size: 0.8rem;
+    color: #a0a4b8;
+    display: block;
+    margin-bottom: 4px;
+}
+.card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #23e8af;
+    line-height: 1.2;
+}
+
+/* Kart Detayları (Hizalı Liste) */
+.card-details {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 8px 16px;
+    font-size: 0.9rem;
+    color: #a0a4b8;
+    margin-bottom: 16px;
+    flex-grow: 1;
+}
+.card-details strong {
+    color: #f0f0f0;
+    font-weight: 600;
+}
+
+/* Kart Durum Bildirim Alanı */
+.card-status {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #3a3d4a;
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+.status-badge strong { font-weight: 700; }
+.status-badge.safe { background-color: rgba(35, 232, 175, 0.15); color: #23e8af; }
+.status-badge.warning { background-color: rgba(255, 193, 7, 0.15); color: #ffc107; }
+.status-badge.danger { background-color: rgba(255, 71, 87, 0.15); color: #ff4757; }
+.status-badge-none { color: #777; font-style: italic; }
+
+
+/* YENİ EKLENDİ: Mobil Cihazlar İçin Özel Stiller */
+@media (max-width: 480px) {
+    #physicalAssetsList {
+        gap: 16px; /* Kartlar arası boşluğu azalt */
+    }
+    .asset-card {
+        padding: 16px; /* Kart içi boşluğu azalt */
+    }
+    .card-value {
+        font-size: 1.8rem; /* Değer yazısını biraz küçült */
+    }
+    .info-text-assets {
+        font-size: 0.85rem; /* Bilgi metnini küçült */
+    }
+}
