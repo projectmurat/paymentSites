@@ -247,17 +247,17 @@
 					<form action="{{ route('register') }}" method="POST">
 						<div class="modal-body">
 							<div class="column">
-								<div class="row">
-									<select id="periodDropDown" name="History"></select>
-								</div>
-								<div>
-									<select id="subPeriodDropDown" name="SubHistory"></select>
-								</div>
 								<div>
 									<button type="button" class="periodButton newPeriod" id="newPeriod"
 										data-toggle="modal" data-target="#addPeriod">Yeni Dönem</button>
 									<button type="button" class="periodButton deletePeriod"
 										id="deletePeriod">Dönemi Sil</button>
+								</div>
+								<div class="row">
+									<select id="periodDropDown" name="History"></select>
+								</div>
+								<div>
+									<select id="subPeriodDropDown" name="SubHistory"></select>
 								</div>
 							</div>
 
