@@ -13,7 +13,10 @@ window.addEventListener('DOMContentLoaded', event => {
 
 
 	init((initData) => {
-		triggerNotification();
+		jQuery(document).ready(function ($) {
+			triggerNotification();
+		});
+
 	})
 
 });

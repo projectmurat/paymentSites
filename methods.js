@@ -782,7 +782,7 @@ function hesapla() {
 	const toplamAy = parseInt(document.getElementById('toplamAy').value)
 
 	if (anaPara && faizOrani && toplamAy) {
-		const stopajOrani = 0.05;
+		const stopajOrani = 0.15;
 		let tablo = '<thead><tr><th>Ay</th><th>Net Ana Para (₺)</th><th>Brüt Faiz Tutarı (₺)</th><th>Birikim (₺)</th><th>Stopaj (₺)</th><th>Net Faiz Getirisi (₺)</th></tr></thead><tbody>';
 		let mevcutAnaPara = anaPara;
 
@@ -1869,20 +1869,25 @@ function triggerNotification() {
 			`);
 
 			approachingAlert = $('#approachingNotificationAlert');
-
 			approachingAlert.off('click').on('click', function () {
-				const clickedNotificationId = $(this).data('notification-id');
-				if (clickedNotificationId) {
-					if (!hiddenApproachingNotifications.includes(clickedNotificationId)) {
-						hiddenApproachingNotifications.push(clickedNotificationId);
-					}
-					$(this).fadeOut(() => {
+					const clickedNotificationId = $(this).data('notification-id');
+					if (clickedNotificationId) {
+						if (!hiddenApproachingNotifications.includes(clickedNotificationId)) {
+							hiddenApproachingNotifications.push(clickedNotificationId);
+						}
+						document.getElementById("approachingNotificationAlert").style.display = "none"
 						checkApproachingNotificationsDisplay(allNotificationsCache);
-					});
-				} else {
-					$(this).fadeOut();
-				}
-			});
+						/*
+						$(this).fadeOut(() => {
+
+						});
+						*/
+					} else {
+						$(this).fadeOut();
+					}
+				});
+
+
 		}
 
 		// En yakın tarihli ve gösterilmesi gereken bildirimi bul
@@ -2138,3 +2143,6 @@ function triggerNotification() {
 	//     }
 	// });
 }
+
+
+
