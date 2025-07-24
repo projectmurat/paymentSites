@@ -24,8 +24,7 @@ let familyIncomeObject;
 let familyIncomeAmount = 0;
 let globalTotalMontlyInstallmentAmount;
 let familyOutObject;
-
-
+let isBillPopupClicked = false;
 
 document.getElementById("marketDropdown").addEventListener("change", updateProductDropdown);
 
@@ -72,6 +71,9 @@ function startTable(data, callback) {
 	}
 	data.sort((a, b) => convertDate(b.date).getTime() - convertDate(a.date).getTime());
 	let container = document.querySelector(".handsontable-container");
+	if (table) {
+		table.destroy();
+	}
 	table = new Handsontable(container, {
 		data: restoreData(data.reverse()),
 		width: "100%",
@@ -88,6 +90,8 @@ function startTable(data, callback) {
 					return '<b>Harcama Tutarı</b>';
 				case 2:
 					return '<b>Tarih</b>';
+				case 3: return ''; // Kategori başlığı (gizli)
+				case 4: return ''; // AltKategori başlığı (gizli)
 			}
 		},
 		fixedRowsBottom: 1,
@@ -112,8 +116,14 @@ function startTable(data, callback) {
 				dateFormat: "DD/MM/YYYY",
 				correctFormat: true,
 				defaultDate: new Date().toDateString()
-			}
-		]
+			},
+			{ data: "categoryNo" },
+			{ data: "subCategoryNo" }
+		],
+		hiddenColumns: {
+			columns: [3, 4], // 3: kategori, 4: altKategori
+			indicators: false // sağda gizli kolon işareti çıkmasın
+		}
 	});
 
 	$('#hot-display-license-info').remove();
@@ -122,60 +132,97 @@ function startTable(data, callback) {
 
 function init(callback) {
 	getLoggedUserInfo((dummy) => {
+
 		const countriesDropDown = document.getElementById("periodDropDown");
+		const countriesSubDropDown = document.getElementById("subPeriodDropDown");
+
 		PocketRealtime.getPaymentDates({
 			done: (paymentDates) => {
 				countriesDropDown.innerHTML = "";
+				countriesSubDropDown.innerHTML = "";
+
 				if (!isNull(paymentDates)) {
 					selectedData = paymentDates;
-					let countriesData = {};
-					let keys = Object.values(paymentDates).map(i => i.date);
-					keys = keys.sort(compareDates);
-					for (const element of keys) {
-						let key = "".concat(element)
-						let temp = {}
-						temp[key] = ""
-						Object.assign(countriesData, temp);
-					}
-					for (let key in countriesData) {
-						let option = document.createElement("option");
-						option.setAttribute("value", keys[key]);
 
-						let optionText = document.createTextNode(key);
-						option.appendChild(optionText);
+					// Date formatı: "Ocak-2024"
+					// Ay ve yılı ayır
+					const parsedDates = Object.entries(paymentDates).map(([id, item]) => {
+						const [month, year] = item.date.split("-");
+						return {
+							id,
+							date: item.date,
+							month,
+							year
+						};
+					});
 
-						for (let key in paymentDates) {
-							if (paymentDates.hasOwnProperty(key)) {
-								paymentDates[key]["id"] = key;
-							}
-						}
+					// Tüm yılları çıkar
+					const uniqueYears = [...new Set(parsedDates.map(item => item.year))].sort((a, b) => b - a);
 
-						option.className = Object.values(paymentDates).filter(i => i.date == option.innerText)[0].id;
 
+					// Yılları dropdown'a ekle
+					uniqueYears.forEach(year => {
+						const option = document.createElement("option");
+						option.value = year;
+						option.textContent = year;
 						countriesDropDown.appendChild(option);
-						countriesDropDown.selectedIndex = 0;
-					}
+					});
+
+					// 🔄 Alt dropdown'ı güncelleyen fonksiyon
+					const updateSubPeriods = (selectedYear) => {
+						countriesSubDropDown.innerHTML = "";
+
+						const filteredMonths = parsedDates
+							.filter(item => item.year === selectedYear)
+							.sort((a, b) => compareDates(a.date, b.date)); // Burada compareDates aynı kalsın
+
+						filteredMonths.forEach(item => {
+							const option = document.createElement("option");
+							option.value = item.date;
+							option.textContent = item.month;
+							option.className = item.id;
+							countriesSubDropDown.appendChild(option);
+						});
+					};
+
+					// İlk yıl için alt dropdown'ı başlat
+					const firstYear = uniqueYears[0];
+					countriesDropDown.value = firstYear;
+					updateSubPeriods(firstYear);
+
+					// Yıl değiştiğinde ayları güncelle
+					countriesDropDown.addEventListener("change", (e) => {
+						const selectedYear = e.target.value;
+						updateSubPeriods(selectedYear);
+					});
+
+					// İlk seçili path'e göre veri çek
+					let selectedYear = countriesDropDown.value;
+					let selectedMonth = countriesSubDropDown.options[countriesSubDropDown.selectedIndex]?.textContent;
+					let selectedFullDate = `${selectedMonth}-${selectedYear}`;
+
 					let tableOptions = document.getElementById("periodDropDown").options;
-					let path = tableOptions[tableOptions.selectedIndex].innerText;
+					let path = selectedFullDate;
+
 					PocketRealtime.getValue({
 						path: "/" + path,
 						done: (response) => {
 							selectedData = response;
-							callback(response)
+							callback(response);
 						},
 						fail: (error) => {
 							alert("Başlangıç ajax hatası meydana geldi.");
 						}
-					})
-				}
-				else {
-					callback([])
+					});
+				} else {
+					callback([]);
 				}
 			},
 			fail: (error) => {
-				alert.alert("Periyot tarihleri alınırken hata alındı.")
+				alert("Periyot tarihleri alınırken hata alındı.");
 			}
-		})
+		});
+
 	})
 }
 
@@ -735,7 +782,7 @@ function hesapla() {
 	const toplamAy = parseInt(document.getElementById('toplamAy').value)
 
 	if (anaPara && faizOrani && toplamAy) {
-		const stopajOrani = 0.05;
+		const stopajOrani = 0.15;
 		let tablo = '<thead><tr><th>Ay</th><th>Net Ana Para (₺)</th><th>Brüt Faiz Tutarı (₺)</th><th>Birikim (₺)</th><th>Stopaj (₺)</th><th>Net Faiz Getirisi (₺)</th></tr></thead><tbody>';
 		let mevcutAnaPara = anaPara;
 
@@ -898,7 +945,8 @@ function getLoggedUserInfo(callback) {
 			.then(response => response.json())
 			.then(data => {
 				let localInfo = {
-					loginDate: new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
+					loginDate: new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR'),
+					timestamp: Date.now()
 				}
 				Object.assign(data, localInfo);
 				PocketRealtime.saveUserLoggedActivity({
@@ -929,7 +977,8 @@ function renderUserActivityModal(data) {
 
 	const userData = document.getElementById('userData');
 	userData.innerHTML = '';
-	data.sort((a, b) => convertDate(b.loginDate).getTime() - convertDate(a.loginDate).getTime());
+	data.sort((a, b) => b.timestamp - a.timestamp);
+
 	Object.values(data).forEach(item => {
 		const row = document.createElement('tr');
 
@@ -1341,3 +1390,759 @@ function deleteTransaction(key) {
 		}
 	});
 }
+
+
+function notesModalOnOpen(responseNoteList) {
+	const notesModal = $('#notesModal');
+	const addNoteButton = $('#addNoteButton');
+	const clearNoteButton = $('#clearNoteButton');
+	const noteTitleInput = $('#noteTitleInput');
+	const noteContentInput = $('#noteContentInput');
+	const notesList = $('#notesList');
+	const noNotesMessage = $('#noNotesMessage');
+
+	let currentlyEditingNoteId = null; // Hangi notun düzenlendiğini takip etmek için (Firebase ID)
+
+	$('#toggleNoteCardBtn').off('click').on('click', function () {
+		const noteCard = $('.newNoteAddCard');
+		const icon = $('#noteEyeIcon');
+		const isHidden = noteCard.is(':hidden');
+
+		if (isHidden) {
+			noteCard.slideDown('fast');
+			icon.removeClass('fa-eye-slash').addClass('fa-eye');
+			$(this).html('<i class="fas fa-eye"></i>');
+		} else {
+			noteCard.slideUp('fast');
+			icon.removeClass('fa-eye').addClass('fa-eye-slash');
+			$(this).html('<i class="fas fa-eye-slash"></i>');
+		}
+	});
+
+
+
+
+	// Notları Firebase'den yükle ve DOM'a ekle
+	function loadNotes() {
+		PocketRealtime.getNotes({
+			done: (notes) => {
+				notesList.empty(); // Mevcut listeyi temizle
+
+				if (notes.length === 0) {
+					noNotesMessage.show(); // Not yok mesajını göster
+				} else {
+					noNotesMessage.hide(); // Not yok mesajını gizle
+					// En yeni notlar üste gelsin diye sıralayıp DOM'a ekliyoruz
+					notes.sort((a, b) => new Date(b.created) - new Date(a.created));
+					notes.forEach(note => {
+						addNoteToDOM(note); // Notu DOM'a ekle
+					});
+				}
+			},
+			fail: (error) => {
+				console.error("Notlar yüklenirken hata oluştu:", error);
+				alert("Notlar yüklenirken bir sorun oluştu.");
+				noNotesMessage.show(); // Hata durumunda da mesajı göster
+			}
+		});
+	}
+
+	// Notu DOM'a ekleme fonksiyonu (Firebase ID'yi kullanacak şekilde güncellendi)
+	function addNoteToDOM(note) {
+		// note.firebaseId Firebase'den gelen otomatik anahtar
+		// note.id ise sizin Date.now() ile verdiğiniz ID
+		const noteElement = `
+		<div class="note-item" data-firebase-id="${note.firebaseId}" data-id="${note.id}">
+			<div class="note-header">
+				<h5 class="note-title">${note.title}</h5>
+				<div class="note-dates">
+					<small class="note-timestamp note-created">
+					<i class="far fa-calendar-alt mr-1"></i> Oluşturuldu:
+					<span>${note.created}</span>
+					</small>
+					${note.updated ? `
+					<small class="note-timestamp note-updated ml-3">
+					<i class="fas fa-pencil-alt mr-1"></i> Güncellendi:
+					<span>${note.updated}</span>
+					</small>
+					` : ''}
+				</div>
+			</div>
+			<p class="note-content">${note.content}</p>
+			<div class="note-actions">
+				<button type="button" class="btn btn-sm btn-info edit-note mr-2">
+					<i class="fas fa-edit mr-1"></i> Düzenle
+				</button>
+				<button type="button" class="btn btn-sm btn-danger delete-note">
+					<i class="fas fa-trash-alt mr-1"></i> Sil
+				</button>
+			</div>
+		</div>
+		`;
+		notesList.prepend(noteElement); // En yeni notu en üste ekle
+	}
+
+	// Not Ekle/Güncelle Butonunun Asıl Logic'i
+	addNoteButton.off('click').on('click', function () {
+		const title = noteTitleInput.val().trim();
+		const content = noteContentInput.val().trim();
+
+		if (title === '' || content === '') {
+			alert('Başlık ve içerik boş olamaz!');
+			return;
+		}
+
+		if (currentlyEditingNoteId) {
+			// Düzenleme modundayız
+			const updatedNoteData = {
+				title: title,
+				content: content,
+				updated: fundsLastCallbackTime(new Date().toISOString()) // Güncelleme zamanını yenile
+			};
+
+			PocketRealtime.updateNotes({
+				params: {
+					firebaseId: currentlyEditingNoteId,
+					data: updatedNoteData
+				},
+				done: () => {
+					console.log("Not başarıyla güncellendi.");
+					currentlyEditingNoteId = null; // Düzenleme modundan çık
+					resetNoteForm(); // Formu ve butonları sıfırla
+					loadNotes(); // Notları yeniden yükle
+				},
+				fail: (error) => {
+					console.error("Not güncellenirken hata oluştu:", error);
+					alert("Not güncellenirken bir sorun oluştu.");
+				}
+			});
+
+		} else {
+			// Yeni not ekleme modundayız
+			const newNote = {
+				id: Date.now(), // Kendi benzersiz ID'niz
+				title: title,
+				content: content,
+				created: fundsLastCallbackTime(new Date().toISOString()),
+				updated: fundsLastCallbackTime(new Date().toISOString())
+			};
+
+			PocketRealtime.addNotes({
+				params: newNote, // Tek bir not objesi gönder
+				done: () => {
+					console.log("Not başarıyla eklendi.");
+					resetNoteForm(); // Formu ve butonları sıfırla
+					loadNotes(); // Notları yeniden yükle
+				},
+				fail: (error) => {
+					console.error("Not eklenirken hata oluştu:", error);
+					alert("Not eklenirken bir sorun oluştu.");
+				}
+			});
+		}
+	});
+
+	// Temizle Butonu Olayı
+	clearNoteButton.on('click', function () {
+		resetNoteForm(); // Formu ve butonları sıfırlayan yardımcı fonksiyonu çağır
+	});
+
+	// Not Silme Olayı (Event Delegation)
+	notesList.on('click', '.delete-note', function () {
+		if (!confirm('Bu notu silmek istediğinize emin misiniz?')) {
+			return;
+		}
+
+		const noteElement = $(this).closest('.note-item');
+		const firebaseIdToDelete = noteElement.data('firebase-id'); // Firebase ID'sini al
+
+		PocketRealtime.deleteNotes({
+			params: {
+				firebaseId: firebaseIdToDelete
+			},
+			done: () => {
+				console.log("Not başarıyla silindi.");
+				noteElement.remove(); // DOM'dan kaldır
+				if (notesList.children('.note-item').length === 0) { // Hiç not kalmazsa mesajı göster
+					noNotesMessage.show();
+				}
+			},
+			fail: (error) => {
+				console.error("Not silinirken hata oluştu:", error);
+				alert("Not silinirken bir sorun oluştu.");
+			}
+		});
+	});
+
+	// Not Düzenleme Olayı (Event Delegation)
+	notesList.on('click', '.edit-note', function () {
+		const noteElement = $(this).closest('.note-item');
+		currentlyEditingNoteId = noteElement.data('firebase-id'); // Düzenlenecek notun Firebase ID'sini sakla
+
+		const currentTitle = noteElement.find('.note-title').text();
+		const currentContent = noteElement.find('.note-content').text();
+
+		noteTitleInput.val(currentTitle);
+		noteContentInput.val(currentContent);
+
+		// Buton metnini ve ikonunu değiştir
+		addNoteButton.html('<i class="fas fa-save mr-1"></i> Notu Güncelle').removeClass('btn-primary').addClass('btn-success');
+		clearNoteButton.removeClass('btn-danger').addClass('btn-secondary'); // Temizle butonunu daha pasif bir renge çevir
+	});
+
+	// Yardımcı fonksiyon: Formu ve butonları sıfırla
+	function resetNoteForm() {
+		currentlyEditingNoteId = null;
+		noteTitleInput.val('');
+		noteContentInput.val('');
+		addNoteButton.html('<i class="fas fa-plus-circle mr-1"></i> Not Ekle').removeClass('btn-success').addClass('btn-primary');
+		clearNoteButton.removeClass('btn-secondary').addClass('btn-danger'); // Temizle butonunu kırmızıya geri döndür
+	}
+
+	// Modal açıldığında notları Firebase'den yükle
+	notesModal.on('show.bs.modal', function () {
+		loadNotes();
+	});
+
+	// Modal kapatıldığında düzenleme modunu sıfırla ve butonları eski haline getir
+	notesModal.on('hidden.bs.modal', function () {
+		resetNoteForm(); // Formu ve butonları sıfırla
+	});
+
+	loadNotes(responseNoteList);
+
+	// İlk yüklemede de notları çekebilirsiniz, ancak modal açılışında çekmek daha yaygındır.
+	// loadNotes();
+}
+
+function triggerNotification() {
+	// Değişken tanımlamaları
+	let currentlyEditingNotificationId = null;
+	let allNotificationsCache = [];
+	// Oturum boyunca gizlenecek bildirim ID'leri. Sayfa yenilenince sıfırlanır.
+	// Kalıcı olmasını isterseniz `localStorage` kullanmalısınız.
+	let hiddenApproachingNotifications = [];
+
+	const notificationsModal = $('#notificationsModal');
+	const openNotificationsModalButton = $('#openNotificationsModal');
+	const addNotificationButton = $('#addNotificationButton');
+	const clearNotificationFormButton = $('#clearNotificationFormButton');
+	const notificationTitleInput = $('#notificationTitleInput');
+	const notificationContentInput = $('#notificationContentInput');
+	const notificationDateTimeInput = $('#notificationDateTimeInput');
+	const notificationsList = $('#notificationsList');
+	const noNotificationsMessage = $('#noNotificationsMessage');
+	const notificationCount = $('#notificationCount');
+
+	// Yaklaşan bildirim alert elementini ilk başta al (veya daha sonra oluşturulacaksa referans tutmak için)
+	let approachingAlert = $('#approachingNotificationAlert');
+
+	// --- Yardımcı Fonksiyonlar ---
+
+	// Zaman formatlama fonksiyonu (dışarıda tanımlı olduğunu varsayıyorum)
+	// Eğer fundsLastCallbackTime fonksiyonunuz tanımlı değilse, aşağıdaki gibi basit bir versiyon kullanabilirsiniz:
+
+	$('#toggleNotificationCardBtn').on('click', function () {
+		const notificationCard = $('.newNotificationAddCard');
+		const icon = $('#notificationEyeIcon');
+		const isHidden = notificationCard.is(':hidden');
+
+		if (isHidden) {
+			notificationCard.slideDown('fast');
+			icon.removeClass('fa-eye-slash').addClass('fa-eye');
+			$(this).html('<i class="fas fa-eye"></i>');
+		} else {
+			notificationCard.slideUp('fast');
+			icon.removeClass('fa-eye').addClass('fa-eye-slash');
+			$(this).html('<i class="fas fa-eye-slash"></i>');
+		}
+	});
+
+	function fundsLastCallbackTime(isoString) {
+		const date = new Date(isoString);
+		const options = {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false
+		};
+		return date.toLocaleString('tr-TR', options);
+	}
+
+	// ISO formatını input type="datetime-local" için dönüştürme fonksiyonu
+	function toDateTimeLocal(isoString) {
+		const date = new Date(isoString);
+		// Zaman dilimi farkını düzeltmek için (eğer input yerel saati bekliyorsa)
+		date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+		return date.toISOString().slice(0, 16);
+	}
+
+	// Bildirimleri DOM'a ekleme fonksiyonu
+	function addNotificationToDOM(notification) {
+		const scheduledFormatted = fundsLastCallbackTime(notification.scheduledTime);
+		const createdFormatted = fundsLastCallbackTime(notification.createdAt);
+		const ignoredFormatted = notification.ignoredUntil ? fundsLastCallbackTime(notification.ignoredUntil) : null;
+
+		const notificationElement = `
+		<div class="notification-item ${notification.isTriggered ? 'notification-triggered' : ''}" data-firebase-id="${notification.firebaseId}" data-id="${notification.id || ''}">
+			<div class="notification-header">
+				<div>
+					<h5 class="notification-title mb-1">${notification.title}</h5>
+					<small class="notification-scheduled-time text-muted d-block" data-iso-time="${notification.scheduledTime}">
+						<i class="far fa-calendar-check mr-1"></i> Zaman: ${scheduledFormatted}
+					</small>
+				</div>
+				${notification.isTriggered ? `
+					<span class="badge badge-success ml-md-3 mt-2 mt-md-0"><i class="fas fa-check-circle mr-1"></i> Tetiklendi</span>
+				` : ''}
+			</div>
+
+			<p class="notification-content mb-3">${notification.content}</p>
+
+			<div class="notification-actions d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+				<small class="text-muted mb-2 mb-md-0">
+					<i class="far fa-clock mr-1"></i> Oluşturuldu: ${createdFormatted}
+				</small>
+
+				${!notification.isTriggered ? `
+					<div class="d-flex flex-row flex-wrap align-items-center gap-2 mb-2">
+						<button type="button" class="btn btn-xs btn-outline-info edit-notification custom-btn-sm">
+							<i class="fas fa-edit me-1"></i> Düzenle
+						</button>
+						<button type="button" class="btn btn-xs btn-outline-danger delete-notification custom-btn-sm">
+							<i class="fas fa-trash-alt me-1"></i> Sil
+						</button>
+					</div>
+
+					<!-- Yoksay Alanı -->
+					<div class="form-inline d-flex flex-wrap mt-2 mt-md-0 ml-md-3">
+						<select class="form-control form-control-sm mr-2 ignore-duration-select">
+						<option value="1">1 gün</option>
+						<option value="3">3 gün</option>
+						<option value="7">7 gün</option>
+						<option value="30">30 gün</option>
+						</select>
+						<button type="button" class="btn btn-outline-secondary btn-sm ignore-notification-btn">
+						Yoksay
+						</button>
+					</div>
+				` : ''}
+			</div>
+
+			${ignoredFormatted ? `
+			<div class="mt-2">
+				<small class="text-muted">
+					<i class="fas fa-eye-slash mr-1"></i> Bu bildirim <strong>${ignoredFormatted}</strong> tarihine kadar yoksayılacak.
+				</small>
+			</div>
+			` : ''}
+		</div>
+		`;
+
+		notificationsList.prepend(notificationElement);
+	}
+
+	// Bildirim listesini güncelleme ve DOM'a yansıtma
+	function renderNotifications(notifications) {
+		notificationsList.empty();
+		allNotificationsCache = notifications; // Cache'i güncelle
+
+		const activeOrUpcomingNotifications = notifications.filter(n =>
+			!n.isTriggered || new Date(n.scheduledTime) >= new Date(Date.now() - (24 * 60 * 60 * 1000))
+		);
+
+		if (activeOrUpcomingNotifications.length === 0) {
+			noNotificationsMessage.show();
+		} else {
+			noNotificationsMessage.hide();
+			activeOrUpcomingNotifications.sort((a, b) => {
+				const dateA = new Date(a.scheduledTime);
+				const dateB = new Date(b.scheduledTime);
+				if (a.isTriggered && !b.isTriggered) return 1;
+				if (!a.isTriggered && b.isTriggered) return -1;
+				return dateA - dateB;
+			});
+			activeOrUpcomingNotifications.forEach(notification => {
+				addNotificationToDOM(notification);
+			});
+		}
+		updateNotificationCount(activeOrUpcomingNotifications.filter(n => !n.isTriggered && new Date(n.scheduledTime) > new Date()).length);
+	}
+
+	// ** Ana Bildirim Kontrol ve Tetikleme Mantığı (Client-Side Simulation) **
+	function checkAndTriggerNotifications() {
+		const now = new Date();
+		const tenSecondsAgo = new Date(now.getTime() - (10 * 1000));
+
+		const notificationsToTrigger = allNotificationsCache.filter(n =>
+			!n.isTriggered &&
+			new Date(n.scheduledTime) <= now &&
+			new Date(n.scheduledTime) >= tenSecondsAgo
+		);
+
+		if (notificationsToTrigger.length > 0) {
+			notificationsToTrigger.forEach(notification => {
+				showAppNotification(notification.title, notification.content);
+				console.log(`Bildirim Tetiklendi: ${notification.title}`);
+
+				PocketRealtime.updateNotification({
+					params: {
+						firebaseId: notification.firebaseId,
+						data: {
+							isTriggered: true,
+							triggeredTime: new Date().toISOString()
+						}
+					},
+					done: () => {
+						console.log(`Bildirim ${notification.title} Firebase'de tetiklendi olarak işaretlendi.`);
+					},
+					fail: (error) => {
+						console.error(`Bildirim ${notification.title} güncellenirken hata oluştu:`, error);
+					}
+				});
+			});
+		}
+		// Ana ekrandaki yaklaşan bildirimleri kontrol et ve göster
+		checkApproachingNotificationsDisplay(allNotificationsCache);
+	}
+
+	// Uygulama içi bildirim gösteren basit bir fonksiyon (Popup/Toast)
+	function showAppNotification(title, content) {
+		$('body').append(`
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
+                <div class="toast-header">
+                    <strong class="mr-auto">${title}</strong>
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="toast-body">
+                    ${content}
+                </div>
+            </div>
+        `);
+		$('.toast').toast('show');
+	}
+
+	// --- Güncellenmiş Kısım: Yaklaşan Bildirim Uyarısı Gösterimi ---
+	// --- Güncellenmiş Kısım: Yaklaşan Bildirim Uyarısı Gösterimi ---
+	function checkApproachingNotificationsDisplay(allNotifications) {
+		const now = new Date();
+		// 15 GÜNLÜK SINIRLAMAYI KALDIRIYORUZ.
+		// const futureThreshold = new Date(now.getTime() + (15 * 24 * 60 * 60 * 1000)); // 15 gün sonrası
+
+		const approaching = allNotifications.filter(n => {
+			const scheduled = new Date(n.scheduledTime);
+			const ignoredUntil = n.ignoredUntil ? new Date(n.ignoredUntil) : null;
+
+			// "Bugün Yoksay" butonu doğru çalışıyor. Bu mantık, yoksayma süresi
+			// dolduğunda (örneğin ertesi gün) bildirimin tekrar görünmesini sağlar.
+			// Asıl sorun, bildirimin gösterilmesi için 15 günden daha yakın olmasını
+			// gerektiren "futureThreshold" kontrolüydü. O satırı kaldırdık.
+			return (
+				!n.isTriggered &&
+				scheduled > now &&
+				// scheduled <= futureThreshold && <-- İSTEDİĞİNİZ DAVRANIŞ İÇİN BU SATIRI SİLİN/YORUM SATIRI YAPIN
+				(!ignoredUntil || ignoredUntil < now) // Yoksayma süresi dolmuşsa veya hiç yoksayılmamışsa göster
+			);
+		});
+
+		// `approachingAlert` elemanının DOM'da var olup olmadığını kontrol et ve yoksa oluştur
+		if (approachingAlert.length === 0) {
+			$('body').append(`
+				<div id="approachingNotificationAlert" class="approaching-notification-alert">
+					<div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between">
+						<div class="text-section">
+						<strong class="d-block mb-2">Yaklaşan Bildirim</strong>
+						<span id="approachingNotificationTitle" class="d-block mb-1"></span>
+						<small id="approachingNotificationTime" class="d-block text-muted"></small>
+						</div>
+						<div class="mt-3 mt-sm-0 ml-sm-4">
+						<button id="ignoreTodayBtn" class="btn btn-sm btn-outline-dark px-4 py-2 font-weight-semibold rounded-pill shadow-sm">
+							<i class="fas fa-eye-slash mr-1"></i> Bugün Yoksay
+						</button>
+						</div>
+					</div>
+				</div>
+			`);
+
+			approachingAlert = $('#approachingNotificationAlert');
+			approachingAlert.off('click').on('click', function () {
+					const clickedNotificationId = $(this).data('notification-id');
+					if (clickedNotificationId) {
+						if (!hiddenApproachingNotifications.includes(clickedNotificationId)) {
+							hiddenApproachingNotifications.push(clickedNotificationId);
+						}
+						document.getElementById("approachingNotificationAlert").style.display = "none"
+						checkApproachingNotificationsDisplay(allNotificationsCache);
+						/*
+						$(this).fadeOut(() => {
+
+						});
+						*/
+					} else {
+						$(this).fadeOut();
+					}
+				});
+
+
+		}
+
+		// En yakın tarihli ve gösterilmesi gereken bildirimi bul
+		const nearestApproaching = approaching.sort((a, b) => new Date(a.scheduledTime) - new Date(b.scheduledTime))[0];
+
+		if (nearestApproaching) {
+			approachingAlert.data('notification-id', nearestApproaching.firebaseId);
+			approachingAlert.find('#approachingNotificationTitle').text(nearestApproaching.title);
+			approachingAlert.find('#approachingNotificationTime').text(`Zamanı: ${fundsLastCallbackTime(nearestApproaching.scheduledTime)}`);
+			approachingAlert.fadeIn();
+		} else {
+			approachingAlert.fadeOut();
+		}
+	}
+
+	// --- Diğer Olay İşleyiciler ---
+
+	// Bildirim Ekle/Güncelle Butonunun Logic'i
+	addNotificationButton.off('click').on('click', function () {
+		const title = notificationTitleInput.val().trim();
+		const content = notificationContentInput.val().trim();
+		const scheduledDateTime = notificationDateTimeInput.val();
+
+		if (title === '' || content === '' || scheduledDateTime === '') {
+			alert('Başlık, içerik ve bildirim zamanı boş olamaz!');
+			return;
+		}
+
+		const scheduledISO = new Date(scheduledDateTime).toISOString();
+
+		if (currentlyEditingNotificationId) {
+			const updatedNotificationData = {
+				title: title,
+				content: content,
+				scheduledTime: scheduledISO,
+			};
+
+			PocketRealtime.updateNotification({
+				params: {
+					firebaseId: currentlyEditingNotificationId,
+					data: updatedNotificationData
+				},
+				done: () => {
+					console.log("Bildirim başarıyla güncellendi.");
+					resetNotificationForm();
+				},
+				fail: (error) => {
+					console.error("Bildirim güncellenirken hata oluştu:", error);
+					alert("Bildirim güncellenirken bir sorun oluştu.");
+				}
+			});
+
+		} else {
+			const newNotification = {
+				title: title,
+				content: content,
+				scheduledTime: scheduledISO,
+				isTriggered: false,
+				triggeredTime: null,
+				createdAt: new Date().toISOString()
+			};
+
+			PocketRealtime.addNotification({
+				params: newNotification,
+				done: () => {
+					console.log("Bildirim başarıyla eklendi.");
+					resetNotificationForm();
+				},
+				fail: (error) => {
+					console.error("Bildirim eklenirken hata oluştu:", error);
+					alert("Bildirim eklenirken bir sorun oluştu.");
+				}
+			});
+		}
+	});
+
+	// Temizle Butonu Olayı
+	clearNotificationFormButton.on('click', function () {
+		resetNotificationForm();
+	});
+
+	// Bildirim Silme Olayı (Event Delegation)
+	notificationsList.on('click', '.delete-notification', function () {
+		if (!confirm('Bu bildirimi silmek istediğinize emin misiniz?')) {
+			return;
+		}
+
+		const notificationElement = $(this).closest('.notification-item');
+		const firebaseIdToDelete = notificationElement.data('firebase-id');
+
+		PocketRealtime.deleteNotification({
+			params: {
+				firebaseId: firebaseIdToDelete
+			},
+			done: () => {
+				console.log("Bildirim başarıyla silindi.");
+			},
+			fail: (error) => {
+				console.error("Bildirim silinirken hata oluştu:", error);
+				alert("Bildirim silinirken bir sorun oluştu.");
+			}
+		});
+	});
+
+	// Bildirim Düzenleme Olayı (Event Delegation)
+	notificationsList.on('click', '.edit-notification', function () {
+		const notificationElement = $(this).closest('.notification-item');
+		currentlyEditingNotificationId = notificationElement.data('firebase-id');
+
+		const currentTitle = notificationElement.find('.notification-title').text();
+		const currentContent = notificationElement.find('.notification-content').text();
+		const currentScheduledTime = notificationElement.find('.notification-scheduled-time').data('iso-time');
+
+		notificationTitleInput.val(currentTitle);
+		notificationContentInput.val(currentContent);
+		notificationDateTimeInput.val(toDateTimeLocal(currentScheduledTime));
+
+		addNotificationButton.html('<i class="fas fa-save mr-1"></i> Bildirimi Güncelle').removeClass('btn-primary').addClass('btn-success');
+		clearNotificationFormButton.removeClass('btn-danger').addClass('btn-secondary');
+	});
+
+	// Yardımcı fonksiyon: Formu ve butonları sıfırla
+	function resetNotificationForm() {
+		currentlyEditingNotificationId = null;
+		notificationTitleInput.val('');
+		notificationContentInput.val('');
+		notificationDateTimeInput.val('');
+		addNotificationButton.html('<i class="fas fa-plus-circle mr-1"></i> Bildirim Ekle').removeClass('btn-success').addClass('btn-primary');
+		clearNotificationFormButton.removeClass('btn-secondary').addClass('btn-danger');
+	}
+
+	// Bildirim sayacını güncelle
+	function updateNotificationCount(count) {
+		notificationCount.text(count);
+		if (count > 0) {
+			notificationCount.show();
+		} else {
+			notificationCount.hide();
+		}
+	}
+
+	// --- Başlangıç ve Periyodik Kontroller ---
+
+	// Uygulama başladığında ilk yüklemeyi yap ve Firebase'den dinlemeye başla
+	PocketRealtime.getNotifications({
+		done: (notifications) => {
+			renderNotifications(notifications);
+			checkAndTriggerNotifications();
+		},
+		fail: (error) => {
+			console.error("Başlangıç bildirimleri yüklenirken hata:", error);
+			noNotificationsMessage.show();
+			updateNotificationCount(0);
+		}
+	});
+
+	// Her 10 saniyede bir bildirimleri kontrol et ve tetikle
+	setInterval(checkAndTriggerNotifications, 10 * 1000);
+
+	// Bildirim modalı açıldığında listeyi yükle
+	notificationsModal.on('show.bs.modal', function () {
+		renderNotifications(allNotificationsCache);
+	});
+
+	// Modal kapandığında formu sıfırla
+	notificationsModal.on('hidden.bs.modal', function () {
+		resetNotificationForm();
+		// İsteğe bağlı: Modal kapanınca gizlenen bildirimleri sıfırlayabilirsiniz
+		// hiddenApproachingNotifications = [];
+		// checkApproachingNotificationsDisplay(allNotificationsCache);
+	});
+
+	// İkon butonuna tıklandığında (Modalı açan buton)
+	openNotificationsModalButton.on('click', function () {
+		// Bu kısım muhtemelen modalı açmalıdır, `hide()` yerine `show()` kullanın.
+		// Eğer modal otomatik olarak açılıyorsa veya bu düğmenin farklı bir işlevi varsa bu satırı değiştirmeyin.
+		notificationsModal.show();
+	});
+
+	$(document).on('click', '#ignoreTodayBtn', function () {
+		const notificationId = approachingAlert.data('notification-id');
+		if (!notificationId) return;
+
+		const now = new Date();
+		const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+		PocketRealtime.updateNotification({
+			params: {
+				firebaseId: notificationId,
+				data: {
+					ignoredUntil: endOfToday.toISOString()
+				}
+			},
+			done: () => {
+				approachingAlert.fadeOut();
+				console.log(`Bildirim ${notificationId} bu gün için yoksayıldı.`);
+			},
+			fail: (error) => {
+				console.error("Yoksayma güncellemesi başarısız:", error);
+			}
+		});
+	});
+
+	function ignoreNotificationForDays(notificationId, dayCount) {
+		const now = new Date();
+		const ignoredUntil = new Date(now.getTime() + dayCount * 24 * 60 * 60 * 1000);
+
+		PocketRealtime.updateNotification({
+			params: {
+				firebaseId: notificationId,
+				data: {
+					ignoredUntil: ignoredUntil.toISOString()
+				}
+			},
+			done: () => {
+				console.log(`Bildirim ${notificationId}, ${dayCount} gün yoksayıldı.`);
+			},
+			fail: (error) => {
+				console.error("Günlük yoksayma başarısız:", error);
+			}
+		});
+	}
+
+	notificationsList.on('click', '.ignore-notification-btn', function () {
+		const card = $(this).closest('.notification-item');
+		const notificationId = card.data('firebase-id');
+		const dayCount = parseInt(card.find('.ignore-duration-select').val());
+
+		const now = new Date();
+		const ignoredUntil = new Date(now.getTime() + dayCount * 24 * 60 * 60 * 1000);
+
+		PocketRealtime.updateNotification({
+			params: {
+				firebaseId: notificationId,
+				data: {
+					ignoredUntil: ignoredUntil.toISOString()
+				}
+			},
+			done: () => {
+				console.log(`Bildirim ${notificationId}, ${dayCount} gün yoksayıldı.`);
+				card.fadeOut(); // istersen bildirimi gizle
+			},
+			fail: (error) => {
+				console.error("Yoksayma işlemi başarısız:", error);
+				alert("Bildirim yoksanamadı!");
+			}
+		});
+	});
+	// Eğer kullanıcı çıkış yaparsa dinleyiciyi kapatma örneği (FirebaseAuth ile)
+	// firebase.auth().onAuthStateChanged(user => {
+	//     if (!user) {
+	//         firebase.database().ref("notifications/").off("value"); // Dinleyiciyi kapat
+	//     }
+	// });
+}
+
+
+

@@ -2,7 +2,6 @@ const dropdown = document.getElementById('userActivityDropdown');
 
 window.addEventListener('DOMContentLoaded', event => {
 
-
 	/*
 	firebase.auth().sendPasswordResetEmail('imuratony@gmail.com').then(function() {
 		alert("mail gönderildi")
@@ -11,11 +10,15 @@ window.addEventListener('DOMContentLoaded', event => {
 		alert("smtp hatası")
 	  });
 	  */
+
+
 	init((initData) => {
-		startTable(initData, (responseTable) => {
-			$('#hot-display-license-info').remove();
-		})
+		jQuery(document).ready(function ($) {
+			triggerNotification();
+		});
+
 	})
+
 });
 
 setTimeout(() => {
@@ -47,21 +50,178 @@ dropdown.addEventListener('change', function () {
 	// Burada seçilen değeri kullanarak yapmak istediğiniz işlemleri gerçekleştirebilirsiniz.
 });
 
+$('#mainHandsontableButton').on('click', function (event) {
+	console.log("Harcama Yönetimi butonu tıklandı!");
+	let mainHandsontable = new bootstrap.Modal(document.getElementById('mainHandsontable'));
+	mainHandsontable.show();
+	startTable(selectedData, (responseTable) => {
+		$('#hot-display-license-info').remove();
+	})
+});
+
+$('#notesCard').on('click', function (event) {
+	let notesModal = new bootstrap.Modal(document.getElementById('notesModal'));
+	notesModal.show();
+	PocketRealtime.getNotes({
+		done: (response) => {
+			notesModalOnOpen(response || []);
+		},
+		fail: (error) => {
+			console.error("Hata, Note kayıtları getirilirken hata ile karşılaşıldı.");
+			throw new Error(error);
+		}
+	})
+});
+
+
+$('#physicalAssets').on('click', function (event) {
+
+	/**
+	 * Bitiş tarihine kalan gün sayısını hesaplar.
+	 * @param {string} endDateString - 'YYYY-MM-DD' formatında tarih.
+	 * @returns {number|null} Kalan gün sayısı veya tarih geçmişse null.
+	 */
+	function calculateDaysLeft(endDateString) {
+		if (!endDateString) return null;
+		const endDate = new Date(endDateString);
+		const today = new Date();
+		// Saat, dakika, saniye farklarını sıfırlayarak sadece gün bazlı hesaplama yap
+		endDate.setHours(0, 0, 0, 0);
+		today.setHours(0, 0, 0, 0);
+
+		const differenceInTime = endDate.getTime() - today.getTime();
+		if (differenceInTime < 0) return -1; // Geçmiş tarih
+
+		return Math.ceil(differenceInTime / (1000 * 3600 * 24));
+	}
+
+	/**
+	 * Kalan gün sayısına göre durum rozeti (badge) oluşturur.
+	 * @param {number} daysLeft - Kalan gün sayısı.
+	 * @param {string} label - Rozet etiketi (örn: "Kasko Bitişine").
+	 * @returns {string} HTML olarak formatlanmış rozet.
+	 */
+	function createStatusBadge(daysLeft, label) {
+		if (daysLeft === null || daysLeft === undefined) return `<div><span class="status-badge-none">${label}: Yok</span></div>`;
+		if (daysLeft < 0) return `<div><span class="status-badge danger">${label}: Süresi Doldu</span></div>`;
+
+		let badgeClass = 'safe';
+		if (daysLeft <= 30) {
+			badgeClass = 'danger';
+		} else if (daysLeft <= 90) {
+			badgeClass = 'warning';
+		}
+		return `<div><span class="status-badge ${badgeClass}">${label}: <strong>${daysLeft} gün</strong> kaldı</span></div>`;
+	}
+
+	function renderAssets(data) {
+		const container = document.getElementById("physicalAssetsList");
+		let htmlContent = "";
+		let total = 0;
+
+		// DÜZELTME: Firebase'den gelen 'vehicles' nesnesini bir diziye çeviriyoruz.
+		// data.vehicles varsa Object.values() kullan, yoksa boş bir dizi ata.
+		const vehicleList = data.vehicles ? Object.values(data.vehicles) : [];
+
+		// Araçlar
+		vehicleList.forEach(v => { // Artık dizi üzerinde güvenle forEach kullanabiliriz.
+			total += v.estimatedValue;
+			const insuranceDaysLeft = calculateDaysLeft(v.insuranceEndDate);
+
+			htmlContent += `
+        <div class="asset-card">
+            <div class="card-header">🚗 ${v.brand} ${v.model} (${v.year})</div>
+            <div class="card-value-wrapper">
+                <span class="card-value-label">Tahmini Piyasa Değeri</span>
+                <div class="card-value">₺${v.estimatedValue.toLocaleString('tr-TR')}</div>
+            </div>
+            <div class="card-details">
+                <span>Plaka</span>         <strong>${v.licensePlate}</strong>
+                <span>Alım Tarihi</span>    <span>${new Date(v.purchaseDate).toLocaleDateString('tr-TR')}</span>
+                <span>Alım Fiyatı</span>    <span>₺${v.purchasePrice.toLocaleString('tr-TR')}</span>
+                <span>Notlar</span>         <span>${v.notes}</span>
+            </div>
+            <div class="card-status">
+                ${createStatusBadge(insuranceDaysLeft, 'Sigorta Bitişine')}
+            </div>
+        </div>`;
+		});
+
+		// DÜZELTME: Firebase'den gelen 'estates' nesnesini bir diziye çeviriyoruz.
+		const estateList = data.estates ? Object.values(data.estates) : [];
+
+		// Gayrimenkuller
+		estateList.forEach(p => { // Artık dizi üzerinde güvenle forEach kullanabiliriz.
+			total += p.estimatedValue;
+			const daskDaysLeft = calculateDaysLeft(p.daskEndDate);
+			const insuranceDaysLeft = calculateDaysLeft(p.homeInsuranceEndDate);
+
+			htmlContent += `
+        <div class="asset-card">
+            <div class="card-header">🏠 ${p.type} - ${p.location}</div>
+            <div class="card-value-wrapper">
+                <span class="card-value-label">Tahmini Piyasa Değeri</span>
+                <div class="card-value">₺${p.estimatedValue.toLocaleString('tr-TR')}</div>
+            </div>
+            <div class="card-details">
+                <span>Oda Sayısı</span>     <strong>${p.rooms}</strong>
+                <span>Büyüklük</span>       <span>${p.size} m²</span>
+                <span>Alım Tarihi</span>      <span>${new Date(p.purchaseDate).toLocaleDateString('tr-TR')}</span>
+                <span>Alım Fiyatı</span>      <span>₺${p.purchasePrice.toLocaleString('tr-TR')}</span>
+                <span>İpotek Durumu</span>  <strong>${p.mortgage ? "Var" : "Yok"}</strong>
+                <span>Notlar</span>         <span>${p.notes}</span>
+            </div>
+            <div class="card-status">
+                ${createStatusBadge(daskDaysLeft, 'DASK Bitişine')}
+                ${createStatusBadge(insuranceDaysLeft, 'Konut Sigortası')}
+            </div>
+        </div>`;
+		});
+
+		container.innerHTML = htmlContent;
+		document.getElementById("totalPhysicalAssetsValue").innerText = `₺${total.toLocaleString('tr-TR')}`;
+	}
+
+	PocketRealtime.getRealEstatesAndVehicles({
+		done: (response) => {
+			renderAssets(response);
+		},
+		fail: (error) => {
+			throw new Error(error);
+		}
+	})
+});
+
+
 $('#periodDropDown').change(event => {
+	//console.log("periodDropDown");
+
+})
+
+$('#subPeriodDropDown').change(event => {
+	//console.log("subPeriodDropDown");
+
 	$("#grid-table").html("");
 	$('#hot-display-license-info').remove();
-	let tableOptions = document.getElementById("periodDropDown").options;
-	let changePeriod = tableOptions[tableOptions.selectedIndex].innerText;
+
+	let yearOptions = document.getElementById("periodDropDown").options;
+	let monthOptions = document.getElementById("subPeriodDropDown").options;
+
+	let yearPeriod = yearOptions[yearOptions.selectedIndex].innerText;
+	let monthPeriod = monthOptions[monthOptions.selectedIndex].innerText;
+
+	let path = "/" + monthPeriod + "-" + yearPeriod;
+
 	PocketRealtime.getValue({
-		path: "/" + changePeriod,
+		path: path,
 		done: (response) => {
+			selectedData = response;
 			startTable(response, () => { });
 		},
 		fail: (error) => {
 			alert("Başlangıç ajax hatası meydana geldi.");
 		}
 	})
-
 })
 
 $('.btn-add').click(function () {
@@ -69,20 +229,28 @@ $('.btn-add').click(function () {
 	try {
 		let detail = document.getElementsByClassName("form-control").name.value;
 		let amount = document.getElementsByClassName("form-control").amount.value;
+		const categorySelect = document.getElementById('category-select');
+		const subcategorySelect = document.getElementById('subcategory-select');
 		if (detail.trim() == "" || amount.trim() == "") {
 			throw new Error("Kayıt Başarısız.\nAlanlar boş bırakılarak kayıt işlemi gerçekleştirilemez");
 		}
-		let tableOptions = document.getElementById("periodDropDown").options;
-		let historyPeriod = tableOptions[tableOptions.selectedIndex].innerText;
-		var pushData = {
+		let yearPeriod = document.getElementById("periodDropDown").options;
+		let monthPeriod = document.getElementById("subPeriodDropDown").options;
+
+		let historyPeriod = yearPeriod[yearPeriod.selectedIndex].innerText;
+		let subHistoryPeriod = monthPeriod[monthPeriod.selectedIndex].innerText;
+
+		let pushData = {
 			name: detail,
+			categoryNo: categorySelect.value,
+			subCategoryNo: subcategorySelect.value,
 			amount: amount,
 			date: new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
 		};
 		selectedData.push(pushData);
 
 		PocketRealtime.setValue({
-			path: historyPeriod,
+			path: subHistoryPeriod + "-" + historyPeriod,
 			params: selectedData,
 			done: (response) => {
 				successAddPaymentValidation(historyPeriod);
@@ -96,6 +264,84 @@ $('.btn-add').click(function () {
 		throwAddPaymentValidation(error);
 	}
 })
+
+$('#btn-openAddNewBillModal').click(function () {
+	let path = "Bill_Categories/";
+	// HTML'deki dropdown elementlerini seçin
+	const categorySelect = document.getElementById('category-select');
+	const subcategorySelect = document.getElementById('subcategory-select');
+	const name = document.getElementById('name');
+	const amount = document.getElementById('amount');
+
+	// PocketRealtime isteğini yapın
+	PocketRealtime.getRefData({
+		params: {
+			path: path
+		},
+		done: (response) => {
+			// API'den gelen veriyi bir değişkene atayın
+			const expenseCategories = response;
+
+			// Kategori dropdown'ını doldurmak için fonksiyon
+			function populateCategories() {
+				// Dropdown'ı temizle ve varsayılan seçeneği ekle
+				categorySelect.innerHTML = '<option value="" disabled selected>Kategori Seçin</option>';
+				subcategorySelect.innerHTML = '<option value="" disabled selected>Alt Kategori Seçin</option>';
+
+				// Gelen veriyi döngüye alarak seçenekleri oluştur
+				expenseCategories.forEach((cat) => {
+					const option = document.createElement('option');
+					// Değer olarak categoryNo'yu kullan
+					option.value = cat.categoryNo;
+					option.textContent = cat.category;
+					categorySelect.appendChild(option);
+				});
+			}
+
+			// Alt kategori dropdown'ını güncellemek için fonksiyon
+			function updateSubcategories(selectedCategoryNo) {
+				// Alt kategori dropdown'ını temizle ve varsayılan seçeneği ekle
+				subcategorySelect.innerHTML = '<option value="" disabled selected>Alt Kategori Seçin</option>';
+
+				// Eğer geçerli bir kategori numarası seçilmişse
+				if (selectedCategoryNo) {
+					// Seçilen categoryNo'ya sahip kategoriyi bul
+					const selectedCategory = expenseCategories.find(cat => cat.categoryNo == selectedCategoryNo);
+
+					if (selectedCategory) {
+						// Seçilen kategoriye ait alt kategorileri dropdown'a ekle
+						selectedCategory.subcategories.forEach((subcat) => {
+							const option = document.createElement('option');
+							// Değer olarak subcategoryNo'yu kullan
+							option.value = subcat.subcategoryNo;
+							option.textContent = subcat.name;
+							subcategorySelect.appendChild(option);
+						});
+					}
+				}
+			}
+
+			// Kategori seçimi değiştiğinde alt kategori dropdown'ını güncelle
+			categorySelect.addEventListener('change', (event) => {
+				// Seçilen option'ın value'su artık categoryNo'dur
+				const selectedCategoryNo = event.target.value;
+				updateSubcategories(selectedCategoryNo);
+			});
+
+			// Her açılışta harcama adı ve tutarını sıfırla
+			name.value = "";
+			amount.value = "";
+			// Veri alındığında dropdown'ı hemen doldur
+			populateCategories();
+		},
+		fail: (error) => {
+			// Hata durumunda kullanıcıya bilgi ver
+			console.error("Referans veri isteği başarısız oldu:", error);
+			alert("Gider kategorileri yüklenirken bir hata oluştu. Lütfen tekrar deneyin.");
+		}
+	});
+})
+
 
 $('.btn-add-period').click(function () {
 
@@ -145,11 +391,14 @@ $('#save').click(function () {
 			restoredData.push(rowData);
 		}
 	}
-	let tableOptions = document.getElementById("periodDropDown").options;
-	let historyPeriod = tableOptions[tableOptions.selectedIndex].innerText;
+	let yearOptions = document.getElementById("periodDropDown").options;
+	let monthOptions = document.getElementById("subPeriodDropDown").options;
+
+	let historyPeriod = yearOptions[yearOptions.selectedIndex].innerText;
+	let historySubPeriod = monthOptions[monthOptions.selectedIndex].innerText;
 
 	PocketRealtime.setValue({
-		path: historyPeriod,
+		path: historySubPeriod + "-" + historyPeriod,
 		params: restoredData,
 		done: (response) => {
 			if (response) successSaveChange(historyPeriod)
@@ -234,15 +483,71 @@ $('#faturaStatistics').click(function () {
 
 				// Özet
 				const summary = document.getElementById('expenseSummary');
-				summary.innerHTML = selectedYear
-					? (() => {
-						const total = categories.map(c => Object.values(monthlyData[selectedYear]).map(m => m[c]).reduce((a, b) => a + b, 0)).reduce((a, b) => a + b, 0);
-						return `<strong>${selectedYear}:</strong> ${total.toLocaleString('tr-TR')} ₺ toplam fatura harcaması`;
-					})()
-					: years.map(year => {
-						const sum = categories.map(c => yearSums[year][c]).reduce((a, b) => a + b, 0);
-						return `<strong>${year}:</strong> ${sum.toLocaleString('tr-TR')} ₺ toplam fatura harcaması`;
-					}).join('<br>');
+				const formatCurrency = (value) => {
+					// Türk Lirası formatında, kuruşsuz ve "₺" sembolü ile formatlar
+					return new Intl.NumberFormat('tr-TR', {
+						style: 'currency',
+						currency: 'TRY',
+						minimumFractionDigits: 0,
+						maximumFractionDigits: 0,
+					}).format(value);
+				};
+
+				const createSummaryTable = (data) => {
+					// Tablo başlığını oluştur
+					let tableHTML = `
+						<table class="summary-table">
+							<thead>
+								<tr>
+									<th>Yıl</th>
+									<th>Toplam Fatura Harcaması</th>
+								</tr>
+							</thead>
+							<tbody>
+					`;
+
+					// Tablo satırlarını oluştur
+					data.forEach(item => {
+						tableHTML += `
+							<tr>
+								<td>${item.year}</td>
+								<td>${formatCurrency(item.total)}</td>
+							</tr>
+						`;
+					});
+
+					// Tabloyu kapat
+					tableHTML += `
+							</tbody>
+						</table>
+					`;
+
+					return tableHTML;
+				};
+
+				// Yıllık veya toplam özet verisini hesaplama ve tabloyu oluşturma
+				const getSummaryData = () => {
+					if (selectedYear) {
+						// Sadece seçili yılı hesapla
+						const totalForSelectedYear = categories.reduce((total, category) => {
+							const categoryTotal = Object.values(monthlyData[selectedYear] || {}).reduce((sum, monthData) => sum + (monthData[category] || 0), 0);
+							return total + categoryTotal;
+						}, 0);
+
+						// Tek bir yıl için veri dizisi döndür
+						return [{ year: selectedYear, total: totalForSelectedYear }];
+					} else {
+						// Tüm yılların özetini hesapla ve dizi olarak döndür
+						return years.map(year => {
+							const totalForYear = categories.reduce((total, category) => total + (yearSums[year][category] || 0), 0);
+							return { year: year, total: totalForYear };
+						});
+					}
+				};
+
+				// summary elementinin innerHTML'ini güncelle
+				const summaryData = getSummaryData();
+				summary.innerHTML = createSummaryTable(summaryData);
 			}
 
 			// İlk çizim
@@ -328,12 +633,19 @@ $('.importFile').click(function () {
 
 $('.deletePeriod').click(function () {
 	try {
-		let tableOptions = document.getElementById("periodDropDown").options;
-		let historyPeriod = tableOptions[tableOptions.selectedIndex].innerText;
-		let deletedId = tableOptions[tableOptions.selectedIndex].className;
-		if (confirm(historyPeriod + " dönemi silinmek üzere. Onaylıyor musunuz?")) {
+		let yearOptions = document.getElementById("periodDropDown").options;
+		let monthOptions = document.getElementById("subPeriodDropDown").options;
+
+		let historyPeriod = yearOptions[yearOptions.selectedIndex].innerText;
+		let historySubPeriod = monthOptions[monthOptions.selectedIndex].innerText;
+
+		let historyFullPath = historySubPeriod + "-" + historyPeriod;
+
+		let deletedId = yearOptions[yearOptions.selectedIndex].className;
+
+		if (confirm(historyFullPath + " dönemi silinmek üzere. Onaylıyor musunuz?")) {
 			PocketRealtime.deleteValue({
-				path: historyPeriod,
+				path: historyFullPath,
 				done: (response) => {
 					PocketRealtime.deletePaymentDates({
 						path: deletedId,
@@ -344,7 +656,7 @@ $('.deletePeriod').click(function () {
 							throw new Error("error");
 						}
 					})
-					alert(historyPeriod + " dönemi silindi");
+					alert(historyFullPath + " dönemi silindi");
 				},
 				fail: (error) => {
 					throw new Error(error);
