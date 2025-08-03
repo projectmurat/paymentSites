@@ -25,6 +25,8 @@ let familyIncomeAmount = 0;
 let globalTotalMontlyInstallmentAmount;
 let familyOutObject;
 let isBillPopupClicked = false;
+let aktifSekme = 'Mevduat';
+const KREDI_TAHSIS_ORANI = 0.005;
 
 document.getElementById("marketDropdown").addEventListener("change", updateProductDropdown);
 
@@ -857,6 +859,333 @@ function hesapla() {
 		document.getElementById('sonucTablosu').innerHTML = tablo;
 	}
 
+}
+// YARDIMCI FONKSİYONLAR
+function formatCurrency(value) {
+	return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(value);
+}
+
+// SEKME YÖNETİMİ
+function switchTab(event, sekmeAdi) {
+	aktifSekme = sekmeAdi;
+	const modal = document.getElementById('financial-simulation-modal');
+
+	// class ile arama yaparken ana modal içinden arama yapıyoruz
+	const tabContents = modal.getElementsByClassName("tab-content");
+	for (let i = 0; i < tabContents.length; i++) {
+		tabContents[i].style.display = "none";
+		tabContents[i].classList.remove("active");
+	}
+	const tabLinks = modal.getElementsByClassName("tab-link");
+	for (let i = 0; i < tabLinks.length; i++) {
+		tabLinks[i].classList.remove("active");
+	}
+
+	if (aktifSekme === 'Kredi') {
+		guncelleKrediBilgilendirme();
+	}
+
+	// id ile arama yapıyoruz
+	document.getElementById('sim-tab-' + sekmeAdi).style.display = "block";
+	document.getElementById('sim-tab-' + sekmeAdi).classList.add("active");
+	event.currentTarget.classList.add("active");
+	document.getElementById('sim_sonucTablosu').innerHTML = "";
+}
+
+// ANA HESAPLAMA YÖNLENDİRİCİSİ
+function calistirHesaplama() {
+	if (aktifSekme === 'Mevduat') {
+		hesaplaMevduat();
+	} else {
+		hesaplaKredi();
+	}
+}
+
+// MEVDUAT HESAPLAMA
+function hesaplaMevduat() {
+	const anaPara = parseFloat(document.getElementById('sim_mevduat_anaPara').value) || 0;
+	const birikim = parseFloat(document.getElementById('sim_mevduat_birikim').value) || 0;
+	const faizOrani = parseFloat(document.getElementById('sim_mevduat_faizOrani').value);
+	const toplamAy = parseInt(document.getElementById('sim_mevduat_toplamAy').value);
+
+	if (isNaN(faizOrani) || isNaN(toplamAy) || anaPara <= 0) {
+		alert("Lütfen tüm zorunlu alanları doğru bir şekilde doldurun.");
+		return;
+	}
+
+	const yillikFaiz = faizOrani / 100;
+	const stopajOrani = 0.15;
+	let tablo = `
+	<thead>
+	<tr>
+		<th style="min-width: 80px;">Ay</th>
+		<th style="min-width: 120px;">Ana Para</th>
+		<th style="min-width: 100px;">Net Faiz</th>
+		<th style="min-width: 100px;">Brüt Faiz</th>
+		<th style="min-width: 120px;">Aylık Birikim</th>
+		<th style="min-width: 80px;">Stopaj</th>
+		<th style="min-width: 140px;">Toplam Bakiye</th>
+	</tr>
+	</thead>
+	<tbody>
+	`;
+
+	let mevcutAnaPara = anaPara;
+
+	for (let i = 1; i <= toplamAy; i++) {
+		const anaParaOnceki = mevcutAnaPara;
+
+		mevcutAnaPara += birikim;
+		const brutFaizTutari = (mevcutAnaPara * yillikFaiz) / 12;
+		const stopajTutari = brutFaizTutari * stopajOrani;
+		const netFaiz = brutFaizTutari - stopajTutari;
+		mevcutAnaPara += netFaiz;
+
+		tablo += `
+		<tr>
+			<td>${i}. Ay</td>
+			<td>${formatCurrency(anaParaOnceki)}</td>
+			<td class="positive">${formatCurrency(netFaiz)}</td>
+			<td>${formatCurrency(brutFaizTutari)}</td>
+			<td>${formatCurrency(birikim)}</td>
+			<td class="negative">${formatCurrency(stopajTutari)}</td>
+			<td><strong>${formatCurrency(mevcutAnaPara)}</strong></td>
+		</tr>
+		`;
+	}
+
+
+	tablo += '</tbody>';
+	document.getElementById('sim_sonucTablosu').innerHTML = tablo;
+
+	kaydetSimulasyon({ type: 'Mevduat', inputs: { anaPara, birikim, faizOrani, toplamAy } });
+}
+
+// KREDİ HESAPLAMA
+/**
+ * Bu fonksiyon, kullanıcıdan alınan kredi bilgileriyle
+ * tüm vergi ve kesintileri dahil ederek detaylı bir ödeme planı oluşturur.
+ */
+/**
+ * Kullanıcıdan alınan kredi bilgileriyle, tüm güncel vergi ve kesintileri
+ * dahil ederek detaylı ve hatasız bir geri ödeme planı oluşturan ana fonksiyon.
+ * Son aylardaki birikim hatasını düzelten mantığı içerir.
+ */
+/**
+ * Kullanıcıdan alınan kredi bilgileriyle, seçilen kredi türüne göre
+ * doğru vergi ve formülleri kullanarak detaylı bir geri ödeme planı oluşturur.
+ */
+function hesaplaKredi() {
+	// --- SABİT ORANLAR ---
+	const TAHSIS_UCRETI_ORANI = 0.005;      // Binde 5 (%0.5)
+	const TAHSIS_UCRETI_BSMV_ORANI = 0.15; // Tahsis ücreti üzerinden alınan %15 BSMV
+
+	// 1. KULLANICI GİRDİLERİNİ VE KREDİ TÜRÜNÜ ALMA
+	const krediTipi = document.getElementById('sim_kredi_tipi').value;
+	const krediTutari = parseFloat(document.getElementById('sim_kredi_tutar').value);
+	const vade = parseInt(document.getElementById('sim_kredi_vade').value);
+	const aylikFaizOrani = parseFloat(document.getElementById('sim_kredi_faizOrani').value);
+
+	// Girdi kontrolü
+	if (isNaN(krediTutari) || isNaN(vade) || isNaN(aylikFaizOrani) || krediTutari <= 0 || vade <= 0 || aylikFaizOrani <= 0) {
+		alert("Lütfen tüm zorunlu alanları doğru ve pozitif değerlerle doldurun.");
+		return;
+	}
+
+	// 2. KREDİ TÜRÜNE GÖRE VERGİ ORANINI AYARLAMA
+	let TOPLAM_FAIZ_VERGI_ORANI = 0;
+	if (krediTipi === 'ihtiyac' || krediTipi === 'tasit') {
+		// İhtiyaç ve Taşıt kredisinde %15 BSMV + %15 KKDF uygulanır.
+		TOPLAM_FAIZ_VERGI_ORANI = 0.30;
+	}
+	// Not: "konut" seçiliyse, oran 0 olarak kalır ve vergi uygulanmaz.
+
+	// 3. TEMEL HESAPLAMALAR
+	const aylikFaiz = aylikFaizOrani / 100;
+
+	// Peşin kesintiler (tüm kredi türleri için genellikle aynı)
+	const tahsisUcreti = krediTutari * TAHSIS_UCRETI_ORANI;
+	const tahsisUcretiBsmsi = tahsisUcreti * TAHSIS_UCRETI_BSMV_ORANI;
+	const toplamPesinKesinti = tahsisUcreti + tahsisUcretiBsmsi;
+	const eleGecenTutar = krediTutari - toplamPesinKesinti;
+
+	// Kredi türüne göre doğru formülle taksit hesaplama
+	let taksit = 0;
+	if (TOPLAM_FAIZ_VERGI_ORANI > 0) {
+		// İhtiyaç/Taşıt Kredisi için VERGİ DAHİL taksit formülü
+		taksit = krediTutari * (aylikFaiz * (1 + TOPLAM_FAIZ_VERGI_ORANI) + (aylikFaiz / (Math.pow(1 + aylikFaiz, vade) - 1)));
+	} else {
+		// Konut Kredisi için VERGİSİZ, saf anüite formülü
+		if (Math.pow(1 + aylikFaiz, vade) - 1 === 0) { // Sıfıra bölünmeyi önle
+			taksit = krediTutari / vade;
+		} else {
+			taksit = krediTutari * (aylikFaiz * Math.pow(1 + aylikFaiz, vade)) / (Math.pow(1 + aylikFaiz, vade) - 1);
+		}
+	}
+
+	const toplamGeriOdeme = taksit * vade;
+
+	// 4. SONUÇ TABLOSUNU OLUŞTURMA
+	let tablo = `<thead>
+                    <tr><th colspan="6">Kredi Geri Ödeme Planı (${krediTipi.charAt(0).toUpperCase() + krediTipi.slice(1)})</th></tr>
+                    <tr>
+                        <td>Çekilen Tutar</td><td>${formatCurrency(krediTutari)}</td>
+                        <td>Yaklaşık Aylık Taksit</td><td colspan="3"><strong>${formatCurrency(taksit)}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Tahsis Ücreti ve Vergisi</td><td class="negative">${formatCurrency(toplamPesinKesinti)}</td>
+                        <td>Tahmini Toplam Geri Ödeme</td><td colspan="3"><strong>${formatCurrency(toplamGeriOdeme)}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Ele Geçecek Net Tutar</td><td><strong>${formatCurrency(eleGecenTutar)}</strong></td>
+                        <td colspan="4"></td>
+                    </tr>
+                    <tr style="background-color:#f8f9fa;">
+                        <th>Ay</th><th>Aylık Ödeme</th><th>Anapara</th><th>Faiz</th>
+                        <th>Vergiler ${TOPLAM_FAIZ_VERGI_ORANI > 0 ? '(BSMV+KKDF)' : '(Muaf)'}</th>
+                        <th>Kalan Anapara</th>
+                    </tr>
+                </thead><tbody>`;
+
+	let kalanAnaPara = krediTutari;
+	for (let i = 1; i <= vade; i++) {
+		const faizOdemsi = kalanAnaPara * aylikFaiz;
+		const faizVergileri = faizOdemsi * TOPLAM_FAIZ_VERGI_ORANI;
+		const aylikToplamBorc = kalanAnaPara + faizOdemsi + faizVergileri;
+		let guncelTaksit = taksit;
+		let anaParaOdemesi = 0;
+
+		if (guncelTaksit >= aylikToplamBorc) {
+			guncelTaksit = aylikToplamBorc;
+			anaParaOdemesi = kalanAnaPara;
+		} else {
+			anaParaOdemesi = guncelTaksit - faizOdemsi - faizVergileri;
+		}
+		kalanAnaPara -= anaParaOdemesi;
+
+		tablo += `<tr>
+                    <td>${i}. Ay</td><td>${formatCurrency(guncelTaksit)}</td><td>${formatCurrency(anaParaOdemesi)}</td>
+                    <td>${formatCurrency(faizOdemsi)}</td><td>${formatCurrency(faizVergileri)}</td>
+                    <td><strong>${formatCurrency(Math.abs(kalanAnaPara))}</strong></td>
+                </tr>`;
+
+		if (kalanAnaPara <= 0.01) { // Kuruş farkları için tolerans
+			break;
+		}
+	}
+	tablo += '</tbody>';
+	document.getElementById('sim_sonucTablosu').innerHTML = tablo;
+
+	// Opsiyonel: Simülasyonu kaydetme fonksiyonu çağrısı
+	// kaydetSimulasyon({ type: 'Kredi', inputs: { krediTipi, krediTutari, vade, aylikFaizOrani } });
+}
+
+/**
+ * Seçilen kredi türüne göre hesaplama parametrelerini gösteren bilgilendirme kutusunu günceller.
+ */
+function guncelleKrediBilgilendirme() {
+	const krediTipi = document.getElementById('sim_kredi_tipi').value;
+	const bilgilendirmeAlani = document.getElementById('kredi-bilgilendirme-alani');
+	let content = '';
+
+	const titleStyle = 'font-weight: 600; margin-bottom: 0.75rem; color: #1f2937;';
+	const listStyle = 'font-size: 0.9rem; color: #4b5563;';
+	const listItemStyle = 'list-style-position: inside; margin-bottom: 0.5rem;';
+	const noteStyle = 'list-style-type: none; margin-top: 0.75rem; font-size: 0.8rem; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 0.5rem;';
+
+	if (krediTipi === 'ihtiyac' || krediTipi === 'tasit') {
+		const tipAdi = krediTipi === 'ihtiyac' ? 'İhtiyaç' : 'Taşıt';
+		content = `
+            <h4 style="${titleStyle}">${tipAdi} Kredisi Maliyet Bileşenleri</h4>
+            <ul style="${listStyle}">
+                <li style="${listItemStyle}"><strong>Kredi Tahsis Ücreti:</strong> Kullandırılan kredi anaparasının <strong>%0.5</strong>'i oranında tahsil edilir ve bu tutar üzerinden ayrıca <strong>%15 BSMV</strong> alınır.</li>
+                <li style="${listItemStyle}"><strong>Yasal Vergiler (Aylık Faize Ek):</strong>
+                    <ul style="padding-left: 1.5rem; margin-top: 0.25rem;">
+                        <li><strong>BSMV:</strong> Aylık taksit faizi üzerinden <strong>%15</strong> oranında uygulanır.</li>
+                        <li><strong>KKDF:</strong> Aylık taksit faizi üzerinden <strong>%15</strong> oranında uygulanır.</li>
+                    </ul>
+                </li>
+            </ul>
+        `;
+	} else if (krediTipi === 'konut') {
+		content = `
+            <h4 style="${titleStyle}">Konut Kredisi Maliyet Bileşenleri</h4>
+            <ul style="${listStyle}">
+                <li style="${listItemStyle}"><strong>Kredi Tahsis Ücreti:</strong> Kullandırılan kredi anaparasının <strong>%0.5</strong>'i oranında tahsil edilir ve bu tutar üzerinden ayrıca <strong>%15 BSMV</strong> alınır.</li>
+                <li style="${listItemStyle}"><strong>Vergi Muafiyeti:</strong> Konut kredisi faizleri, yasal düzenlemeler gereği Banka ve Sigorta Muameleleri Vergisi (BSMV) ile Kaynak Kullanımını Destekleme Fonu (KKDF) kesintilerinden <strong>muaftır</strong>.</li>
+                <li style="${noteStyle}"><em><strong>Not:</strong> Bu simülasyon, konut değerlemesi için zorunlu olan ekspertiz ücreti ile tapuda gerçekleştirilen ipotek tesis ücreti gibi ek masrafları kapsamamaktadır.</em></li>
+            </ul>
+        `;
+	}
+	bilgilendirmeAlani.innerHTML = content;
+}
+
+/**
+ * Para birimini formatlamak için yardımcı fonksiyon (varsayımsal).
+ * Projenizde zaten varsa bunu kullanmanıza gerek yoktur.
+ */
+function formatCurrency(number) {
+	return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(number);
+}
+
+// TARİHÇE YÖNETİMİ
+function kaydetSimulasyon(data) {
+	const newSimulationRegister = { ...data, tarih: new Date().toISOString() };
+	Object.assign(newSimulationRegister, newSimulationRegister.inputs);
+	delete newSimulationRegister.inputs;
+	PocketRealtime.pushDepositAndInterestHistory({
+		params: newSimulationRegister,
+		done: (response) => {
+			console.log("Simülasyon Kaydedildi.");
+			console.log(newSimulationRegister);
+		},
+		fail: (error) => {
+			console.error("Simülasyon kaydetme işleminde hata");
+			throw new Error(error);
+		}
+	})
+}
+
+function gosterTarihce() {
+	PocketRealtime.getDepositAndInterestHistory({
+		done: (response) => {
+			const tarihce = response ? Object.entries(response).map(([key, value]) => ({
+				id: key,
+				...value
+			}))
+				: [];
+			const historyList = document.getElementById('sim_historyList');
+			historyList.innerHTML = '';
+
+			if (tarihce.length === 0) {
+				historyList.innerHTML = '<p style="padding: 20px; text-align: center;">Henüz kaydedilmiş bir simülasyon bulunmuyor.</p>';
+			} else {
+				tarihce.forEach(kayit => {
+					const itemDiv = document.createElement('div');
+					itemDiv.className = 'history-item';
+					const tarih = new Date(kayit.tarih);
+					const formatliTarih = new Intl.DateTimeFormat('tr-TR', { dateStyle: 'long', timeStyle: 'short' }).format(tarih);
+					let detailsHTML = '';
+					if (kayit.type === 'Mevduat') {
+						detailsHTML = `<p><strong>Ana Para:</strong> ${formatCurrency(kayit.anaPara)}</p><p><strong>Aylık Birikim:</strong> ${formatCurrency(kayit.birikim)}</p><p><strong>Yıllık Faiz:</strong> %${kayit.faizOrani}</p><p><strong>Süre:</strong> ${kayit.toplamAy} Ay</p>`;
+					} else {
+						detailsHTML = `<p><strong>Kredi Tutarı:</strong> ${formatCurrency(kayit.krediTutari)}</p><p><strong>Vade:</strong> ${kayit.vade} Ay</p><p><strong>Aylık Faiz:</strong> %${kayit.aylikFaizOrani}</p>`;
+					}
+					itemDiv.innerHTML = `<div class="history-header"><span class="history-title">${kayit.type} Simülasyonu</span><span class="history-date">${formatliTarih}</span></div><div class="history-details">${detailsHTML}</div>`;
+					historyList.appendChild(itemDiv);
+				});
+			}
+			document.getElementById('financial-history-modal').style.display = 'block';
+		},
+		fail: (error) => {
+			console.error("Finansal Simülasyon get işleminde hata");
+			throw new Error(error);
+		}
+	})
+}
+
+function closeHistoryModal() {
+	document.getElementById('financial-history-modal').style.display = 'none';
 }
 
 function addProduct() {

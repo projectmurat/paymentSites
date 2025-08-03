@@ -767,6 +767,52 @@ let PocketRealtime = (
             }
         }
 
+        function getDepositAndInterestHistory(args) {
+            waitMe(true);
+            let fail = args.fail;
+            let done = args.done;
+
+            try {
+                firebase.database().ref("/depositAndInterest")
+                    .on("value", (snapshot) => {
+                        waitMe(false);
+                        done(snapshot.val());
+                    }, (error) => {
+                        waitMe(false);
+                        console.error("Fİnansal Simülasyon tarihçesi dinleyicisinde hata:", error);
+                        fail(error);
+                    });
+            } catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
+        function pushDepositAndInterestHistory(args) {
+            waitMe(true);
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                let historyData = args.params;
+
+                historyData.createdAt = new Date().toISOString();
+
+                firebase.database().ref("depositAndInterest/").push().set(historyData, error => {
+                    waitMe(false);
+                    if (error) {
+                        fail(error);
+                    } else {
+                        done(true);
+                    }
+                });
+            } catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
+
+
         return {
             getValue: getValue,
             setValue: setValue,
@@ -800,7 +846,9 @@ let PocketRealtime = (
             addNotification: addNotification,
             updateNotification: updateNotification,
             deleteNotification: deleteNotification,
-            getRealEstatesAndVehicles: getRealEstatesAndVehicles
+            getRealEstatesAndVehicles: getRealEstatesAndVehicles,
+            getDepositAndInterestHistory:getDepositAndInterestHistory,
+            pushDepositAndInterestHistory:pushDepositAndInterestHistory
         }
     }
 )();

@@ -1,5 +1,5 @@
 const dropdown = document.getElementById('userActivityDropdown');
-const isDeveloperMode = false;
+const isDeveloperMode = true;
 window.addEventListener('DOMContentLoaded', event => {
 
 	/*
@@ -1211,6 +1211,12 @@ $('.familyRoutinMoneyOutSaveButton').click(function () {
 
 $('#mevduatHesaplaButon').click(function () {
 	hesapla();
+})
+$('#sim_hesaplaButton').click(function () {
+	calistirHesaplama();
+})
+$('#sim_tarihceButton').click(function () {
+	gosterTarihce();
 })
 
 $('.btn-openFundsStatistics').click(function () {

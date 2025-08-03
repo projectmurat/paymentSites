@@ -2762,70 +2762,296 @@ body {
 }
 
 .creditCardInstallmentModal .table-scroll-container {
-  overflow-x: auto; /* Yatay scroll'u bu element yönetecek! */
-  width: 100%;
-  -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    /* Yatay scroll'u bu element yönetecek! */
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* KURAL 2: TD'ler için dikey hizalama (Bu kodunuz zaten doğruydu) */
 .creditCardInstallmentModal .table td {
-  vertical-align: middle;
-  padding: 4px 8px;
+    vertical-align: middle;
+    padding: 4px 8px;
 }
 
 .creditCardInstallmentModal .table th {
-  /* Tüm başlıkların minimum genişliği 140px olacak.
+    /* Tüm başlıkların minimum genişliği 140px olacak.
      Bu değeri ihtiyacınıza göre artırıp azaltabilirsiniz. */
-  min-width: 140px;
-  padding: 4px 8px;
+    min-width: 140px;
+    padding: 4px 8px;
 
 
-  /* Hücrelerle tutarlı olması için dikey hizalamayı da ekleyelim. */
-  vertical-align: middle;
+    /* Hücrelerle tutarlı olması için dikey hizalamayı da ekleyelim. */
+    vertical-align: middle;
 }
 
 .creditCardInstallmentHistoryModal .table-scroll-container {
-  overflow-x: auto; /* Yatay scroll'u bu element yönetecek! */
-  width: 100%;
-  -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    /* Yatay scroll'u bu element yönetecek! */
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* KURAL 2: TD'ler için dikey hizalama (Bu kodunuz zaten doğruydu) */
 .creditCardInstallmentHistoryModal .table td {
-  vertical-align: middle;
-  padding: 4px 8px;
+    vertical-align: middle;
+    padding: 4px 8px;
 }
 
 .creditCardInstallmentHistoryModal .table th {
-  /* Tüm başlıkların minimum genişliği 140px olacak.
+    /* Tüm başlıkların minimum genişliği 140px olacak.
      Bu değeri ihtiyacınıza göre artırıp azaltabilirsiniz. */
-  min-width: 140px;
-  padding: 4px 8px;
+    min-width: 140px;
+    padding: 4px 8px;
 
 
-  /* Hücrelerle tutarlı olması için dikey hizalamayı da ekleyelim. */
-  vertical-align: middle;
+    /* Hücrelerle tutarlı olması için dikey hizalamayı da ekleyelim. */
+    vertical-align: middle;
 }
 
 .creditCardInstallmentModal .table th:nth-child(1) {
-  width: 30px; /* Sadece ilk sütun için genişliği 60px yap */
-  min-width: 30px; /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
-  text-align: center; /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
+    width: 30px;
+    /* Sadece ilk sütun için genişliği 60px yap */
+    min-width: 30px;
+    /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
+    text-align: center;
+    /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
 }
+
 .creditCardInstallmentModal .table th:nth-child(4) {
-  width: 60px; /* Sadece ilk sütun için genişliği 60px yap */
-  min-width: 60px; /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
-  text-align: center; /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
+    width: 60px;
+    /* Sadece ilk sütun için genişliği 60px yap */
+    min-width: 60px;
+    /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
+    text-align: center;
+    /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
 }
 
 .creditCardInstallmentModal .table th:nth-child(6) {
-  width: 110px; /* Sadece ilk sütun için genişliği 60px yap */
-  min-width: 110px; /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
-  text-align: center; /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
+    width: 110px;
+    /* Sadece ilk sütun için genişliği 60px yap */
+    min-width: 110px;
+    /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
+    text-align: center;
+    /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
 }
+
 .creditCardInstallmentModal .table th:nth-child(7) {
-  width: 110px; /* Sadece ilk sütun için genişliği 60px yap */
-  min-width: 110px; /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
-  text-align: center; /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
+    width: 110px;
+    /* Sadece ilk sütun için genişliği 60px yap */
+    min-width: 110px;
+    /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
+    text-align: center;
+    /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
 }
+
+
+
+/* Stillerin sadece bu ID'ye sahip modal içinde çalışmasını sağlıyoruz */
+#financial-simulation-modal .modal-content,
+#financial-history-modal .modal-content {
+    background-color: #f8f9fa;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+#financial-simulation-modal .modal-header,
+#financial-history-modal .modal-header {
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+    position: relative;
+}
+
+#financial-simulation-modal .close-btn,
+#financial-history-modal .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.8rem;
+    font-weight: 300;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0.5rem 1rem;
+}
+
+/* Sekme Stilleri */
+#financial-simulation-modal .simulation-tabs {
+    width: 100%;
+    display: flex;
+    border-bottom: 2px solid #dee2e6;
+}
+
+#financial-simulation-modal .tab-link {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    font-size: 16px;
+    font-weight: 500;
+    color: #6c757d;
+    transition: all 0.2s ease-in-out;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+}
+
+#financial-simulation-modal .tab-link.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+/* Form Elemanları */
+#financial-simulation-modal .tab-content {
+    display: none;
+}
+
+#financial-simulation-modal .tab-content.active {
+    display: block;
+}
+
+#financial-simulation-modal .input-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 20px;
+}
+
+#financial-simulation-modal .input-container input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+#financial-simulation-modal .input-container input:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+}
+
+/* Buton ve Sonuç Alanı */
+#financial-simulation-modal .action-bar {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 0 20px 20px 20px;
+}
+
+#financial-simulation-modal .btn-calculate,
+#financial-simulation-modal .btn-history {
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#financial-simulation-modal .btn-calculate {
+    background-color: #28a745;
+    color: white;
+    border: none;
+}
+
+#financial-simulation-modal .btn-calculate:hover {
+    background-color: #218838;
+}
+
+#financial-simulation-modal .btn-history {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+}
+
+#financial-simulation-modal .btn-history:hover {
+    background-color: #5a6268;
+}
+
+#financial-simulation-modal .result-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#financial-simulation-modal .result-table th,
+#financial-simulation-modal .result-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+#financial-simulation-modal .result-table thead th {
+    background-color: #e9ecef;
+    font-weight: 600;
+    color: #495057;
+}
+
+#financial-simulation-modal .result-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+#financial-simulation-modal .result-table .negative {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+#financial-simulation-modal .result-table .positive {
+    color: #28a745;
+    font-weight: 500;
+}
+
+/* Tarihçe Modalı Stilleri */
+#financial-history-modal .modal-body {
+    padding: 0;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+#financial-history-modal .history-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+#financial-history-modal .history-item:last-child {
+    border-bottom: none;
+}
+
+#financial-history-modal .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#financial-history-modal .history-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #007bff;
+}
+
+#financial-history-modal .history-date {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+#financial-history-modal .history-details p {
+    margin: 4px 0;
+    font-size: 0.9rem;
+}
+
+#financial-history-modal .history-details p strong {
+    color: #343a40;
+}
+
+
+
+
+
+
+
+
+
 

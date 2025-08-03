@@ -123,7 +123,8 @@
 					</div>
 				</a>
 
-				<a href="#" class="menu-card" data-toggle="modal" data-target="#simulationModal" id="simulation">
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#financial-simulation-modal"
+					id="simulation">
 					<div class="card-icon">
 						<i class="fas fa-chart-pie"></i>
 					</div>
@@ -516,7 +517,6 @@
 				</div>
 			</div>
 		</div>
-
 
 		<!-- Gayrimenkul ve Taşıt Modalı -->
 		<div class="modal physicalAssetsModal" id="physicalAssetsModal" tabindex="-1" role="dialog"
@@ -933,35 +933,78 @@
 			</div>
 		</div>
 
-		<!-- Mevduat Simülasyon Modalı -->
-		<div class="modal simulation" id="simulationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog modal-dialog-centered" role="document">
+		<!-- Finansal Simülasyon Modalı -->
+		<div class="modal simulation" id="financial-simulation-modal" tabindex="-1" role="dialog"
+			aria-labelledby="simulationModalLabel">
+			<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title modal-title-centered" id="myModalLabel">Mevduat Simülasyonu
-						</h4>
-						<p id="popup-info-period-msg"></p>
+						<div class="simulation-tabs">
+							<button class="tab-link active" onclick="switchTab(event, 'Mevduat')">Mevduat
+								Simülasyonu</button>
+							<button class="tab-link" onclick="switchTab(event, 'Kredi')">Kredi
+								Simülasyonu</button>
+						</div>
+						<button type="button" class="close-btn" data-dismiss="modal"
+							aria-label="Close">&times;</button>
 					</div>
 
-					<div class="modal-body ">
-						<div id="inputContainer">
-							<form onsubmit="return false" style="display: contents;">
-								<input type="number" id="anaPara" placeholder="Ana Para (₺)" required>
-								<input type="number" id="birikim" placeholder="Birikim (₺)">
-								<input type="number" id="faizOrani" placeholder="Yıllık Faiz Oranı (%)"
-									required>
-								<input type="number" id="toplamAy" placeholder="Toplam Hesaplanması İstenen Ay"
-									required>
-								<button id="mevduatHesaplaButon">Hesapla</button>
-							</form>
+					<div class="modal-body">
+						<div id="sim-tab-Mevduat" class="tab-content active">
+							<div class="input-container">
+								<input type="number" id="sim_mevduat_anaPara" placeholder="Ana Para (₺)" />
+								<input type="number" id="sim_mevduat_birikim"
+									placeholder="Aylık Eklenecek Tutar (₺)" />
+								<input type="number" id="sim_mevduat_faizOrani"
+									placeholder="Yıllık Faiz Oranı (%)" />
+								<input type="number" id="sim_mevduat_toplamAy" placeholder="Toplam Ay" />
+							</div>
+						</div>
+
+						<div id="sim-tab-Kredi" class="tab-content">
+							<div class="input-container">
+								<select id="sim_kredi_tipi" class="form-control"
+									onchange="guncelleKrediBilgilendirme()">
+									<option value="ihtiyac">İhtiyaç Kredisi</option>
+									<option value="konut">Konut Kredisi</option>
+									<option value="tasit">Taşıt Kredisi</option>
+								</select>
+								<input type="number" id="sim_kredi_tutar" placeholder="Kredi Tutarı (₺)" />
+								<input type="number" id="sim_kredi_vade" placeholder="Vade (Ay)" />
+								<input type="number" id="sim_kredi_faizOrani"
+									placeholder="Aylık Faiz Oranı (%)" />
+							</div>
+
+							<!-- YENİ EKLENEN BİLGİLENDİRME ALANI -->
+							<div id="kredi-bilgilendirme-alani" class="info-container"
+								style="margin-top: 1.5rem; padding: 1rem; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e5e7eb;">
+								<!-- Bilgilendirme metinleri JavaScript tarafından buraya eklenecek -->
+							</div>
 
 						</div>
 
-						<table id="sonucTablosu" class="table-sticky table-scrollable"></table>
+						<div class="action-bar">
+							<button id="sim_hesaplaButton" class="btn-calculate">Hesapla</button>
+							<button id="sim_tarihceButton" class="btn-history">Simülasyon Tarihçesi</button>
+						</div>
+
+						<div class="result-container">
+							<table id="sim_sonucTablosu" class="result-table"></table>
+						</div>
 					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal history-modal" id="financial-history-modal" tabindex="-1" role="dialog"
+			aria-labelledby="historyModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Simülasyon Tarihçesi</h4>
+						<button type="button" class="close-btn" onclick="closeHistoryModal()">&times;</button>
 					</div>
+					<div class="modal-body" id="sim_historyList"></div>
 				</div>
 			</div>
 		</div>
