@@ -299,16 +299,56 @@ tbody tr:hover {
 /* Mobil uyum */
 @media screen and (max-width: 600px) {
     .amount-box {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        /* Mevcut durum: align-items: flex-start; */
+        /* gap: 10px; */
+
+        /* YENİ EKLENECEKLER / DEĞİŞİKLİKLER */
+        display: flex;
+        /* Flexbox kullanmaya başla */
+        justify-content: space-between;
+        /* Başlığı sola, miktarı sağa yasla */
+        align-items: center;
+        /* Dikeyde ortala */
+        padding: 15px 10px;
+        /* İç boşluğu ayarla, yanlarda biraz boşluk kalsın */
+        box-sizing: border-box;
+        /* Padding'in genişliğe dahil olmasını sağla */
+        width: 100%;
+        /* Kutunun tam genişlikte olmasını sağla */
+    }
+
+    .amount-box h3 {
+        /* "Toplam Kalan Tutar:" gibi başlıklar */
+        font-size: 1rem;
+        /* Başlık font boyutunu küçült */
+        margin: 0;
+        /* Varsayılan marginleri sıfırla */
+        white-space: nowrap;
+        /* Başlığın tek satırda kalmasını sağla */
+        flex-shrink: 0;
+        /* Başlığın küçülmesini engelle */
     }
 
     .amount-box .amount {
+        /* "25.768,00 ₺" gibi miktar alanları */
         font-size: 1.2rem;
+        /* Miktar font boyutunu küçült */
+        margin: 0;
+        /* Varsayılan marginleri sıfırla */
+        text-align: right;
+        /* Miktarı sağa yasla */
+        flex-grow: 1;
+        /* Eğer boşluk kalırsa miktarın olduğu alanın genişlemesini sağla */
+        margin-left: 10px;
+        /* Başlıkla arasında boşluk bırak */
+    }
+
+    /* Eğer para birimi sembolü (₺) ayrı bir span içindeyse */
+    .amount-box .amount .currency-symbol {
+        font-size: 1rem;
+        /* Para birimi sembolünü miktardan biraz küçük yapabilirsiniz */
     }
 }
-
 
 
 .amount {
@@ -2538,7 +2578,8 @@ body {
     background-color: #1a1c23;
     /* Koyu ana arka plan */
     color: #f0f0f0;
-    padding: 16px; /* Mobil için daha uygun bir padding */
+    padding: 16px;
+    /* Mobil için daha uygun bir padding */
 }
 
 
@@ -2550,10 +2591,12 @@ body {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     border: 1px solid #3a3d4a;
 }
+
 .summary-box h5 {
     color: #a0a4b8;
     font-weight: 500;
 }
+
 .summary-box h3 {
     color: #23e8af;
     font-weight: 700;
@@ -2570,10 +2613,12 @@ body {
     align-items: center;
     gap: 12px;
 }
+
 .info-icon-assets {
     font-size: 22px;
     color: #367fbf;
 }
+
 .info-text-assets {
     color: #c0c5d9;
     font-size: 0.7rem;
@@ -2599,6 +2644,7 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .asset-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(35, 232, 175, 0.2);
@@ -2619,12 +2665,14 @@ body {
     text-align: center;
     margin-bottom: 16px;
 }
+
 .card-value-label {
     font-size: 0.8rem;
     color: #a0a4b8;
     display: block;
     margin-bottom: 4px;
 }
+
 .card-value {
     font-size: 2rem;
     font-weight: 700;
@@ -2642,6 +2690,7 @@ body {
     margin-bottom: 16px;
     flex-grow: 1;
 }
+
 .card-details strong {
     color: #f0f0f0;
     font-weight: 600;
@@ -2657,30 +2706,101 @@ body {
     flex-direction: column;
     gap: 8px;
 }
+
 .status-badge {
     padding: 4px 10px;
     border-radius: 12px;
     font-weight: 500;
 }
-.status-badge strong { font-weight: 700; }
-.status-badge.safe { background-color: rgba(35, 232, 175, 0.15); color: #23e8af; }
-.status-badge.warning { background-color: rgba(255, 193, 7, 0.15); color: #ffc107; }
-.status-badge.danger { background-color: rgba(255, 71, 87, 0.15); color: #ff4757; }
-.status-badge-none { color: #777; font-style: italic; }
+
+.status-badge strong {
+    font-weight: 700;
+}
+
+.status-badge.safe {
+    background-color: rgba(35, 232, 175, 0.15);
+    color: #23e8af;
+}
+
+.status-badge.warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+}
+
+.status-badge.danger {
+    background-color: rgba(255, 71, 87, 0.15);
+    color: #ff4757;
+}
+
+.status-badge-none {
+    color: #777;
+    font-style: italic;
+}
 
 
 /* YENİ EKLENDİ: Mobil Cihazlar İçin Özel Stiller */
 @media (max-width: 480px) {
     #physicalAssetsList {
-        gap: 16px; /* Kartlar arası boşluğu azalt */
+        gap: 16px;
+        /* Kartlar arası boşluğu azalt */
     }
+
     .asset-card {
-        padding: 16px; /* Kart içi boşluğu azalt */
+        padding: 16px;
+        /* Kart içi boşluğu azalt */
     }
+
     .card-value {
-        font-size: 1.8rem; /* Değer yazısını biraz küçült */
+        font-size: 1.8rem;
+        /* Değer yazısını biraz küçült */
     }
+
     .info-text-assets {
-        font-size: 0.85rem; /* Bilgi metnini küçült */
+        font-size: 0.85rem;
+        /* Bilgi metnini küçült */
     }
+}
+
+.creditCardInstallmentModal .table-scroll-container {
+  overflow-x: auto; /* Yatay scroll'u bu element yönetecek! */
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* KURAL 2: TD'ler için dikey hizalama (Bu kodunuz zaten doğruydu) */
+.creditCardInstallmentModal .table td {
+  vertical-align: middle;
+  padding: 4px 8px;
+}
+
+.creditCardInstallmentModal .table th {
+  /* Tüm başlıkların minimum genişliği 140px olacak.
+     Bu değeri ihtiyacınıza göre artırıp azaltabilirsiniz. */
+  min-width: 140px;
+  padding: 4px 8px;
+
+
+  /* Hücrelerle tutarlı olması için dikey hizalamayı da ekleyelim. */
+  vertical-align: middle;
+}
+.creditCardInstallmentModal .table th:nth-child(1) {
+  width: 30px; /* Sadece ilk sütun için genişliği 60px yap */
+  min-width: 30px; /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
+  text-align: center; /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
+}
+.creditCardInstallmentModal .table th:nth-child(4) {
+  width: 60px; /* Sadece ilk sütun için genişliği 60px yap */
+  min-width: 60px; /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
+  text-align: center; /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
+}
+
+.creditCardInstallmentModal .table th:nth-child(6) {
+  width: 110px; /* Sadece ilk sütun için genişliği 60px yap */
+  min-width: 110px; /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
+  text-align: center; /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
+}
+.creditCardInstallmentModal .table th:nth-child(7) {
+  width: 110px; /* Sadece ilk sütun için genişliği 60px yap */
+  min-width: 110px; /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
+  text-align: center; /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
 }

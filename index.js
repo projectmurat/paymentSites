@@ -1,5 +1,5 @@
 const dropdown = document.getElementById('userActivityDropdown');
-
+const isDeveloperMode = false;
 window.addEventListener('DOMContentLoaded', event => {
 
 	/*
@@ -785,6 +785,30 @@ $('#installments').click(function () {
 	})
 })
 
+// Modal'ı açan butona tıklandığında çalışacak fonksiyon
+$('.openNewAddInstallments').click(function () {
+
+
+	const bankSelect = $('#bankName');
+
+	// Modal her açıldığında listeyi temizleyip yeniden doldurarak
+	// mükerrer kayıtları engelliyoruz.
+	bankSelect.empty();
+
+	// Kullanıcıya yol göstermek için varsayılan bir seçenek ekleyelim
+	bankSelect.append('<option value="" selected disabled>Lütfen bir banka seçiniz...</option>');
+
+	// Banka listesini döngüye alıp <select> elementine <option> olarak ekleyelim
+	$.each(bankData, function (index, bank) {
+		// option'ın "value" attribute'una bankanın key'ini,
+		// görünen metne ise bankanın value'sunu (ismini) atıyoruz.
+		bankSelect.append($('<option>', {
+			value: bank.key,
+			text: bank.value
+		}));
+	});
+});
+
 $('.btn-addFundType').click(function () {
 	let dropdown = document.getElementById("dropdownFunds");
 	dropdown.innerHTML = ''; // önceki değerleri temizle
@@ -1234,3 +1258,49 @@ $('.btn-openFundsStatistics').click(function () {
 		}
 	});
 });
+
+const bankData = [
+
+	{ "key": "001", "value": "T.C. Ziraat Bankası" },
+	{ "key": "002", "value": "Türkiye Halk Bankası" },
+	{ "key": "003", "value": "Türkiye Vakıflar Bankası" },
+	{ "key": "004", "value": "Türkiye İş Bankası" },
+	{ "key": "005", "value": "Garanti BBVA" },
+	{ "key": "006", "value": "Akbank" },
+	{ "key": "007", "value": "Yapı ve Kredi Bankası" },
+	{ "key": "008", "value": "QNB Finansbank" },
+	{ "key": "008-1", "value": "Enpara (QNB Finansbank)" },
+	{ "key": "009", "value": "DenizBank" },
+	{ "key": "010", "value": "TEB (Türk Ekonomi Bankası)" },
+	{ "key": "011", "value": "Şekerbank" },
+	{ "key": "012", "value": "Alternatif Bank" },
+	{ "key": "013", "value": "Fibabanka" },
+	{ "key": "014", "value": "Anadolubank" },
+	{ "key": "015", "value": "ICBC Turkey Bank" },
+	{ "key": "016", "value": "Burgan Bank" },
+	{ "key": "017", "value": "Odeabank" },
+	{ "key": "018", "value": "ING Türkiye" },
+	{ "key": "019", "value": "Birleşik Fon Bankası" },
+	{ "key": "020", "value": "Ziraat Katılım Bankası" },
+	{ "key": "021", "value": "Vakıf Katılım Bankası" },
+	{ "key": "022", "value": "Türkiye Finans Katılım Bankası" },
+	{ "key": "023", "value": "Albaraka Türk Katılım Bankası" },
+	{ "key": "024", "value": "Kuveyt Türk Katılım Bankası" },
+	{ "key": "025", "value": "Emlak Katılım Bankası" },
+	{ "key": "026", "value": "Hayat Finans Katılım Bankası" },
+	{ "key": "027", "value": "TOM Katılım Bankası" },
+	{ "key": "028", "value": "Colendi Bank" },
+
+	// Fintech ve dijital ödeme kuruluşları
+	{ "key": "F001", "value": "Papara" },
+	{ "key": "F002", "value": "Tosla (AkÖde)" },
+	{ "key": "F003", "value": "Paycell (Turkcell Finansman)" },
+	{ "key": "F004", "value": "Moneypay (Migros Finansman)" },
+	{ "key": "F005", "value": "GetirFinans" },
+	{ "key": "F006", "value": "FAST / Kolay Adres Sistemi" },
+	{ "key": "F007", "value": "Sipay" },
+	{ "key": "F008", "value": "Param" },
+	{ "key": "F009", "value": "Hepsipay" },
+	{ "key": "F010", "value": "PeP (Paladyum Elektronik Para)" }
+
+];

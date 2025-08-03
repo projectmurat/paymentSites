@@ -563,6 +563,8 @@ function renderInstallmentsTable(installmentData) {
 	const tbody = document.getElementById('taksitler');
 	document.querySelector(".btn-installments").disabled = false;
 	document.getElementById("deleteButton").style.display = "none";
+	const warningsContainer = document.getElementById('payment-warnings-container');
+	warningsContainer.innerHTML = '';
 	tbody.innerHTML = '';
 	const monthsInTurkish = [
 		"Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
@@ -574,10 +576,12 @@ function renderInstallmentsTable(installmentData) {
 
 	let rowColorCounter = 0;
 	let totalMontlyInstallmentAmount = 0;
+	const bankNameMap = new Map(bankData.map(bank => [bank.key, bank.value]));
+	let notPayableList = [];
 	// JSON verisini dolaşıp tabloya ekliyoruz
 	for (let key in installmentData) {
-
 		const data = installmentData[key];
+		notPayableList.push(data);
 		const remainingAmount = (data.totalMonths - data.currentMonth) * data.installmentAmount;
 		totalRemaining += remainingAmount;
 		totalMontlyInstallmentAmount += data.installmentAmount;
@@ -596,11 +600,18 @@ function renderInstallmentsTable(installmentData) {
 		checkboxInput.dataset.key = key; // Seçilen satırın anahtarını saklayın
 		checkboxCell.appendChild(checkboxInput);
 
-		// Sütunlar
+		// 2. Sütun: Taksit İsmi
 		row.insertCell(1).innerText = data.item;
 
+		// EKLENDİ: 3. Sütun: Banka Adı
+		const bankName = bankNameMap.get(data.bankCode) || "Bilinmeyen Banka"; // Kodu isme çevir
+		row.insertCell(2).innerText = bankName;
+
+		// EKLENDİ: 4. Sütun: Ekstre Tarihi
+		row.insertCell(3).innerText = `${data.statementCutoffDay}`;
+
 		// İlerleme çubuğunu ekleme
-		const progressCell = row.insertCell(2);
+		const progressCell = row.insertCell(4);
 		const progressContainer = document.createElement('div');
 		progressContainer.classList.add('progress-bar-container');
 
@@ -619,8 +630,8 @@ function renderInstallmentsTable(installmentData) {
 		progressContainer.appendChild(progressLabel);
 		progressCell.appendChild(progressContainer);
 
-		row.insertCell(3).innerText = `${formatCurrency(data.installmentAmount.toFixed(2))}₺`;
-		row.insertCell(4).innerText = `${formatCurrency(remainingAmount.toFixed(2))}₺`;
+		row.insertCell(5).innerText = `${formatCurrency(data.installmentAmount.toFixed(2))}₺`;
+		row.insertCell(6).innerText = `${formatCurrency(remainingAmount.toFixed(2))}₺`;
 
 
 		// Ödeme butonunu oluşturma
@@ -638,6 +649,7 @@ function renderInstallmentsTable(installmentData) {
 		if ((adjustedLastPaidMonth >= currentMonthIndex + 1 || data.lastPaidYear < currentYear)) { // Ay 0'dan başladığı için +1 eklememiz gerekiyor
 			paymentButton.disabled = true;
 			paymentButton.innerText = `${monthsInTurkish[currentMonthIndex]}-${currentYear} Ödendi`;
+			notPayableList = notPayableList.filter(i => i.item != data.item)
 		}
 
 		// Taksit ekle eventi
@@ -666,7 +678,7 @@ function renderInstallmentsTable(installmentData) {
 				}
 			})
 		});
-		const paymentCell = row.insertCell(5);
+		const paymentCell = row.insertCell(7);
 		paymentCell.appendChild(paymentButton);
 
 		const checkboxes = document.querySelectorAll('.installmentCheckbox');
@@ -707,6 +719,44 @@ function renderInstallmentsTable(installmentData) {
 		});
 	}
 
+	if (notPayableList.length > 0) {
+		const today = new Date();
+		const currentDayOfMonth = today.getDate();
+		const currentMonthName = new Intl.DateTimeFormat('tr-TR', { month: 'long' }).format(today);
+
+		notPayableList.forEach(item => {
+			const warningDiv = document.createElement('div');
+			const cutoffDay = parseInt(item.statementCutoffDay, 10);
+
+			// Durum 1: Tarih geçmişse
+			if (currentDayOfMonth > cutoffDay) {
+				warningDiv.className = 'alert alert-danger';
+				// DÜZENLENDİ: innerText yerine innerHTML kullanıldı ve <strong> etiketleri eklendi.
+				warningDiv.innerHTML = `🔥 Dikkat! <strong>"${item.item}"</strong> taksitinin bu ayki son ödeme tarihi (${cutoffDay} ${currentMonthName}) <strong>GEÇTİ!</strong>`;
+
+				// Durum 2: Tarih henüz gelmemişse
+			} else {
+				const daysRemaining = cutoffDay - currentDayOfMonth;
+
+				// Tarih bugün ise
+				if (daysRemaining === 0) {
+					warningDiv.className = 'alert alert-warning';
+					// DÜZENLENDİ: innerText yerine innerHTML kullanıldı ve <strong> etiketleri eklendi.
+					warningDiv.innerHTML = `🔔 <strong>Bugün Son Gün!</strong> <strong>"${item.item}"</strong> taksitinin son ödeme tarihi bugün (${cutoffDay} ${currentMonthName}).`;
+
+					// Tarihe daha günler varsa
+				} else {
+					warningDiv.className = 'alert alert-info';
+					// DÜZENLENDİ: innerText yerine innerHTML kullanıldı ve <strong> etiketleri eklendi.
+					warningDiv.innerHTML = `💡 Yaklaşan Ödeme: <strong>"${item.item}"</strong> taksitinin ödemesine son <strong>${daysRemaining} gün</strong> kaldı. (Son Tarih: ${cutoffDay} ${currentMonthName})`;
+				}
+			}
+
+			warningsContainer.appendChild(warningDiv);
+		});
+	}
+
+
 	// Toplam kalan tutarı güncelleme
 	document.getElementById('toplamKalan').innerText = `${formatCurrency(totalRemaining.toFixed(2))} ₺`;
 	// Toplam aylık tutarı güncelleme
@@ -739,7 +789,6 @@ function collectaNewInstallmentData() {
 	const currentMonthIndex = currentDate.getMonth();
 	const currentMonthName = months_tr[currentMonthIndex];
 
-	// TODO: taksidi ekleme tarihi ay ismi ve yıl değeri eklendi. Bunların db'de de eklenmesi lazım.
 	const jsonData = {
 		item: itemName,
 		installmentAmount: installmentAmount,
@@ -751,7 +800,6 @@ function collectaNewInstallmentData() {
 		insertYear: currentYear
 
 	};
-
 	PocketRealtime.pushInstallments({
 		params: jsonData,
 		done: (response) => {
@@ -764,7 +812,6 @@ function collectaNewInstallmentData() {
 			throw new Error(error);
 		}
 	})
-	console.log(jsonData); // Bu satırda JSON verisini konsolda görebilirsiniz.
 }
 
 function formatCurrency(value) {
@@ -941,6 +988,10 @@ function toggleMarketDetails(market) {
 
 function getLoggedUserInfo(callback) {
 	try {
+		if (isDeveloperMode) {
+			callback();
+			return false;
+		}
 		fetch('https://free.freeipapi.com/api/json')
 			.then(response => response.json())
 			.then(data => {
@@ -1035,47 +1086,75 @@ function waitMe(shown) {
 	}
 }
 
+// Bu banka verisi listesinin fonksiyonun erişebileceği bir yerde tanımlı olduğunu varsayıyoruz.
+// const bankData = [ ... ];
+
 function displayPaidInstallments(installments) {
 	document.getElementById("paidInstallmentsTableBody").innerHTML = "";
 	const paidInstallmentsTableBody = document.getElementById("paidInstallmentsTableBody");
+
+	// YENİ: Banka kodunu isme çevirmek için bir harita oluşturalım.
+	const bankNameMap = new Map(bankData.map(bank => [bank.key, bank.value]));
+
 	let totalInstallmentAmount = 0;
+
 	for (const key in installments) {
 		const installment = installments[key];
 
-		if (installment.status === "0") {
+		if (installment.status === "0") { // Sadece ödemesi bitmiş olanlar
 			const row = document.createElement("tr");
 
+			// 1. Sütun: Taksit İsmi
 			const itemNameCell = document.createElement("td");
 			itemNameCell.textContent = installment.item;
 			row.appendChild(itemNameCell);
 
+			// YENİ EKLENDİ - 2. Sütun: Banka Adı
+			const bankCell = document.createElement("td");
+			// bankCode verisini kullanarak bankNameMap'ten banka adını alıyoruz.
+			// Eğer kod bulunamazsa veya veri yoksa 'Bilinmiyor' yazar.
+			const bankName = bankNameMap.get(installment.bankCode) || 'Bilinmiyor';
+			bankCell.textContent = bankName;
+			row.appendChild(bankCell);
+
+			// YENİ EKLENDİ - 3. Sütun: Ekstre Tarihi
+			const statementDayCell = document.createElement("td");
+			// statementCutoffDay verisi varsa göster, yoksa '-' koy.
+			statementDayCell.textContent = installment.statementCutoffDay
+				? `${installment.statementCutoffDay}`
+				: '-';
+			row.appendChild(statementDayCell);
+
+			// 4. Sütun: Taksit Tutarı
 			const installmentAmountCell = document.createElement("td");
 			installmentAmountCell.textContent = formatCurrency(parseFloat(installment.installmentAmount));
 			row.appendChild(installmentAmountCell);
 
+			// 5. Sütun: Eklendiği Tarih
 			const month = installment.insertMonth || '-';
 			const year = installment.insertYear || '-';
-			const result = (month == "-" && year == "-") ? month + " / " + year : month + "-" + year
+			const result = (month === "-" && year === "-") ? "- / -" : `${month}-${year}`;
 			const addPaidMonthCell = document.createElement("td");
 			addPaidMonthCell.textContent = result;
 			row.appendChild(addPaidMonthCell);
 
+			// 6. Sütun: Bittiği Tarih
 			const lastPaidMonthCell = document.createElement("td");
-			let calculateMonth = installment.lastPaidMonth % 12 == 0 ? 12 : installment.lastPaidMonth % 12
-			lastPaidMonthCell.textContent = months_tr[calculateMonth - 1] + "-" + installment.lastPaidYear;
+			let calculateMonth = installment.lastPaidMonth % 12 === 0 ? 12 : installment.lastPaidMonth % 12;
+			lastPaidMonthCell.textContent = `${months_tr[calculateMonth - 1]}-${installment.lastPaidYear}`;
 			row.appendChild(lastPaidMonthCell);
 
+			// 7. Sütun: Toplam Taksit
 			const totalMonthsCell = document.createElement("td");
 			totalMonthsCell.textContent = installment.totalMonths;
 			row.appendChild(totalMonthsCell);
 
+			// 8. Sütun: Toplam Ödenen Tutar
 			let installmentSumPaid = parseInt(installment.totalMonths) * parseInt(installment.installmentAmount);
 			totalInstallmentAmount += installmentSumPaid;
 			const totalPaid = document.createElement("td");
 			totalPaid.textContent = formatCurrency(installmentSumPaid);
 			row.appendChild(totalPaid);
-
-
 
 			paidInstallmentsTableBody.appendChild(row);
 		}
@@ -1292,7 +1371,17 @@ function getDate() {
 }
 
 function getPeriodTemplate() {
-	let mandatoryElement = ["Elektrik Faturası", "Su Faturası", "Doğalgaz Faturası", "İnternet Faturası", "Murat Cep", "Seher Cep", "Apartman Aidat"];
+	let mandatoryElement = [
+		"Elektrik Faturası",
+		"Su Faturası",
+		"Doğalgaz Faturası",
+		"İnternet Faturası",
+		"Murat Cep",
+		"Seher Cep",
+		"Apartman Aidat",
+		"Seher Gidamo",
+		"Ziraat Seher"
+	];
 	let templateElementList = [];
 	mandatoryElement.forEach(element => {
 		let template = {
@@ -1870,22 +1959,22 @@ function triggerNotification() {
 
 			approachingAlert = $('#approachingNotificationAlert');
 			approachingAlert.off('click').on('click', function () {
-					const clickedNotificationId = $(this).data('notification-id');
-					if (clickedNotificationId) {
-						if (!hiddenApproachingNotifications.includes(clickedNotificationId)) {
-							hiddenApproachingNotifications.push(clickedNotificationId);
-						}
-						document.getElementById("approachingNotificationAlert").style.display = "none"
-						checkApproachingNotificationsDisplay(allNotificationsCache);
-						/*
-						$(this).fadeOut(() => {
-
-						});
-						*/
-					} else {
-						$(this).fadeOut();
+				const clickedNotificationId = $(this).data('notification-id');
+				if (clickedNotificationId) {
+					if (!hiddenApproachingNotifications.includes(clickedNotificationId)) {
+						hiddenApproachingNotifications.push(clickedNotificationId);
 					}
-				});
+					document.getElementById("approachingNotificationAlert").style.display = "none"
+					checkApproachingNotificationsDisplay(allNotificationsCache);
+					/*
+					$(this).fadeOut(() => {
+
+					});
+					*/
+				} else {
+					$(this).fadeOut();
+				}
+			});
 
 
 		}
