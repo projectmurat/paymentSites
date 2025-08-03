@@ -2783,6 +2783,30 @@ body {
   /* Hücrelerle tutarlı olması için dikey hizalamayı da ekleyelim. */
   vertical-align: middle;
 }
+
+.creditCardInstallmentHistoryModal .table-scroll-container {
+  overflow-x: auto; /* Yatay scroll'u bu element yönetecek! */
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* KURAL 2: TD'ler için dikey hizalama (Bu kodunuz zaten doğruydu) */
+.creditCardInstallmentHistoryModal .table td {
+  vertical-align: middle;
+  padding: 4px 8px;
+}
+
+.creditCardInstallmentHistoryModal .table th {
+  /* Tüm başlıkların minimum genişliği 140px olacak.
+     Bu değeri ihtiyacınıza göre artırıp azaltabilirsiniz. */
+  min-width: 140px;
+  padding: 4px 8px;
+
+
+  /* Hücrelerle tutarlı olması için dikey hizalamayı da ekleyelim. */
+  vertical-align: middle;
+}
+
 .creditCardInstallmentModal .table th:nth-child(1) {
   width: 30px; /* Sadece ilk sütun için genişliği 60px yap */
   min-width: 30px; /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
@@ -2804,3 +2828,4 @@ body {
   min-width: 110px; /* Genel min-width kuralını da ezmek için bunu da eklemek en iyisidir. */
   text-align: center; /* Checkbox sütunu genellikle ortalı daha iyi görünür. */
 }
+

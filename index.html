@@ -760,24 +760,28 @@
 					</div>
 
 					<div class="modal-body" style="padding: 0rem;">
-						<div class="container">
-							<table>
-								<thead>
-									<tr>
-										<th>Taksit İsmi</th>
-										<th>Banka İsmi</th>
-										<th>Ekstre Tarihi</th>
-										<th>Taksit Tutarı</th>
-										<th>Borç Başlangıç</th>
-										<th>Borç Bitiş</th>
-										<th>Taksit Sayısı</th>
-										<th>Toplam Tutarı</th>
-									</tr>
-								</thead>
-								<tbody id="paidInstallmentsTableBody">
-									<!-- Tablo içeriği buraya eklenecek -->
-								</tbody>
-							</table>
+						<div class="container mt-5 creditCardInstallmentHistoryModal">
+							<div id="paymentHistory-warnings-container"></div>
+							<div class="table-scroll-container">
+								<table>
+									<thead>
+										<tr>
+											<th style="min-width: 140px;">Taksit İsmi</th>
+											<th style="min-width: 140px;">Banka İsmi</th>
+											<th style="min-width: 60px;">Ekstre Tarihi</th>
+											<th style="min-width: 90px;">Taksit Tutarı</th>
+											<th style="min-width: 130px;">Borç Başlangıç</th>
+											<th style="min-width: 130px;">Borç Bitiş</th>
+											<th style="min-width: 90px;">Taksit Sayısı</th>
+											<th style="min-width: 110px;">Toplam Tutarı</th>
+										</tr>
+									</thead>
+									<tbody id="paidInstallmentsTableBody">
+										<!-- Tablo içeriği buraya eklenecek -->
+									</tbody>
+								</table>
+							</div>
+
 							<div class="mt-3 total-amount-container">
 								<strong>Toplam Ödenmiş Tutar:</strong> <span id="toplamOdenmisTutar"
 									class="amount">0

@@ -1093,22 +1093,42 @@ function displayPaidInstallments(installments) {
 	document.getElementById("paidInstallmentsTableBody").innerHTML = "";
 	const paidInstallmentsTableBody = document.getElementById("paidInstallmentsTableBody");
 
-	// YENİ: Banka kodunu isme çevirmek için bir harita oluşturalım.
-	const bankNameMap = new Map(bankData.map(bank => [bank.key, bank.value]));
+	// YENİ: Özet mesajlarını göstereceğimiz div'i seçelim ve temizleyelim
+	const warningsContainer = document.getElementById("paymentHistory-warnings-container");
+	warningsContainer.innerHTML = "";
 
+	const bankNameMap = new Map(bankData.map(bank => [bank.key, bank.value]));
 	let totalInstallmentAmount = 0;
+
+	// YENİ: Farklı borç türlerini saymak için sayaçlar oluşturalım
+	let loanCount = 0;
+	let creditCardCount = 0;
+	let otherInstallmentCount = 0;
 
 	for (const key in installments) {
 		const installment = installments[key];
 
 		if (installment.status === "0") { // Sadece ödemesi bitmiş olanlar
+
+			// --- YENİ: Sayaçları artırma mantığı ---
+			const itemNameLower = installment.item.toLowerCase();
+			if (itemNameLower.includes('kredi')) {
+				loanCount++;
+			} else if (itemNameLower.includes('kart') || itemNameLower.includes('card')) {
+				creditCardCount++;
+			} else {
+				otherInstallmentCount++;
+			}
+			// ------------------------------------
+
 			const row = document.createElement("tr");
 
 			// 1. Sütun: Taksit İsmi
 			const itemNameCell = document.createElement("td");
 			itemNameCell.textContent = installment.item;
+			itemNameCell.style.verticalAlign = "middle";
+			itemNameCell.style.padding = "4px 8px"
 			row.appendChild(itemNameCell);
-
 			// YENİ EKLENDİ - 2. Sütun: Banka Adı
 			const bankCell = document.createElement("td");
 			// bankCode verisini kullanarak bankNameMap'ten banka adını alıyoruz.
@@ -1157,8 +1177,36 @@ function displayPaidInstallments(installments) {
 			row.appendChild(totalPaid);
 
 			paidInstallmentsTableBody.appendChild(row);
+
+			paidInstallmentsTableBody.appendChild(row);
 		}
 	}
+
+	// --- YENİ: Döngü bittikten sonra özet mesajını oluşturma ---
+	const summaryParts = [];
+	if (loanCount > 0) {
+		summaryParts.push(`<strong>${loanCount}</strong> adet ihtiyaç kredisi`);
+	}
+	if (creditCardCount > 0) {
+		summaryParts.push(`<strong>${creditCardCount}</strong> adet kredi kartı borcu`);
+	}
+	if (otherInstallmentCount > 0) {
+		summaryParts.push(`<strong>${otherInstallmentCount}</strong> adet taksitli alışveriş`);
+	}
+
+	if (summaryParts.length > 0) {
+		// Parçaları birleştirip doğal bir cümle haline getirelim (ör: A, B ve C)
+		const summaryText = summaryParts.join(', ').replace(/,([^,]*)$/, ' ve$1');
+
+		const summaryDiv = document.createElement('div');
+		// Başarıyı temsil etmesi için yeşil bir uyarı stili kullanalım
+		summaryDiv.className = 'alert alert-success';
+		summaryDiv.innerHTML = `🏆 Tebrikler! Bugüne kadar toplam ${summaryText} başarıyla tamamlanmıştır.`;
+
+		warningsContainer.appendChild(summaryDiv);
+	}
+	// ----------------------------------------------------
+
 	document.getElementById("toplamOdenmisTutar").innerText = formatCurrency(totalInstallmentAmount) + " ₺";
 }
 
