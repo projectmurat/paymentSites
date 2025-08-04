@@ -3055,3 +3055,179 @@ body {
 
 
 
+/* Genel Modal ve Liste Stilleri */
+#financial-history-modal .modal-content {
+    background-color: #f0f2f5;
+    /* Hafif gri bir arka plan */
+}
+
+#sim_historyList {
+    padding: 10px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Yükleme, Hata ve Boş Durum Stilleri */
+.loader,
+.empty-state,
+.error-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: #666;
+    font-size: 1rem;
+}
+
+.error-state {
+    color: #d9534f;
+}
+
+/* Her Bir Geçmiş Kaydı İçin Kart Tasarımı */
+.history-item-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+    /* Köşelerin yuvarlak kalması için */
+}
+
+.history-item-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Kart Başlığı */
+.history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #fafafa;
+}
+
+.history-item-title {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #333;
+}
+
+.history-item-title i {
+    margin-right: 10px;
+    color: #007bff;
+    /* Ana tema rengi */
+    font-size: 1.2rem;
+}
+
+.history-item-date {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+/* Kart İçeriği (Detaylar) */
+.history-item-body {
+    padding: 16px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    /* Satır ve sütun boşlukları */
+}
+
+.detail-grid .label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.detail-grid .value {
+    color: #333;
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-align: right;
+}
+
+/* Kart Alt Bilgisi (Footer) ve Butonlar */
+.history-item-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0px 16px;
+    background-color: #fafafa;
+    border-top: 1px solid #f0f0f0;
+}
+
+.delete-btn {
+    background: none;
+    border: 1px solid #ff4d4f;
+    color: #ff4d4f;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background-color 0.2s, color 0.2s;
+    width: 100%;
+}
+
+.delete-btn i {
+    margin-right: 5px;
+}
+
+.delete-btn:hover {
+    background-color: #ff4d4f;
+    color: #fff;
+}
+
+
+
+/* --- YENİ EKLENEN RENKLENDİRME STİLLERİ --- */
+
+/* Kart Başlığı (Genel) */
+.history-item-header {
+    /* Sol tarafta bir renk şeridi için boşluk bırakalım */
+    border-left: 5px solid transparent;
+    transition: background-color 0.3s ease;
+}
+
+/* Mevduat (Para Girişi) için Başlık Rengi - YEŞİL TEMA */
+.history-item-header.header-mevduat {
+    background-color: #f0f9f4; /* Çok açık yeşil arka plan */
+    border-left-color: #28a745;   /* Belirgin yeşil şerit */
+}
+
+.header-mevduat .history-item-title,
+.header-mevduat .history-item-title i {
+    color: #28a745; /* Koyu yeşil ikon ve yazı */
+}
+
+
+/* Kredi (Borç) için Başlık Rengi - KIRMIZI TEMA */
+.history-item-header.header-kredi {
+    background-color: #fef0f0; /* Çok açık kırmızı arka plan */
+    border-left-color: #d93025;   /* Belirgin kırmızı şerit */
+}
+
+.header-kredi .history-item-title,
+.header-kredi .history-item-title i {
+    color: #d93025; /* Koyu kırmızı ikon ve yazı */
+}
+
+/* Diğer veya bilinmeyen durumlar için varsayılan stil */
+.history-item-header.header-diger {
+    border-left-color: #888;
+}
+
+.header-diger .history-item-title,
+.header-diger .history-item-title i {
+    color: #555;
+}
+
+/* --- MEVCUT CSS KODUNUZDAN GÜNCELLENMESİ GEREKENLER (opsiyonel) --- */
+
+/* İkonların rengini artık kendi üst elementi belirleyeceği için buradan kaldırabiliriz */
+/* .history-item-title i {
+    color: #007bff; /* Bu satırı silebilir veya yorum satırı yapabilirsiniz */
+/* } */

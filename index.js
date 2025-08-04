@@ -850,6 +850,7 @@ $('#a.dropdown-item').click(function (arg) {
 $('.btn-openFundsSnapshots').click(function (args) {
 	PocketRealtime.getFundsHistory({
 		done: (response) => {
+			var CONST_DAY_AGO = 7;
 			let allResponse = Object.values(response);
 			const filteredData = allResponse.reduce((acc, curr) => {
 				const foundIndex = acc.findIndex(
@@ -881,7 +882,6 @@ $('.btn-openFundsSnapshots').click(function (args) {
 
 			// Son 7 gün önceki zamanı al
 			var sevenDaysAgo = new Date();
-			var CONST_DAY_AGO = 7;
 			sevenDaysAgo.setDate(currentDate.getDate() - CONST_DAY_AGO);
 
 			// Son 15 gün içinde olanları filtrele

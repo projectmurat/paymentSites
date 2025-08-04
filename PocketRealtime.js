@@ -233,15 +233,32 @@ let PocketRealtime = (
         }
         function getFundsHistory(args) {
             waitMe(true);
-            let fail = args.fail;
+            const done = args.done || function () { };
+            const fail = args.fail || function () { };
+
             try {
-                let done = args.done;
-                firebase.database().ref("FonTarihce/").on("value", (snapshot) => {
+                const sevenDaysAgo = new Date();
+                const DAY_AGO = 7;
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - DAY_AGO);
+                const startTimestamp = sevenDaysAgo.getTime();
+
+                const dbRef = firebase.database().ref("FonTarihce/");
+
+                const query = dbRef.orderByChild('insertTimestamp').startAt(startTimestamp);
+
+                query.get().then((snapshot) => {
                     waitMe(false);
-                    done(snapshot.val())
-                })
-            }
-            catch (error) {
+                    if (snapshot.exists()) {
+                        done(snapshot.val());
+                    } else {
+                        done({});
+                    }
+                }).catch((error) => {
+                    waitMe(false);
+                    fail(error);
+                });
+
+            } catch (error) {
                 waitMe(false);
                 fail(error);
             }
@@ -811,6 +828,28 @@ let PocketRealtime = (
             }
         }
 
+        function deletepositAndInterestItem(args) {
+            waitMe(true);
+            let fail = args.fail;
+            try {
+                let path = args.path;
+                let done = args.done;
+                firebase.database().ref("depositAndInterest/" + path).remove((error) => {
+                    if (error) {
+                        waitMe(false);
+                        fail(error);
+                    } else {
+                        waitMe(false);
+                        done(true);
+                    }
+                })
+            }
+            catch (error) {
+                waitMe(false);
+                throw new Error(error).stack;
+            }
+        }
+
 
 
         return {
@@ -847,8 +886,9 @@ let PocketRealtime = (
             updateNotification: updateNotification,
             deleteNotification: deleteNotification,
             getRealEstatesAndVehicles: getRealEstatesAndVehicles,
-            getDepositAndInterestHistory:getDepositAndInterestHistory,
-            pushDepositAndInterestHistory:pushDepositAndInterestHistory
+            getDepositAndInterestHistory: getDepositAndInterestHistory,
+            pushDepositAndInterestHistory: pushDepositAndInterestHistory,
+            deletepositAndInterestItem: deletepositAndInterestItem
         }
     }
 )();

@@ -433,6 +433,7 @@ function calculateFunds(params) {
 					let historyData = {
 						"fundsList": fundsTableData,
 						"sunFunds": sumFundsAmount,
+						"insertTimestamp":new Date().getTime(),
 						"insertDate": new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
 					}
 					PocketRealtime.insertFundsHistory({
@@ -459,6 +460,7 @@ function calculateFunds(params) {
 				let historyData = {
 					"fundsList": fundsTableData,
 					"sunFunds": sumFundsAmount,
+					"insertTimestamp":new Date().getTime(),
 					"insertDate": new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
 				}
 				PocketRealtime.insertFundsHistory({
@@ -1077,7 +1079,7 @@ function hesaplaKredi() {
 	document.getElementById('sim_sonucTablosu').innerHTML = tablo;
 
 	// Opsiyonel: Simülasyonu kaydetme fonksiyonu çağrısı
-	// kaydetSimulasyon({ type: 'Kredi', inputs: { krediTipi, krediTutari, vade, aylikFaizOrani } });
+	kaydetSimulasyon({ type: 'Kredi', inputs: { krediTipi, krediTutari, vade, aylikFaizOrani } });
 }
 
 /**
@@ -1124,10 +1126,18 @@ function guncelleKrediBilgilendirme() {
  * Para birimini formatlamak için yardımcı fonksiyon (varsayımsal).
  * Projenizde zaten varsa bunu kullanmanıza gerek yoktur.
  */
+function formatCurrency(value) {
+	return new Intl.NumberFormat('tr-TR', {
+		style: 'decimal',
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	}).format(value);
+}
+/*
 function formatCurrency(number) {
 	return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(number);
 }
-
+*/
 // TARİHÇE YÖNETİMİ
 function kaydetSimulasyon(data) {
 	const newSimulationRegister = { ...data, tarih: new Date().toISOString() };
@@ -1147,41 +1157,187 @@ function kaydetSimulasyon(data) {
 }
 
 function gosterTarihce() {
+	// 1. Arayüz elemanlarına erişim ve modalı açıp yükleme durumunu gösterme
+	const historyList = document.getElementById('sim_historyList');
+	const modal = document.getElementById('financial-history-modal');
+	historyList.innerHTML = '<div class="loader">Yükleniyor...</div>';
+	modal.style.display = 'block';
+
+	// 2. Servisi sizin istediğiniz done/fail yapısıyla çağırma
 	PocketRealtime.getDepositAndInterestHistory({
+		// -----------------------------------------------------
+		// BAŞARILI DURUM: done callback'i içinde tüm işlemler yapılır
+		// -----------------------------------------------------
 		done: (response) => {
 			const tarihce = response ? Object.entries(response).map(([key, value]) => ({
 				id: key,
 				...value
-			}))
-				: [];
-			const historyList = document.getElementById('sim_historyList');
-			historyList.innerHTML = '';
+			})) : [];
 
+			historyList.innerHTML = ''; // Yükleyiciyi temizle
+
+			// Geçmiş kaydı yoksa bilgilendirme mesajı göster
 			if (tarihce.length === 0) {
-				historyList.innerHTML = '<p style="padding: 20px; text-align: center;">Henüz kaydedilmiş bir simülasyon bulunmuyor.</p>';
-			} else {
-				tarihce.forEach(kayit => {
-					const itemDiv = document.createElement('div');
-					itemDiv.className = 'history-item';
-					const tarih = new Date(kayit.tarih);
-					const formatliTarih = new Intl.DateTimeFormat('tr-TR', { dateStyle: 'long', timeStyle: 'short' }).format(tarih);
-					let detailsHTML = '';
-					if (kayit.type === 'Mevduat') {
-						detailsHTML = `<p><strong>Ana Para:</strong> ${formatCurrency(kayit.anaPara)}</p><p><strong>Aylık Birikim:</strong> ${formatCurrency(kayit.birikim)}</p><p><strong>Yıllık Faiz:</strong> %${kayit.faizOrani}</p><p><strong>Süre:</strong> ${kayit.toplamAy} Ay</p>`;
-					} else {
-						detailsHTML = `<p><strong>Kredi Tutarı:</strong> ${formatCurrency(kayit.krediTutari)}</p><p><strong>Vade:</strong> ${kayit.vade} Ay</p><p><strong>Aylık Faiz:</strong> %${kayit.aylikFaizOrani}</p>`;
-					}
-					itemDiv.innerHTML = `<div class="history-header"><span class="history-title">${kayit.type} Simülasyonu</span><span class="history-date">${formatliTarih}</span></div><div class="history-details">${detailsHTML}</div>`;
-					historyList.appendChild(itemDiv);
-				});
+				historyList.innerHTML = '<p class="empty-state">Henüz kaydedilmiş bir simülasyon bulunmuyor.</p>';
+				return; // done fonksiyonundan çık
 			}
-			document.getElementById('financial-history-modal').style.display = 'block';
+
+			// Kayıtları tarihe göre sırala
+			const sortedTarihce = tarihce.sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
+
+			// Performans için DocumentFragment oluştur
+			const fragment = document.createDocumentFragment();
+
+			// Her bir kayıt için döngü başlat
+			sortedTarihce.forEach(kayit => {
+				const itemDiv = document.createElement('div');
+				itemDiv.className = 'history-item-card';
+
+				// Tarihi formatla
+				const tarih = new Date(kayit.tarih);
+				const formatliTarih = new Intl.DateTimeFormat('tr-TR', {
+					day: '2-digit', month: 'long', year: 'numeric',
+					hour: '2-digit', minute: '2-digit'
+				}).format(tarih);
+
+				let detailsHTML = '';
+				let iconHTML = '';
+				let headerClass = ''; // Renk için CSS sınıfını tutacak değişken
+
+				// Kayıt tipine göre HTML detaylarını, ikonu ve başlık sınıfını oluştur
+				switch (kayit.type) {
+					case 'Mevduat':
+						headerClass = 'header-mevduat'; // Yeşil tema için sınıf
+						iconHTML = '<i class="fas fa-piggy-bank"></i>';
+						detailsHTML = `
+						<div class="detail-grid">
+							<span class="label">Ana Para:</span>
+							<span class="value">${formatCurrency(kayit.anaPara)}</span>
+							<span class="label">Aylık Birikim:</span>
+							<span class="value">${formatCurrency(kayit.birikim)}</span>
+							<span class="label">Yıllık Faiz:</span>
+							<span class="value">%${kayit.faizOrani}</span>
+							<span class="label">Süre:</span>
+							<span class="value">${kayit.toplamAy} Ay</span>
+						</div>`;
+						break;
+
+					case 'Kredi':
+						headerClass = 'header-kredi'; // Kırmızı tema için sınıf
+						iconHTML = '<i class="fas fa-file-invoice-dollar"></i>';
+						detailsHTML = `
+						<div class="detail-grid">
+							<span class="label">Kredi Tipi:</span>
+							<span class="value">${kayit.krediTipi ? kayit.krediTipi.toLocaleUpperCase('TR') : ''}</span>
+							<span class="label">Kredi Tutarı:</span>
+							<span class="value">${formatCurrency(kayit.krediTutari)}</span>
+							<span class="label">Vade:</span>
+							<span class="value">${kayit.vade} Ay</span>
+							<span class="label">Aylık Faiz:</span>
+							<span class="value">%${kayit.aylikFaizOrani}</span>
+						</div>`;
+						break;
+
+					default:
+						headerClass = 'header-diger'; // Varsayılan tema
+						iconHTML = '<i class="fas fa-question-circle"></i>';
+						detailsHTML = '<p>Bilinmeyen işlem türü.</p>';
+						break;
+				}
+
+				// Kartın tüm HTML'ini birleştir
+				// DİKKAT: history-item-header div'ine ${headerClass} değişkenini ekledik.
+				itemDiv.innerHTML = `
+				<div class="history-item-header ${headerClass}">
+					<div class="history-item-title">
+						${iconHTML}
+						<span>${kayit.type} Simülasyonu</span>
+					</div>
+					<span class="history-item-date">${formatliTarih}</span>
+				</div>
+				<div class="history-item-body">
+					${detailsHTML}
+				</div>
+				<div class="history-item-footer">
+					<button class="delete-btn" data-id="${kayit.id}" title="Bu kaydı sil">
+						<i class="fas fa-trash-alt"></i> Sil
+					</button>
+				</div>
+				`;
+
+				// Silme butonu için olay dinleyicisi ekle
+				itemDiv.querySelector('.delete-btn').addEventListener('click', (e) => {
+					e.stopPropagation();
+					const recordId = e.currentTarget.getAttribute('data-id');
+
+					// 1. Silinecek kayda özel, detaylı bir onay mesajı oluşturma
+					const messageParts = [
+						"Aşağıdaki simülasyon kaydını kalıcı olarak silmek istediğinizden emin misiniz?",
+						"-----------------------------------------"
+					];
+
+					const formattedDateForConfirm = new Intl.DateTimeFormat('tr-TR', {
+						dateStyle: 'long',
+						timeStyle: 'short'
+					}).format(new Date(kayit.tarih));
+
+					messageParts.push(`Tarih: ${formattedDateForConfirm}`);
+					messageParts.push(`Tip: ${kayit.type} Simülasyonu`);
+
+					// Kaydın tipine göre en önemli bilgileri mesaja ekle
+					if (kayit.type === 'Mevduat') {
+						messageParts.push(`Ana Para: ${formatCurrency(kayit.anaPara)}`);
+						messageParts.push(`Süre: ${kayit.toplamAy} Ay`);
+					} else if (kayit.type === 'Kredi') {
+						if (kayit.krediTipi) {
+							messageParts.push(`Kredi Tipi: ${kayit.krediTipi.toLocaleUpperCase('TR')}`);
+						}
+						messageParts.push(`Kredi Tutarı: ${formatCurrency(kayit.krediTutari)}`);
+						messageParts.push(`Vade: ${kayit.vade} Ay`);
+					}
+
+					messageParts.push("-----------------------------------------");
+					messageParts.push("Bu işlem geri alınamaz!");
+
+					const confirmMessage = messageParts.join('\n'); // Dizi elemanlarını yeni satır karakteriyle birleştir
+
+					// 2. Detaylı mesaj ile kullanıcıdan onay alma
+					if (confirm(confirmMessage)) {
+						console.log(`'${recordId}' ID'li kayıt siliniyor...`);
+
+						// Gerçek silme işlemi
+						PocketRealtime.deletepositAndInterestItem({
+							path: recordId,
+							done: function () {
+								// 3. ÖNEMLİ: Silme işlemi BAŞARILI olursa kartı arayüzden kaldır
+								alert("Silme işlemi başarılı!");
+								itemDiv.remove(); // Kart, ancak sunucudan onay gelince kaldırılır.
+							},
+							fail: function (error) {
+								console.error("Silme işleminde hata oluştu:", error);
+								alert("Hata: Kayıt silinemedi. Lütfen tekrar deneyin.");
+							}
+						});
+					}
+				});
+
+				// Hazırlanan kartı fragment'a ekle
+				fragment.appendChild(itemDiv);
+			});
+
+			// Tüm kartları tek seferde DOM'a ekle
+			historyList.appendChild(fragment);
 		},
+
+		// -----------------------------------------------------
+		// HATALI DURUM: fail callback'i içinde hata yönetimi
+		// -----------------------------------------------------
 		fail: (error) => {
-			console.error("Finansal Simülasyon get işleminde hata");
-			throw new Error(error);
+			console.error("Finansal Simülasyon get işleminde hata:", error);
+			historyList.innerHTML = '<p class="error-state">Geçmiş yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>';
+			// throw new Error(error); // Akışı tamamen durdurmak isterseniz bu satırı açabilirsiniz
 		}
-	})
+	});
 }
 
 function closeHistoryModal() {
