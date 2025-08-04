@@ -856,15 +856,15 @@ $('.btn-openFundsSnapshots').click(function (args) {
 				const foundIndex = acc.findIndex(
 					(item) =>
 						item.sunFunds === curr.sunFunds &&
-						new Date(item.insertDate).toDateString() ===
-						new Date(curr.insertDate).toDateString()
+						new Date(item.insertTimestamp).toDateString() ===
+						new Date(curr.insertTimestamp).toDateString()
 				);
 
 				if (foundIndex === -1) {
 					acc.push(curr);
 				} else {
-					const foundDate = new Date(acc[foundIndex].insertDate);
-					const currentDate = new Date(curr.insertDate);
+					const foundDate = new Date(acc[foundIndex].insertTimestamp);
+					const currentDate = new Date(curr.insertTimestamp);
 
 					if (currentDate > foundDate) {
 						acc[foundIndex] = curr;
