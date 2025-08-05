@@ -433,13 +433,13 @@ function calculateFunds(params) {
 					let historyData = {
 						"fundsList": fundsTableData,
 						"sunFunds": sumFundsAmount,
-						"insertTimestamp":new Date().getTime(),
+						"insertTimestamp": new Date().getTime(),
 						"insertDate": new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
 					}
 					PocketRealtime.insertFundsHistory({
 						params: historyData,
 						done: (response) => {
-							console.log(response);
+							console.log("Nakdi Varlıklar kaydı tarihçeye kaydedildi");
 						},
 						fail: (error) => {
 							throw new Error("Fon Tarihçe kaydemte işleminde hata meydana geldi.");
@@ -460,7 +460,7 @@ function calculateFunds(params) {
 				let historyData = {
 					"fundsList": fundsTableData,
 					"sunFunds": sumFundsAmount,
-					"insertTimestamp":new Date().getTime(),
+					"insertTimestamp": new Date().getTime(),
 					"insertDate": new Date().toLocaleDateString('tr-TR', { weekday: "short", year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString('tr-TR')
 				}
 				PocketRealtime.insertFundsHistory({
@@ -1344,6 +1344,166 @@ function closeHistoryModal() {
 	document.getElementById('financial-history-modal').style.display = 'none';
 }
 
+// YENİ: Hangi Firebase kaydı üzerinde çalıştığımızı tutar.
+let currentSimulationId = null;
+
+// YENİ: Tüm simülasyon verilerini Firebase'e kaydeder veya günceller.
+function saveOrUpdateSimulation() {
+	// Eğer kaydedilecek bir ürün veya market yoksa işlemi iptal et.
+	if (allProducts.length === 0 && markets.length === 0) {
+		return;
+	}
+
+	const simulationData = {
+		allProducts: allProducts,
+		markets: markets,
+		productInfo: productInfo,
+		lastUpdated: firebase.database.ServerValue.TIMESTAMP // Kaydın ne zaman güncellendiğini tutar
+	};
+
+	if (currentSimulationId) {
+		// Mevcut bir kayıt varsa, onu güncelle
+		firebase.database().ref('marketingSimulation/' + currentSimulationId).update(simulationData);
+	} else {
+		// Yeni bir kayıt oluştur
+		const newSimulationRef = firebase.database().ref('marketingSimulation').push();
+		newSimulationRef.set(simulationData);
+		currentSimulationId = newSimulationRef.key; // Yeni kaydın ID'sini alıp aktif ID yapıyoruz.
+	}
+}
+
+// YENİ: Arayüzü mevcut verilere göre doldurur.
+function renderUIFromState() {
+	// Eklenen ürünler listesini temizle ve yeniden doldur
+	const addedProductsList = document.getElementById("addedProductsList");
+	addedProductsList.innerHTML = "";
+	allProducts.forEach(productValue => {
+		const listItem = document.createElement("li");
+		listItem.className = "list-group-item";
+		listItem.innerText = productValue;
+		listItem.style.padding = "0";
+		listItem.style.border = "0";
+		listItem.style.display = "list-item";
+		addedProductsList.appendChild(listItem);
+	});
+
+	// Market dropdown'ını güncelle
+	updateMarketDropdown();
+	// Ürün dropdown'ını güncelle
+	updateProductDropdown();
+
+	// Diğer input alanlarını temizleyebilirsiniz (isteğe bağlı)
+	document.getElementById("productInput").value = "";
+	document.getElementById("marketInput").value = "";
+	document.getElementById("brandInput").value = "";
+	document.getElementById("priceInput").value = "";
+	document.getElementById("gramInput").value = "";
+}
+
+
+// YENİ: Belirli bir simülasyonu Firebase'den yükler.
+function loadSimulation(simulationId) {
+	PocketRealtime.getMarketingSimulationData({
+		params: { firebaseId: simulationId },
+		done: function (data) {
+			if (data) {
+				currentSimulationId = simulationId;
+				allProducts = data.allProducts || [];
+				markets = data.markets || [];
+				productInfo = data.productInfo || {};
+
+				if (document.getElementById("marketingSimulationHistoryModal").style.display != "none") {
+					document.getElementById("comparisonResults").innerHTML = ""; // Sonuçları da temizle
+					renderUIFromState(); // Arayüzü yüklenen verilerle doldur
+
+					// Modalları yönet
+					document.getElementById("closeHistoryMarketModalBtn").click()
+				}
+
+			} else {
+				alert("Taslak bulunamadı veya yüklenirken bir hata oluştu.");
+			}
+		},
+		fail: function (error) {
+			console.error("Taslak yüklenemedi: ", error);
+			alert("Taslak yüklenirken bir hata oluştu.");
+		}
+	});
+}
+
+// YENİ: Geçmiş/Taslaklar modalını doldurur.
+function populateHistoryModal() {
+	PocketRealtime.queryMarketingSimulationData({
+		done: function (allData) {
+			const historyBody = document.querySelector("#marketingSimulationHistoryModal .modal-body");
+			if (!allData) {
+				historyBody.innerHTML = '<p>Kaydedilmiş taslak bulunmuyor.</p>';
+				return;
+			}
+
+			// Kayıtları tarihe göre en yeniden eskiye sıralayalım
+			const sortedKeys = Object.keys(allData).sort((a, b) => {
+				return allData[b].lastUpdated - allData[a].lastUpdated;
+			});
+
+			let historyHtml = '<ul class="list-group">';
+			sortedKeys.forEach(key => {
+				const simulation = allData[key];
+				const date = new Date(simulation.lastUpdated).toLocaleString('tr-TR');
+				historyHtml += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>
+                            Taslak - ${date}
+                            <small class="d-block text-muted">${(simulation.allProducts || []).length} ürün, ${(simulation.markets || []).length} market</small>
+                        </span>
+                        <div>
+                            <button class="btn btn-sm btn-primary" onclick="loadSimulation('${key}', this)">Yükle</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteSimulation('${key}')">Sil</button>
+                        </div>
+                    </li>
+                `;
+			});
+			historyHtml += '</ul>';
+			historyBody.innerHTML = historyHtml;
+		},
+		fail: function (error) {
+			const historyBody = document.querySelector("#marketingSimulationHistoryModal .modal-body");
+			historyBody.innerHTML = '<p>Taslaklar yüklenirken bir hata oluştu.</p>';
+			console.error("Geçmiş yüklenemedi: ", error);
+		}
+	});
+}
+
+// YENİ: Firebase'den bir kaydı siler.
+function deleteSimulation(simulationId) {
+	if (confirm("Bu taslağı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.")) {
+		firebase.database().ref('marketingSimulation/' + simulationId).remove()
+			.then(() => {
+				alert("Taslak başarıyla silindi.");
+				populateHistoryModal(); // Listeyi yenile
+				// Eğer silinen taslak o an yüklü olan ise, ekranı temizle
+				if (currentSimulationId === simulationId) {
+					startNewSimulation();
+				}
+			})
+			.catch((error) => {
+				alert("Silme işlemi sırasında bir hata oluştu.");
+				console.error("Silme hatası: ", error);
+			});
+	}
+}
+
+// YENİ: Formu temizleyip yeni bir simülasyon başlatır.
+function startNewSimulation() {
+	currentSimulationId = null;
+	allProducts = [];
+	markets = [];
+	productInfo = {};
+	renderUIFromState(); // Arayüzü temizle
+	document.getElementById("comparisonResults").innerHTML = ""; // Sonuçları da temizle
+	alert("Yeni bir simülasyon başlatıldı.");
+}
+
 function addProduct() {
 	const productInput = document.getElementById("productInput");
 	const productValue = productInput.value.trim();
@@ -1370,6 +1530,7 @@ function addProduct() {
 
 		// Input değerini sıfırlayalım
 		productInput.value = "";
+		saveOrUpdateSimulation(); // DEĞİŞİKLİĞİ KAYDET
 	} else {
 		alert("Bu ürün zaten eklenmiş ya da geçerli bir ürün ismi girilmedi!");
 	}
@@ -1381,6 +1542,7 @@ function addMarket() {
 		markets.push(market);
 		updateMarketDropdown();
 		document.getElementById("marketInput").value = ''
+		saveOrUpdateSimulation(); // DEĞİŞİKLİĞİ KAYDET
 	}
 }
 
@@ -1403,13 +1565,15 @@ function addPriceAndGram() {
 	let product = document.getElementById("productDropdown").value;
 	let gram = document.getElementById("gramInput").value;
 	let price = document.getElementById("priceInput").value;
+	let brand = document.getElementById("brandInput").value;
 
 	if (!productInfo[market]) {
 		productInfo[market] = {};
 	}
-	productInfo[market][product] = { gram, price };
+	productInfo[market][product] = { gram, price, brand };
 
 	updateProductDropdown();
+	saveOrUpdateSimulation(); // DEĞİŞİKLİĞİ KAYDET
 }
 
 function compareProducts() {
@@ -1439,24 +1603,40 @@ function compareProducts() {
 		results[bestMarket].push({
 			product: product,
 			price: productInfo[bestMarket][product].price,
-			gram: productInfo[bestMarket][product].gram
+			gram: productInfo[bestMarket][product].gram,
+			brand: productInfo[bestMarket][product].brand,
 		});
 	});
 
 	let displayResults = "";
-	for (let market in results) {
+	for (const market in results) {
+		const items = results[market];
+		const marketId = market.replace(/\s+/g, '-').toLowerCase();
+
 		displayResults += `
-    <div class="card my-3">
-        <div class="card-header">
-            <h5 data-market="${market}" onclick="toggleMarketDetails('${market}')" style="cursor:pointer;">${market}</h5>
-        </div>
-        <div id="details-${market}" style="display:none;" class="card-body">`;
-
-		results[market].forEach(item => {
-			displayResults += `<p>${item.product} - ${item.price} TL - ${item.gram} gr</p>`;
-		});
-
-		displayResults += `</div></div>`;
+			<div class="card shadow-sm my-3 border-0">
+				<div class="card-header bg-primary text-white border-bottom-0 rounded-top"
+					style="cursor: pointer;"
+					onclick="toggleMarketDetails('${marketId}')">
+				<h5 class="m-0">${market}</h5>
+				</div>
+				<div id="details-${marketId}" class="card-body p-0" style="display: none;">
+				<ul class="list-group list-group-flush">
+					${items.map(item => `
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+					<div>
+						<strong>${item.product}</strong>
+						<small class="text-muted d-block">${item.brand} | ${item.gram} gr</small>
+					</div>
+					<span class="badge bg-success text-white p-2">
+						${item.price} TL
+					</span>
+					</li>
+					`).join('')}
+				</ul>
+				</div>
+			</div>
+			`;
 	}
 
 	comparisonResults.innerHTML = displayResults;
@@ -1607,6 +1787,10 @@ function displayPaidInstallments(installments) {
 			// ------------------------------------
 
 			const row = document.createElement("tr");
+
+
+			// Bu 'row' elementini tablonuzun thead veya tbody kısmına ekleyebilirsiniz.
+			// Örnek: document.querySelector("table thead").appendChild(row);
 
 			// 1. Sütun: Taksit İsmi
 			const itemNameCell = document.createElement("td");

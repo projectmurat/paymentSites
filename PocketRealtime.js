@@ -850,6 +850,75 @@ let PocketRealtime = (
             }
         }
 
+        function pushMarketingSimulationData(args) {
+            waitMe(true);
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                let marketingData = args.params;
+
+                firebase.database().ref("marketingSimulation/").push().set(marketingData, error => {
+                    waitMe(false);
+                    if (error) {
+                        fail(error);
+                    } else {
+                        done(true);
+                    }
+                });
+            } catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
+        function getMarketingSimulationData(args) {
+            waitMe(true);
+            let fail = args.fail;
+            let done = args.done;
+
+            let firebaseId = args.params.firebaseId;
+
+            if (!firebaseId) {
+                throw new Error("Silinecek market Firebase ID'si belirtilmedi.");
+            }
+
+            try {
+                firebase.database().ref("/marketingSimulation/"+firebaseId)
+                    .on("value", (snapshot) => {
+                        waitMe(false);
+                        done(snapshot.val());
+                    }, (error) => {
+                        waitMe(false);
+                        console.error("Market Simülasyon dinleyicisinde hata:", error);
+                        fail(error);
+                    });
+            } catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
+        function queryMarketingSimulationData(args) {
+            waitMe(true);
+            let fail = args.fail;
+            let done = args.done;
+
+            try {
+                firebase.database().ref("/marketingSimulation")
+                    .on("value", (snapshot) => {
+                        waitMe(false);
+                        done(snapshot.val());
+                    }, (error) => {
+                        waitMe(false);
+                        console.error("Market Simülasyon dinleyicisinde hata:", error);
+                        fail(error);
+                    });
+            } catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
 
 
         return {
@@ -888,7 +957,10 @@ let PocketRealtime = (
             getRealEstatesAndVehicles: getRealEstatesAndVehicles,
             getDepositAndInterestHistory: getDepositAndInterestHistory,
             pushDepositAndInterestHistory: pushDepositAndInterestHistory,
-            deletepositAndInterestItem: deletepositAndInterestItem
+            deletepositAndInterestItem: deletepositAndInterestItem,
+            pushMarketingSimulationData: pushMarketingSimulationData,
+            getMarketingSimulationData:getMarketingSimulationData,
+            queryMarketingSimulationData:queryMarketingSimulationData
         }
     }
 )();

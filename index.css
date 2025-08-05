@@ -2789,6 +2789,7 @@ body {
     overflow-x: auto;
     /* Yatay scroll'u bu element yönetecek! */
     width: 100%;
+    max-height: 350px;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -3194,25 +3195,31 @@ body {
 
 /* Mevduat (Para Girişi) için Başlık Rengi - YEŞİL TEMA */
 .history-item-header.header-mevduat {
-    background-color: #f0f9f4; /* Çok açık yeşil arka plan */
-    border-left-color: #28a745;   /* Belirgin yeşil şerit */
+    background-color: #f0f9f4;
+    /* Çok açık yeşil arka plan */
+    border-left-color: #28a745;
+    /* Belirgin yeşil şerit */
 }
 
 .header-mevduat .history-item-title,
 .header-mevduat .history-item-title i {
-    color: #28a745; /* Koyu yeşil ikon ve yazı */
+    color: #28a745;
+    /* Koyu yeşil ikon ve yazı */
 }
 
 
 /* Kredi (Borç) için Başlık Rengi - KIRMIZI TEMA */
 .history-item-header.header-kredi {
-    background-color: #fef0f0; /* Çok açık kırmızı arka plan */
-    border-left-color: #d93025;   /* Belirgin kırmızı şerit */
+    background-color: #fef0f0;
+    /* Çok açık kırmızı arka plan */
+    border-left-color: #d93025;
+    /* Belirgin kırmızı şerit */
 }
 
 .header-kredi .history-item-title,
 .header-kredi .history-item-title i {
-    color: #d93025; /* Koyu kırmızı ikon ve yazı */
+    color: #d93025;
+    /* Koyu kırmızı ikon ve yazı */
 }
 
 /* Diğer veya bilinmeyen durumlar için varsayılan stil */

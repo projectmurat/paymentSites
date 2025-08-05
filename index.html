@@ -765,7 +765,7 @@
 							<div class="table-scroll-container">
 								<table>
 									<thead>
-										<tr>
+										<tr style="position: sticky;top: 0;background-color: #f8f9fa;z-index: 10;border-bottom: 2px solid #dee2e6;">
 											<th style="min-width: 140px;">Taksit İsmi</th>
 											<th style="min-width: 140px;">Banka İsmi</th>
 											<th style="min-width: 60px;">Ekstre Tarihi</th>
@@ -1051,6 +1051,9 @@
 								<label>Ürün Adı</label>
 								<select id="productDropdown" class="form-control mb-2">
 								</select>
+								<label for="brandInput" class="form-label">Marka</label>
+								<input type="text" id="brandInput" class="form-control mb-2"
+									placeholder="Marka adını girin">
 
 								<div class="row">
 
@@ -1081,9 +1084,6 @@
 							<!-- Sonuçları Getir Butonu -->
 							<button onclick="compareProducts()" class="btn btn-success w-100 mb-3">Sonuçları
 								Getir</button>
-
-							<!-- Karşılaştırma Sonuçları -->
-							<!-- Karşılaştırma Sonuçları -->
 							<div id="comparisonResults" class="mt-4">
 								<!-- Sonuçlar burada listelenecek -->
 							</div>
@@ -1092,7 +1092,34 @@
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-close" data-dismiss="modal">Kapat</button>
+						<button type="button" class="btn btn-secondary" onclick="startNewSimulation()">Yeni
+							Simülasyon</button>
+						<button type="button" class="btn btn-info" onclick="populateHistoryModal()"
+							data-target="#marketingSimulationHistoryModal"
+							data-toggle="modal">Taslaklar/Geçmiş</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Alışveriş Simülasyon Modalı  Geçmiş / Taslaklar Modalı-->
+		<div class="modal marketingSimulationHistory" id="marketingSimulationHistoryModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Geçmiş Taslaklar
+						</h4>
+						<p id="popup-info-period-msg"></p>
+					</div>
+
+					<div class="modal-body ">
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-close" id="closeHistoryMarketModalBtn"
+							data-dismiss="modal">Kapat</button>
 					</div>
 				</div>
 			</div>
