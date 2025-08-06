@@ -3232,9 +3232,305 @@ body {
     color: #555;
 }
 
-/* --- MEVCUT CSS KODUNUZDAN GÜNCELLENMESİ GEREKENLER (opsiyonel) --- */
 
-/* İkonların rengini artık kendi üst elementi belirleyeceği için buradan kaldırabiliriz */
-/* .history-item-title i {
-    color: #007bff; /* Bu satırı silebilir veya yorum satırı yapabilirsiniz */
-/* } */
+
+
+
+/* Ana Abonelik Listesi Konteyneri */
+#subscription-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    /* Elemanlar arası boşluk */
+}
+
+/* Her bir abonelik satırı/kartı için genel stil */
+.subscription-item {
+    display: flex;
+    flex-wrap: wrap;
+    /* Küçük ekranlarda alt satıra geçmek için */
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.subscription-item:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Abonelik ikonu */
+.subscription-icon {
+    font-size: 1.75rem;
+    /* 28px */
+    color: #007bff;
+    flex-shrink: 0;
+    width: 40px;
+    text-align: center;
+}
+
+/* Abonelik başlığı ve bilgileri */
+.subscription-details {
+    flex: 1 1 300px;
+    /* Büyüme, küçülme ve temel genişlik */
+    min-width: 250px;
+}
+
+.subscription-title {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.subscription-info {
+    margin-bottom: 0;
+    font-size: 0.875rem;
+    /* 14px */
+    color: #6c757d;
+}
+
+.subscription-info .price {
+    font-weight: 500;
+    color: #28a745;
+}
+
+/* Dinamik zamanlama bilgileri alanı */
+.subscription-timing {
+    display: flex;
+    gap: 0.75rem;
+    margin-left: auto;
+    /* Kalan boşluğu doldurarak sağa yaslar */
+    flex-shrink: 0;
+}
+
+.timing-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    min-width: 90px;
+    text-align: center;
+}
+
+.timing-value {
+    font-size: 1.25rem;
+    /* 20px */
+    font-weight: 700;
+}
+
+.timing-label {
+    font-size: 0.75rem;
+    /* 12px */
+    font-weight: 500;
+    text-transform: uppercase;
+    color: #495057;
+}
+
+/* Zamanlama kutuları için özel renkler */
+.timing-box.active-days .timing-value {
+    color: #17a2b8;
+}
+
+/* Mavi-yeşil */
+.timing-box.remaining-days .timing-value {
+    color: #ffc107;
+}
+
+/* Sarı */
+.timing-box.renewal-days .timing-value {
+    color: #fd7e14;
+}
+
+/* Turuncu */
+.timing-box.indefinite .timing-value {
+    color: #6c757d;
+}
+
+/* Gri */
+.timing-box.ended {
+    background-color: #dc3545;
+    color: white;
+}
+
+.timing-box.ended .timing-label {
+    color: white;
+}
+
+
+/* Yönet butonu alanı */
+.subscription-actions {
+    margin-left: 1rem;
+}
+
+/* Önceki CSS kodları burada yer alıyor... */
+
+/* Abonelik Listesindeki Pasif Elemanlar İçin Stil */
+.subscription-item.inactive {
+    opacity: 0.6;
+    background-color: #f8f9fa;
+    /* Daha soluk bir arkaplan */
+    border-style: dashed;
+}
+
+.subscription-item.inactive .subscription-title {
+    text-decoration: line-through;
+    /* Üstünü çiz */
+}
+
+/* Abonelik elemanlarının düzenleme için tıklanabilir olduğunu belirtir */
+.subscription-item {
+    cursor: pointer;
+}
+
+/* Formun kendisi */
+#subscription-form {
+    background-color: #f8f9fa;
+}
+
+/* Ana Abonelik Listesi Konteyneri */
+#subscription-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Her bir abonelik satırı/kartı */
+.subscription-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #160b961c;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.subscription-item:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* PASİF abonelikler için stil */
+.subscription-item.inactive {
+    opacity: 0.65;
+    background-color: #f8f9fa;
+    border-style: dashed;
+    cursor: default;
+    /* Pasifken düzenleme olmasın */
+}
+
+.subscription-item.inactive:hover {
+    transform: none;
+    /* Pasifken hover efekti olmasın */
+}
+
+.subscription-item.inactive .subscription-title {
+    text-decoration: line-through;
+}
+
+/* İkon, detaylar, zamanlama ve diğer alanlar... */
+.subscription-icon {
+    font-size: 1.75rem;
+    flex-shrink: 0;
+    width: 40px;
+    text-align: center;
+}
+
+.subscription-details {
+    flex: 1 1 300px;
+    min-width: 250px;
+}
+
+.subscription-title {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.subscription-info {
+    margin-bottom: 0;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.subscription-info .price {
+    font-weight: 500;
+    color: #28a745;
+}
+
+.subscription-timing {
+    display: flex;
+    gap: 0.75rem;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.timing-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    background-color: #e9ecef;
+    min-width: 90px;
+    text-align: center;
+}
+
+.timing-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.timing-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: #495057;
+}
+
+.timing-box.active-days .timing-value {
+    color: #17a2b8;
+}
+
+.timing-box.remaining-days .timing-value {
+    color: #ffc107;
+}
+
+.timing-box.renewal-days .timing-value {
+    color: #fd7e14;
+}
+
+.timing-box.indefinite .timing-value {
+    color: #6c757d;
+}
+
+.timing-box.ended {
+    background-color: #dc3545;
+    color: white;
+}
+
+.timing-box.ended .timing-label {
+    color: white;
+}
+
+.subscription-actions {
+    margin-left: 1rem;
+}
+
+
+

@@ -883,7 +883,7 @@ let PocketRealtime = (
             }
 
             try {
-                firebase.database().ref("/marketingSimulation/"+firebaseId)
+                firebase.database().ref("/marketingSimulation/" + firebaseId)
                     .on("value", (snapshot) => {
                         waitMe(false);
                         done(snapshot.val());
@@ -918,6 +918,109 @@ let PocketRealtime = (
                 fail(error);
             }
         }
+
+        function querySubscriptionData(args) {
+            waitMe(true);
+            let fail = args.fail;
+            let done = args.done;
+
+            try {
+                // ESKİ SATIR: firebase.database().ref("/subscription")
+                // YENİ FİLTRELİ SATIR:
+                firebase.database().ref("/subscription")
+                    .orderByChild('status') // 1. 'status' alanına göre sırala/filtrele
+                    .equalTo('active')      // 2. Değeri 'active' olanları getir
+
+                    .on("value", (snapshot) => {
+                        waitMe(false);
+                        done(snapshot.val());
+                    }, (error) => {
+                        waitMe(false);
+                        console.error("Active Abonelik dinleyicisinde hata:", error);
+                        fail(error);
+                    });
+            } catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
+        function querySubscriptionDeactiveData(args) {
+            waitMe(true);
+            let fail = args.fail;
+            let done = args.done;
+
+            try {
+                // ESKİ SATIR: firebase.database().ref("/subscription")
+                // YENİ FİLTRELİ SATIR:
+                firebase.database().ref("/subscription")
+                    .orderByChild('status') // 1. 'status' alanına göre sırala/filtrele
+                    .equalTo('inactive')      // 2. Değeri 'active' olanları getir
+
+                    .on("value", (snapshot) => {
+                        waitMe(false);
+                        done(snapshot.val());
+                    }, (error) => {
+                        waitMe(false);
+                        console.error("Deactive Abonelik dinleyicisinde hata:", error);
+                        fail(error);
+                    });
+            } catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
+        function pushSubscriptionData(args) {
+            waitMe(true);
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                let subscriptionData = args.params;
+
+                firebase.database().ref("subscription/").push().set(subscriptionData, error => {
+                    waitMe(false);
+                    if (error) {
+                        fail(error);
+                    } else {
+                        done(true);
+                    }
+                });
+            } catch (error) {
+                waitMe(false);
+                fail(error);
+            }
+        }
+
+        function updateSubscriptionData(args) {
+            waitMe(true);
+            let fail = args.fail;
+            try {
+                let done = args.done;
+                let firebaseId = args.params.firebaseId; // Güncellenecek notun Firebase ID'si
+                let updatedData = args.params.data;     // Güncellenecek notun verileri (title, content, created)
+
+                if (!firebaseId) {
+                    throw new Error("Güncellenecek notun Firebase ID'si belirtilmedi.");
+                }
+
+                // Belirli bir firebaseId altındaki veriyi güncelliyoruz
+                firebase.database().ref("subscription/" + firebaseId).update(updatedData, error => {
+                    if (error) {
+                        waitMe(false);
+                        fail(error);
+                    } else {
+                        waitMe(false);
+                        done(true); // Başarılı olduğunu belirt
+                    }
+                });
+            } catch (error) {
+                waitMe(false);
+                throw new Error(error).stack;
+            }
+        }
+
+
 
 
 
@@ -959,8 +1062,12 @@ let PocketRealtime = (
             pushDepositAndInterestHistory: pushDepositAndInterestHistory,
             deletepositAndInterestItem: deletepositAndInterestItem,
             pushMarketingSimulationData: pushMarketingSimulationData,
-            getMarketingSimulationData:getMarketingSimulationData,
-            queryMarketingSimulationData:queryMarketingSimulationData
+            getMarketingSimulationData: getMarketingSimulationData,
+            queryMarketingSimulationData: queryMarketingSimulationData,
+            querySubscriptionData: querySubscriptionData,
+            pushSubscriptionData: pushSubscriptionData,
+            updateSubscriptionData: updateSubscriptionData,
+            querySubscriptionDeactiveData:querySubscriptionDeactiveData
         }
     }
 )();

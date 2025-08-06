@@ -2952,3 +2952,387 @@ function triggerNotification() {
 
 
 
+const formContainer = $('#subscription-form-container');
+const form = $('#subscription-form');
+const formTitle = $('#form-title');
+const formIdInput = $('#sub-form-id');
+let subscriptionAllData;
+
+
+// ========================================================
+// 2. ANA FONKSİYONLAR (Listeleme, HTML Oluşturma, Hesaplama)
+// ========================================================
+function loadAndDisplaySubscriptions(data) {
+	const container = $('#subscription-list-container');
+	container.html(''); // Konteyneri temizle
+	subscriptionAllData = data.subscriptions || data;
+	const subscriptions = data.subscriptions || data;
+
+	if (subscriptions && Object.keys(subscriptions).length > 0) {
+
+		/**
+		 * SİZİN VERİ YAPINIZA GÖRE GÜNCELLENMİŞ ÖNCELİK FONKSİYONU
+		 */
+		const getPriority = (sub) => {
+			// Kural 4: Pasifler en sona
+			if (sub.status === 'passive') {
+				return 3;
+			}
+			// Kural 3: "endDate" alanı "süresiz" ise süresizdir.
+			if (sub.endDate === 'aylik') {
+				return 2;
+			}
+			// Kural 1: "renewal_type" alanı "contract" ise sabit sürelidir (En Yüksek Öncelik).
+			if (sub.renewal_type === 'contract') {
+				return 1;
+			}
+			// Diğer tüm durumlar için bir varsayılan öncelik (isteğe bağlı)
+			return 4;
+		};
+
+		const sortedKeys = Object.keys(subscriptions).sort((keyA, keyB) => {
+			const subA = subscriptions[keyA];
+			const subB = subscriptions[keyB];
+
+			const priorityA = getPriority(subA);
+			const priorityB = getPriority(subB);
+
+			// Ana Kural: Farklı öncelik seviyesindelerse, düşük puanlıyı (yüksek öncelikliyi) üste al.
+			if (priorityA !== priorityB) {
+				return priorityA - priorityB;
+			}
+
+			// Alt Kural: Öncelikler aynıysa (örn: ikisi de "contract" ise),
+			// bitiş tarihi yakın olanı üste al.
+			// Bu kontrol sadece Öncelik 1 (contract) için geçerli olacak.
+			if (priorityA === 1) {
+				// DİKKAT: "sub.endDate" olarak düzeltildi (büyük/küçük harf uyumu)
+				const dateA = new Date(subA.endDate);
+				const dateB = new Date(subB.endDate);
+				return dateA - dateB;
+			}
+
+			// Diğer durumlar için sıralama önemli değil.
+			return 0;
+		});
+
+		// Sıralanmış anahtarlara göre HTML'i oluştur
+		sortedKeys.forEach(key => {
+			container.append(createSubscriptionItemHTML(key, subscriptions[key]));
+		});
+
+	} else {
+		container.html('<p class="text-center">Gösterilecek abonelik bulunamadı.</p>');
+	}
+
+	calculateDynamicTimes();
+}
+
+function createSubscriptionItemHTML(id, data) {
+	const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+	let endDateDisplay = '', timingBoxHTML = '';
+	if (data.endDate === 'aylik') {
+		endDateDisplay = `Yenileme: <span class="renewal-type">Aylık</span>`;
+		timingBoxHTML = `<div class="timing-box renewal-days"><span class="timing-value" id="${id}-kalan-gun">...</span><span class="timing-label">Yenilemeye Kalan</span></div>`;
+	} else if (data.endDate === 'süresiz') {
+		endDateDisplay = `Bitiş: <span class="end-date">Süresiz</span>`;
+		timingBoxHTML = `<div class="timing-box indefinite"><span class="timing-value" id="${id}-kalan-gun">∞</span><span class="timing-label">Süresiz</span></div>`;
+	} else {
+		endDateDisplay = `Bitiş: <span class="end-date">${formatDate(data.endDate)}</span>`;
+		timingBoxHTML = `<div class="timing-box remaining-days"><span class="timing-value" id="${id}-kalan-gun">...</span><span class="timing-label">Kalan Gün</span></div>`;
+	}
+
+	const isActive = data.status === 'active';
+	return `
+            <div class="subscription-item ${isActive ? '' : 'inactive'}" id="item-${id}" data-id="${id}">
+                <div class="subscription-icon" style="color:${data.color || '#007bff'}"><i class="${data.icon || 'fas fa-tag'}"></i></div>
+                <div class="subscription-details">
+                    <h6 class="subscription-title">${data.name}</h6>
+                    <p class="subscription-info">Başlangıç: ${formatDate(data.startDate)} | ${endDateDisplay} | Ücret: <span class="price">${data.price}</span></p>
+                </div>
+                <div class="subscription-timing" data-start-date="${data.startDate}" data-end-date="${data.endDate}">
+                    <div class="timing-box active-days"><span class="timing-value" id="${id}-aktif-gun">...</span><span class="timing-label">Aktif Gün</span></div>
+                    ${timingBoxHTML}
+                </div>
+                <div class="subscription-actions">
+                    <button class="btn btn-sm ${isActive ? 'btn-outline-warning' : 'btn-outline-success'} btn-toggle-status" data-id="${id}">${isActive ? 'Pasife Al' : 'Aktifleştir'}</button>
+                </div>
+            </div>`;
+}
+
+function calculateDynamicTimes() {
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+	$('.subscription-timing').each(function () {
+		const item = $(this);
+		const id = item.closest('.subscription-item').data('id');
+		const startDate = new Date(item.data('start-date'));
+		const endDateStr = item.data('end-date');
+		startDate.setHours(0, 0, 0, 0);
+
+		const diffDaysActive = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+		$(`#${id}-aktif-gun`).text(diffDaysActive >= 0 ? diffDaysActive : 0);
+
+		const remainingEl = $(`#${id}-kalan-gun`);
+		if (!remainingEl.length) return;
+
+		if (endDateStr === 'aylik') {
+			let renewalDate = new Date(startDate);
+			while (renewalDate <= today) { renewalDate.setMonth(renewalDate.getMonth() + 1); }
+			remainingEl.text(Math.ceil((renewalDate - today) / (1000 * 60 * 60 * 24)));
+		} else if (endDateStr !== 'süresiz') {
+			const endDate = new Date(endDateStr);
+			endDate.setHours(0, 0, 0, 0);
+			if (endDate < today) {
+				const box = remainingEl.parent();
+				box.addClass('ended').find('.timing-label').text('');
+				remainingEl.text('Sona Erdi');
+			} else {
+				remainingEl.text(Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
+			}
+		}
+	});
+}
+// ========================================================
+// 3. FORM YÖNETİMİ VE OLAY DİNLEYİCİLERİ
+// ========================================================
+function resetForm() {
+	form[0].reset();
+	formIdInput.val('');
+	formTitle.text('Yeni Abonelik Ekle');
+	$('#end-date-wrapper').show();
+}
+
+$('#btn-new-subscription').on('click', () => { resetForm(); formContainer.slideDown(); });
+$('#btn-cancel-edit').on('click', () => { formContainer.slideUp(resetForm); $('.modal-content').animate({ scrollTop: 0 }, 1500); });
+$('#sub-form-end-type').on('change', function () { $('#end-date-wrapper').toggle($(this).val() === 'date'); });
+
+// YENİ ABONLİK EKLEME EVENTİ
+form.on('submit', function (e) {
+	e.preventDefault();
+	const id = formIdInput.val();
+	const endType = $('#sub-form-end-type').val();
+
+	const subData = {
+		name: $('#sub-form-name').val(),
+		price: $('#sub-form-price').val(),
+		startDate: $('#sub-form-start-date').val(),
+		endDate: (endType === 'date') ? $('#sub-form-end-date').val() : endType,
+		icon: $('#sub-form-icon').val(),
+		color: $('#sub-form-color').val(),
+		status: id ? subscriptionAllData[id].status : 'active'
+	};
+	if (id != "") {
+		PocketRealtime.updateSubscriptionData({
+			params: {
+				firebaseId: id,
+				data: subData
+			},
+			done: (response) => {
+				console.info("Abonelik güncelleme işlemi başarılı. Lütfen takip etmeyi ihmal etmeyin!");
+				$('#btn-cancel-edit').click();
+			},
+			fail: (error) => {
+				throw new Error("Abonelik ekleme işleminde hata");
+			}
+		})
+	}
+	else {
+		PocketRealtime.pushSubscriptionData({
+			params: subData,
+			done: (response) => {
+				console.info("Yeni abonelik eklendi. Lütfen takip etmeyi ihmal etmeyin!");
+				$('#btn-cancel-edit').click();
+			},
+			fail: (error) => {
+				throw new Error("Abonelik ekleme işleminde hata");
+			}
+		})
+	}
+
+});
+
+$('#subscription-list-container').on('click', function (e) {
+	const target = $(e.target);
+
+	if (target.hasClass('btn-toggle-status')) { // Pasife al/aktifleştir
+
+		e.stopPropagation();
+		const id = target.data('id');
+		const sub = subscriptionAllData[id];
+
+		// 1. Mevcut duruma göre doğru onay mesajını hazırla
+		let confirmationMessage = '';
+		if (sub.status === 'active') {
+			confirmationMessage = "Bu aboneliği pasife almak istediğinize emin misiniz?";
+		} else {
+			confirmationMessage = "Bu aboneliği tekrar aktifleştirmek istediğinize emin misiniz?";
+		}
+
+		// 2. Onay kutusunu göster ve kullanıcının cevabını bekle
+		if (window.confirm(confirmationMessage)) {
+
+			// --- KULLANICI ONAYLADIYSA BU BLOK ÇALIŞIR ---
+
+			// 3. Durumu değiştir ve güncelleme işlemini yap
+			sub.status = (sub.status === 'active') ? 'inactive' : 'active';
+
+			PocketRealtime.updateSubscriptionData({
+				params: {
+					firebaseId: id,
+					data: sub
+				},
+				done: (response) => {
+					console.info(`Abonelik '${sub.name}' başarıyla ${sub.status} olarak güncellendi.`);
+				},
+				fail: (error) => {
+					// console.error daha iyi bir pratiktir.
+					console.error("Abonelik güncelleme işleminde hata:", error);
+				}
+			});
+
+		}
+
+	} else { // Düzenlemek için karta tıkla
+		const item = target.closest('.subscription-item');
+		if (item.length && !item.hasClass('inactive')) {
+			const id = item.data('id');
+			const data = subscriptionAllData[id];
+
+			formTitle.text('Aboneliği Düzenle');
+			formIdInput.val(id);
+			$('#sub-form-name').val(data.name);
+			$('#sub-form-price').val(data.price + "₺/Ay");
+			$('#sub-form-start-date').val(data.startDate);
+			$('#sub-form-icon').val(data.icon);
+			$('#sub-form-color').val(data.color);
+
+			const endTypeSelect = $('#sub-form-end-type');
+			if (data.endDate === 'aylik' || data.endDate === 'süresiz') {
+				endTypeSelect.val(data.endDate).trigger('change');
+			} else {
+				endTypeSelect.val('date').trigger('change');
+				$('#sub-form-end-date').val(data.endDate);
+			}
+			formContainer.slideDown();
+		}
+	}
+});
+
+// ========================================================
+// 4. İLK YÜKLEME
+// ========================================================
+// Modal her açıldığında veriyi subscriptionAllData'dan yeniden yükle
+$('#subscription-modal').on('show.bs.modal', function () {
+	loadAndDisplaySubscriptions(subscriptionAllData);
+	formContainer.hide(); // Formu her açılışta gizle
+});
+
+
+/**
+ * Verilen abonelik verisini alıp modal içinde listeler.
+ * @param {object} historyData - Firebase'den gelen pasif abonelikler objesi.
+ */
+function displaySubscriptionHistory(historyData) {
+	const container = $('#subscriptionHistoryModal .modal-body');
+	container.html(''); // Her açılışta içeriği temizle
+
+	if (!historyData || Object.keys(historyData).length === 0) {
+		container.html('<p class="text-center">Gösterilecek geçmiş/pasif abonelik bulunamadı.</p>');
+		return;
+	}
+
+	// Gelen verinin anahtarlarını da kullanarak her bir item'ı oluşturalım
+	Object.keys(historyData).forEach(key => {
+		const sub = historyData[key];
+		// Her bir pasif abonelik için ana listedeki tasarıma benzer bir HTML elemanı oluşturalım
+		const historyItemHTML = createHistorySubscriptionItemHTML(key, sub);
+		container.append(historyItemHTML);
+	});
+}
+
+/**
+ * Pasif bir abonelik için ana liste görünümünde bir HTML kartı oluşturur.
+ * @param {string} key - Firebase'deki abonelik ID'si.
+ * @param {object} sub - Abonelik verisi.
+ * @returns {string} - Oluşturulan HTML metni.
+ */
+function createHistorySubscriptionItemHTML(key, sub) {
+	// Durum kutucuğu için mantık: Bitiş tarihi geçti mi yoksa manuel mi pasif yapıldı?
+	let statusBoxHTML = '';
+	const today = new Date();
+	const endDate = new Date(sub.endDate);
+
+	// sub.endDate geçerli bir tarih mi ve geçmişte mi kontrolü
+	if (!isNaN(endDate.getTime()) && endDate < today) {
+		statusBoxHTML = `
+            <div class="subscription-status-box expired">
+                Sona Erdi
+            </div>
+        `;
+	} else {
+		// Tarih geçmemişse veya "aylik", "süresiz" gibi bir metinse, manuel pasif yapılmıştır.
+		statusBoxHTML = `
+            <div class="subscription-status-box passive">
+                Pasif
+            </div>
+        `;
+	}
+
+	// Ana HTML yapısı
+	const itemHTML = `
+        <div class="subscription-item">
+            <div class="subscription-item-main">
+                <div class="subscription-icon">
+                    <i class="${sub.icon || 'fas fa-history'}" style="color: ${sub.color || '#6c757d'}"></i>
+                </div>
+                <div class="subscription-details">
+                    <h5 class="subscription-title">${sub.name}</h5>
+                    <p class="subscription-meta">
+                        <span>Başlangıç: ${sub.startDate}</span> |
+                        <span>Bitiş: ${sub.endDate}</span> |
+                        <span>Ücret: ${sub.price}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="subscription-item-info">
+                ${statusBoxHTML}
+            </div>
+            <div class="subscription-item-actions">
+                <button class="btn btn-sm btn-reactivate" data-id="${key}">
+                    <i class="fas fa-undo"></i> Aktifleştir
+                </button>
+            </div>
+        </div>
+    `;
+
+	return itemHTML;
+}
+
+$(document).on('click', '.btn-reactivate', function (e) {
+	e.stopPropagation();
+	// Onay al
+	if (!window.confirm("Bu aboneliği tekrar aktifleştirmek istediğinize emin misiniz?")) {
+		return;
+	}
+	const id = $(this).data('id');
+	let sub = {};
+
+	// Durumu 'active' olarak güncelle
+	sub.status = 'active';
+
+	// Firebase'i güncellemek için ilgili fonksiyonu çağır
+	PocketRealtime.updateSubscriptionData({
+		params: {
+			firebaseId: id,
+			data: sub
+		},
+		done: (response) => {
+			console.info(`'${sub.name}' aboneliği başarıyla aktifleştirildi.`);
+		},
+		fail: (error) => {
+			console.error("Abonelik aktifleştirme işleminde hata:", error);
+		}
+	});
+});

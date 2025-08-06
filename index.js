@@ -1172,6 +1172,28 @@ $('.installmentsHistory').click(function () {
 	})
 })
 
+$('#subscription').click(function () {
+	PocketRealtime.querySubscriptionData({
+		done: function (subscriptions) {
+			loadAndDisplaySubscriptions(subscriptions)
+		},
+		fail: function (error) {
+			console.error(error);
+		}
+	})
+})
+
+$('#openSubscriptionHistory').click(function () {
+	PocketRealtime.querySubscriptionDeactiveData({
+		done: function (subscriptions) {
+			displaySubscriptionHistory(subscriptions)
+		},
+		fail: function (error) {
+			console.error(error);
+		}
+	})
+})
+
 $('#familyIncomeButton').click(function () {
 	PocketRealtime.getFamilyIncome({
 		"status": "1",

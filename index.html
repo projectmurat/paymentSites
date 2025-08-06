@@ -123,6 +123,17 @@
 					</div>
 				</a>
 
+				<a href="#" class="menu-card" data-toggle="modal" data-target="#subscription-modal"
+					id="subscription">
+					<div class="card-icon">
+						<i class="fas fa-box-open"></i>
+					</div>
+					<div class="card-content">
+						<div class="card-title">Abonelikler</div>
+						<div class="card-description">Mevcut Aboneliklere Göz At!</div>
+					</div>
+				</a>
+
 				<a href="#" class="menu-card" data-toggle="modal" data-target="#financial-simulation-modal"
 					id="simulation">
 					<div class="card-icon">
@@ -765,7 +776,8 @@
 							<div class="table-scroll-container">
 								<table>
 									<thead>
-										<tr style="position: sticky;top: 0;background-color: #f8f9fa;z-index: 10;border-bottom: 2px solid #dee2e6;">
+										<tr
+											style="position: sticky;top: 0;background-color: #f8f9fa;z-index: 10;border-bottom: 2px solid #dee2e6;">
 											<th style="min-width: 140px;">Taksit İsmi</th>
 											<th style="min-width: 140px;">Banka İsmi</th>
 											<th style="min-width: 60px;">Ekstre Tarihi</th>
@@ -1292,6 +1304,128 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Abonelikler -->
+		<div class="modal fade" id="subscription-modal" tabindex="-1" role="dialog"
+			aria-labelledby="subscription-modalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="notificationsModalLabel">Abonelik Merkezi</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div id="subscription-header"
+							class="d-flex justify-content-between align-items-center mb-3">
+							<h6 class="mb-0">Aboneliklerim</h6>
+							<div>
+								<button id="btn-new-subscription" class="btn btn-sm btn-success mr-2"
+									title="Yeni Abonelik Ekle">
+									<i class="fas fa-plus"></i> Yeni Ekle
+								</button>
+							</div>
+						</div>
+
+						<div id="subscription-form-container" class="mb-4" style="display: none;">
+							<form id="subscription-form" class="p-3 border rounded bg-light">
+								<h5 id="form-title" class="mb-3">Yeni Abonelik Ekle</h5>
+								<input type="hidden" id="sub-form-id">
+								<div class="form-row">
+									<div class="form-group col-md-8">
+										<label for="sub-form-name">Abonelik Adı</label>
+										<input type="text" class="form-control" id="sub-form-name" required>
+									</div>
+									<div class="form-group col-md-4">
+										<label for="sub-form-price">Ücret</label>
+										<input type="text" class="form-control" id="sub-form-price"
+											placeholder="Örn: 150₺/Ay">
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-4">
+										<label for="sub-form-start-date">Başlangıç Tarihi</label>
+										<input type="date" class="form-control" id="sub-form-start-date"
+											required>
+									</div>
+									<div class="form-group col-md-4">
+										<label for="sub-form-end-type">Bitiş Türü</label>
+										<select id="sub-form-end-type" class="form-control">
+											<option value="date">Belirli Tarih</option>
+											<option value="aylik">Aylık Yenilenen</option>
+											<option value="süresiz">Süresiz</option>
+										</select>
+									</div>
+									<div class="form-group col-md-4" id="end-date-wrapper">
+										<label for="sub-form-end-date">Bitiş Tarihi</label>
+										<input type="date" class="form-control" id="sub-form-end-date">
+									</div>
+									<div class="form-group col-md-4">
+										<label for="sub-form-renewal-type">Yenileme Türü</label>
+										<select id="sub-form-renewal-type" class="form-control">
+											<option value="contract">Sözleşmeli</option>
+											<option value="infinite">Süresiz</option>
+
+										</select>
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-8 mb-md-0">
+										<label for="sub-form-icon">İkon (Font Awesome Class)</label>
+										<input type="text" class="form-control" id="sub-form-icon"
+											placeholder="Örn: fas fa-wifi">
+									</div>
+									<div class="form-group col-md-4 mb-0">
+										<label for="sub-form-color">İkon Rengi</label>
+										<input type="color" class="form-control" id="sub-form-color"
+											value="#007bff">
+									</div>
+								</div>
+								<hr>
+								<div class="text-right">
+									<button type="button" id="btn-cancel-edit"
+										class="btn btn-secondary">İptal</button>
+									<button type="submit" class="btn btn-primary">Kaydet</button>
+								</div>
+							</form>
+						</div>
+
+						<div id="subscription-list-container">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-info" id="openSubscriptionHistory"
+							data-target="#subscriptionHistoryModal"
+							data-toggle="modal">Abonelik Tarihçesi</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- Abonelik Tarihçesi Modalı-->
+		<div class="modal subscriptionHistoryModal" id="subscriptionHistoryModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-title-centered" id="myModalLabel">Geçmiş/Pasif Abonelikler
+						</h4>
+						<p id="popup-info-period-msg"></p>
+					</div>
+
+					<div class="modal-body ">
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-close" id="closeSubscriptionHistoryModalBtn"
+							data-dismiss="modal">Kapat</button>
 					</div>
 				</div>
 			</div>
