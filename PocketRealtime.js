@@ -1020,10 +1020,27 @@ let PocketRealtime = (
             }
         }
 
-
-
-
-
+        function deleteSubscriptionData(args) {
+            waitMe(true);
+            let fail = args.fail;
+            try {
+                let path = args.path;
+                let done = args.done;
+                firebase.database().ref("subscription/" + path).remove((error) => {
+                    if (error) {
+                        waitMe(false);
+                        fail(error);
+                    } else {
+                        waitMe(false);
+                        done(true);
+                    }
+                })
+            }
+            catch (error) {
+                waitMe(false);
+                throw new Error(error).stack;
+            }
+        }
         return {
             getValue: getValue,
             setValue: setValue,
@@ -1067,7 +1084,8 @@ let PocketRealtime = (
             querySubscriptionData: querySubscriptionData,
             pushSubscriptionData: pushSubscriptionData,
             updateSubscriptionData: updateSubscriptionData,
-            querySubscriptionDeactiveData:querySubscriptionDeactiveData
+            querySubscriptionDeactiveData:querySubscriptionDeactiveData,
+            deleteSubscriptionData:deleteSubscriptionData
         }
     }
 )();

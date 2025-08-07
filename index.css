@@ -3458,7 +3458,7 @@ body {
 .subscription-title {
     margin-bottom: 0.25rem;
     font-weight: 600;
-    color: #212529;
+    color: #325200;
 }
 
 .subscription-info {
@@ -3530,6 +3530,11 @@ body {
 
 .subscription-actions {
     margin-left: 1rem;
+}
+.subscription-actions {
+    display: flex;
+    align-items: center; /* Butonları dikeyde ortalar */
+    gap: 6px; /* Butonlar arasına 6px boşluk ekler */
 }
 
 

@@ -3030,9 +3030,8 @@ function loadAndDisplaySubscriptions(data) {
 
 // Abonelik itemlerinin oluşturulduğu metod
 function createSubscriptionItemHTML(id, data) {
+	// ... (fonksiyonun başındaki tüm kodlarınız aynı kalacak) ...
 	const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-
-	// Bitiş/Yenileme etiketi ve değerini ayırmak için mantığı güncelleyelim
 	let endLabel = 'Bitiş:';
 	let endValue = '';
 	if (data.endDate === 'aylik') {
@@ -3043,8 +3042,6 @@ function createSubscriptionItemHTML(id, data) {
 	} else {
 		endValue = `<span class="end-date">${formatDate(data.endDate)}</span>`;
 	}
-
-	// Zamanlama kutucukları için HTML'i oluşturalım
 	let timingBoxHTML = '';
 	if (data.endDate === 'aylik') {
 		timingBoxHTML = `<div class="timing-box renewal-days"><span class="timing-value" id="${id}-kalan-gun">...</span><span class="timing-label">Yenilemeye Kalan</span></div>`;
@@ -3053,31 +3050,67 @@ function createSubscriptionItemHTML(id, data) {
 	} else {
 		timingBoxHTML = `<div class="timing-box remaining-days"><span class="timing-value" id="${id}-kalan-gun">...</span><span class="timing-label">Kalan Gün</span></div>`;
 	}
-
 	const isActive = data.status === 'active';
 
 	return `
         <div class="subscription-item ${isActive ? '' : 'inactive'}" id="item-${id}" data-id="${id}">
             <div class="subscription-icon" style="color:${data.color || '#007bff'}"><i class="${data.icon || 'fas fa-tag'}"></i></div>
             <div class="subscription-details">
-                <h6 class="subscription-title">${data.name}</h6>
-
+                <h5 class="subscription-title">${data.name}</h5>
+			 <h6 class="subscription-title" style="font-size:smaller; color:#bc029d">${data.detailName}</h6>
                 <div class="subscription-info-grid">
                     <span class="info-label">Başlangıç:</span> <span class="info-value">${formatDate(data.startDate)}</span>
                     <span class="info-label">${endLabel}</span> <span class="info-value">${endValue}</span>
-                    <span class="info-label" >Ücret:</span> <span class="info-value"><span class="price" style = "color:#ff002eed; font-weight:bold">${data.price} ₺</span></span>
+                    <span class="info-label">Ücret:</span> <span class="info-value"><span class="price" style="color:#ff002eed; font-weight:bold">${data.price} ₺</span></span>
                 </div>
-
             </div>
             <div class="subscription-timing" data-start-date="${data.startDate}" data-end-date="${data.endDate}">
                 <div class="timing-box active-days"><span class="timing-value" id="${id}-aktif-gun">...</span><span class="timing-label">Aktif Gün</span></div>
                 ${timingBoxHTML}
             </div>
+
+            <!-- DEĞİŞİKLİK BURADA BAŞLIYOR -->
             <div class="subscription-actions">
                 <button class="btn btn-sm ${isActive ? 'btn-outline-warning' : 'btn-outline-success'} btn-toggle-status" data-id="${id}">${isActive ? 'Pasife Al' : 'Aktifleştir'}</button>
+                <button class="btn btn-sm btn-outline-danger btn-delete-subscription" data-id="${id}" title="Aboneliği Sil">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </div>
+            <!-- DEĞİŞİKLİK BURADA BİTİYOR -->
+
         </div>`;
 }
+// Sil butonuna tıklandığında çalışacak olay dinleyicisi
+$(document).on('click', '.btn-delete-subscription', function (e) {
+	e.stopPropagation(); // Diğer click olaylarının tetiklenmesini engelle
+
+	const id = $(this).data('id');
+	// Onay mesajında kullanmak için abonelik ismini alalım
+	const subName = $(this).closest('.subscription-item').find('.subscription-title').text();
+
+	// Kullanıcıdan onay alalım
+	const confirmation = window.confirm(`'${subName}' aboneliğini kalıcı olarak silmek istediğinize emin misiniz?\n\nBu işlem geri alınamaz!`);
+
+	if (confirmation) {
+		// Kullanıcı onayladıysa silme işlemini başlat
+		console.log(`'${id}' ID'li abonelik siliniyor...`);
+
+		// Firebase'den veriyi silmek için ilgili fonksiyonunuzu çağırın
+		// Fonksiyon adının bu şekilde olduğunu varsayıyorum:
+		PocketRealtime.deleteSubscriptionData({
+			path: id,
+			done: () => {
+				console.info(`'${subName}' aboneliği başarıyla silindi.`);
+				$('#btn-cancel-edit').click();
+			},
+			fail: (error) => {
+				console.error("Abonelik silinirken bir hata oluştu:", error);
+				alert("Silme işlemi sırasında bir hata oluştu. Lütfen tekrar deneyin.");
+			}
+		});
+	}
+	// Kullanıcı iptal ettiyse hiçbir şey yapma
+});
 
 function calculateDynamicTimes() {
 	const today = new Date();
@@ -3134,6 +3167,7 @@ form.on('submit', function (e) {
 
 	const subData = {
 		name: $('#sub-form-name').val(),
+		detailName: $('#sub-form-detail-name').val(),
 		price: $('#sub-form-price').val(),
 		startDate: $('#sub-form-start-date').val(),
 		endDate: (endType === 'date') ? $('#sub-form-end-date').val() : endType,
@@ -3221,6 +3255,7 @@ $('#subscription-list-container').on('click', function (e) {
 			formTitle.text('Aboneliği Düzenle');
 			formIdInput.val(id);
 			$('#sub-form-name').val(data.name);
+			$('#sub-form-detail-name').val(data.detailName);
 			$('#sub-form-price').val(data.price);
 			$('#sub-form-start-date').val(data.startDate);
 			$('#sub-form-icon').val(data.icon);

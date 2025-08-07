@@ -964,7 +964,7 @@ $('.btn-openFundsSnapshots').click(function (args) {
 
 					let tableHtml = `
 						<div class="tooltip-header"><strong>🗓️ ${item.insertDate}</strong></div>
-						<table class="tooltip-table">
+						<table class="tooltip-table" style="color:#dad9d9;">
 							<thead>
 								<tr>
 									<th>Tür</th>
@@ -1026,7 +1026,7 @@ $('.btn-openFundsSnapshots').click(function (args) {
 						let diffTable = `
 							<div class="tooltip-diff-section">
 								<div class="tooltip-header"><strong>Kur Bazlı Değişim:</strong></div>
-								<table class="tooltip-table">
+								<table class="tooltip-table" style="color:#dad9d9;">
 									<thead>
 										<tr>
 											<th>Tür</th>
