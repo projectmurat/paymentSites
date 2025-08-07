@@ -3477,6 +3477,12 @@ body {
     gap: 0.75rem;
     margin-left: auto;
     flex-shrink: 0;
+    margin: 0;
+    -webkit-text-stroke-width: thin;
+    justify-content: space-around;
+    align-items: normal;
+;
+    width: 100%;
 }
 
 .timing-box {
@@ -3529,11 +3535,12 @@ body {
 }
 
 .subscription-actions {
-    margin-left: 1rem;
+    margin-left: 0rem;
 }
 .subscription-actions {
     display: flex;
     align-items: center; /* Butonları dikeyde ortalar */
+    flex-direction: column;
     gap: 6px; /* Butonlar arasına 6px boşluk ekler */
 }
 

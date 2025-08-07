@@ -3067,15 +3067,16 @@ function createSubscriptionItemHTML(id, data) {
             <div class="subscription-timing" data-start-date="${data.startDate}" data-end-date="${data.endDate}">
                 <div class="timing-box active-days"><span class="timing-value" id="${id}-aktif-gun">...</span><span class="timing-label">Aktif Gün</span></div>
                 ${timingBoxHTML}
-            </div>
-
-            <!-- DEĞİŞİKLİK BURADA BAŞLIYOR -->
-            <div class="subscription-actions">
+			 <div class="subscription-actions">
                 <button class="btn btn-sm ${isActive ? 'btn-outline-warning' : 'btn-outline-success'} btn-toggle-status" data-id="${id}">${isActive ? 'Pasife Al' : 'Aktifleştir'}</button>
                 <button class="btn btn-sm btn-outline-danger btn-delete-subscription" data-id="${id}" title="Aboneliği Sil">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
+            </div>
+
+            <!-- DEĞİŞİKLİK BURADA BAŞLIYOR -->
+
             <!-- DEĞİŞİKLİK BURADA BİTİYOR -->
 
         </div>`;
