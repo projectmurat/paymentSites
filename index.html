@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -36,6 +35,14 @@
 	</script>
 	<link href="https://cdn.jsdelivr.net/npm/handsontable@8.2.0/dist/handsontable.full.min.css" rel="stylesheet"
 		media="screen">
+
+	<!-- Load the Latest Bootstrap 5 Stylesheet -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+	<!-- Load the Latest Bootstrap Icons -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+	<!-- Load the Icon Picker's Stylesheet -->
+	<link href="dist/css/bootstrapicons-iconpicker.css" rel="stylesheet">
 
 	<!-- Chart.js CDN bağlantısı -->
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1375,10 +1382,14 @@
 									</div>
 								</div>
 								<div class="form-row">
-									<div class="form-group col-md-8 mb-md-0">
-										<label for="sub-form-icon">İkon (Font Awesome Class)</label>
-										<input type="text" class="form-control" id="sub-form-icon"
-											placeholder="Örn: fas fa-wifi">
+									<div class="text-center mt-2" style="width: 100%;">
+										<div class="input-group mb-1">
+											<span class="input-group-text" id="basic-addon1">ICONS</span>
+											<!-- Create An Input Field For The Icon Picker -->
+											<input type="text" id="sub-form-icon" class="form-control iconpicker"
+												placeholder="Abonelik İkonu" aria-label="Abonelik İkonu"
+												aria-describedby="basic-addon1">
+										</div>
 									</div>
 									<div class="form-group col-md-4 mb-0">
 										<label for="sub-form-color">İkon Rengi</label>
@@ -1393,6 +1404,7 @@
 									<button type="submit" class="btn btn-primary">Kaydet</button>
 								</div>
 							</form>
+
 						</div>
 
 						<div id="subscription-list-container">
@@ -1400,8 +1412,8 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-info" id="openSubscriptionHistory"
-							data-target="#subscriptionHistoryModal"
-							data-toggle="modal">Abonelik Tarihçesi</button>
+							data-target="#subscriptionHistoryModal" data-toggle="modal">Abonelik
+							Tarihçesi</button>
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
 					</div>
 				</div>
@@ -1433,6 +1445,44 @@
 
 
 	</div>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<!-- Load the Latest Bootstrap 5 Framework -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+	<!-- Load the Icon Picker's JavaScript -->
+	<script src="dist/js/bootstrapicon-iconpicker.js"></script>
+	<script>
+		// initialize the icon picker and done
+		$('.iconpicker').iconpicker({
+			// customize the icon picker with the following options
+			// THANKS FOR WATCHING!
+			title: 'My Icon Picker',
+			selected: false,
+			defaultValue: false,
+			placement: "bottom",
+			collision: "none",
+			animation: true,
+			hideOnSelect: true,
+			showFooter: true,
+			searchInFooter: false,
+			mustAccept: false,
+			selectedCustomClass: "bg-primary",
+			fullClassFormatter: function (e) {
+				return e;
+			},
+			input: "input,.iconpicker-input",
+			inputSearch: false,
+			container: false,
+			component: ".input-group-addon,.iconpicker-component",
+			templates: {
+				popover: '<div class="iconpicker-popover popover" role="tooltip"><div class="arrow"></div>' + '<div class="popover-title"></div><div class="popover-content"></div></div>',
+				footer: '<div class="popover-footer"></div>',
+				buttons: '<button class="iconpicker-btn iconpicker-btn-cancel btn btn-default btn-sm">Cancel</button>' + ' <button class="iconpicker-btn iconpicker-btn-accept btn btn-primary btn-sm">Accept</button>',
+				search: '<input type="search" class="form-control iconpicker-search" placeholder="Type to filter" />',
+				iconpicker: '<div class="iconpicker"><div class="iconpicker-items"></div></div>',
+				iconpickerItem: '<a role="button" href="javascript:;" class="iconpicker-item"><i></i></a>'
+			}
+		});
+	</script>
 
 	<script src="utility.js"></script>
 	<script src="throwable.js"></script>

@@ -3534,3 +3534,17 @@ body {
 
 
 
+.subscription-info-grid {
+    display: grid;
+    /* İki sütun oluştur: 1. etiketler için (içeriğe göre daralsın), 2. değerler için (kalan tüm alanı kaplasın) */
+    grid-template-columns: auto 1fr;
+    /* Sütunlar arasında 10px, satırlar arasında 2px boşluk bırak */
+    gap: 2px 10px;
+    margin-top: 5px; /* Başlıkla arasında biraz boşluk bırakmak için */
+    font-size: 0.85rem; /* Yazı boyutunu biraz küçültebiliriz */
+}
+
+.subscription-info-grid .info-label {
+    font-weight: 600; /* Etiketleri kalın yap */
+    color: #6c757d; /* Etiket rengini biraz soluklaştır */
+}

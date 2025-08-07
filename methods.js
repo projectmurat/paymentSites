@@ -3028,37 +3028,55 @@ function loadAndDisplaySubscriptions(data) {
 	calculateDynamicTimes();
 }
 
+// Abonelik itemlerinin oluşturulduğu metod
 function createSubscriptionItemHTML(id, data) {
 	const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-	let endDateDisplay = '', timingBoxHTML = '';
+	// Bitiş/Yenileme etiketi ve değerini ayırmak için mantığı güncelleyelim
+	let endLabel = 'Bitiş:';
+	let endValue = '';
 	if (data.endDate === 'aylik') {
-		endDateDisplay = `Yenileme: <span class="renewal-type">Aylık</span>`;
+		endLabel = 'Yenileme:';
+		endValue = `<span class="renewal-type">Aylık</span>`;
+	} else if (data.endDate === 'süresiz') {
+		endValue = `<span class="end-date">Süresiz</span>`;
+	} else {
+		endValue = `<span class="end-date">${formatDate(data.endDate)}</span>`;
+	}
+
+	// Zamanlama kutucukları için HTML'i oluşturalım
+	let timingBoxHTML = '';
+	if (data.endDate === 'aylik') {
 		timingBoxHTML = `<div class="timing-box renewal-days"><span class="timing-value" id="${id}-kalan-gun">...</span><span class="timing-label">Yenilemeye Kalan</span></div>`;
 	} else if (data.endDate === 'süresiz') {
-		endDateDisplay = `Bitiş: <span class="end-date">Süresiz</span>`;
 		timingBoxHTML = `<div class="timing-box indefinite"><span class="timing-value" id="${id}-kalan-gun">∞</span><span class="timing-label">Süresiz</span></div>`;
 	} else {
-		endDateDisplay = `Bitiş: <span class="end-date">${formatDate(data.endDate)}</span>`;
 		timingBoxHTML = `<div class="timing-box remaining-days"><span class="timing-value" id="${id}-kalan-gun">...</span><span class="timing-label">Kalan Gün</span></div>`;
 	}
 
 	const isActive = data.status === 'active';
+
 	return `
-            <div class="subscription-item ${isActive ? '' : 'inactive'}" id="item-${id}" data-id="${id}">
-                <div class="subscription-icon" style="color:${data.color || '#007bff'}"><i class="${data.icon || 'fas fa-tag'}"></i></div>
-                <div class="subscription-details">
-                    <h6 class="subscription-title">${data.name}</h6>
-                    <p class="subscription-info">Başlangıç: ${formatDate(data.startDate)} | ${endDateDisplay} | Ücret: <span class="price">${data.price}</span></p>
+        <div class="subscription-item ${isActive ? '' : 'inactive'}" id="item-${id}" data-id="${id}">
+            <div class="subscription-icon" style="color:${data.color || '#007bff'}"><i class="${data.icon || 'fas fa-tag'}"></i></div>
+            <div class="subscription-details">
+                <h6 class="subscription-title">${data.name}</h6>
+
+                <div class="subscription-info-grid">
+                    <span class="info-label">Başlangıç:</span> <span class="info-value">${formatDate(data.startDate)}</span>
+                    <span class="info-label">${endLabel}</span> <span class="info-value">${endValue}</span>
+                    <span class="info-label" >Ücret:</span> <span class="info-value"><span class="price" style = "color:#ff002eed; font-weight:bold">${data.price} ₺</span></span>
                 </div>
-                <div class="subscription-timing" data-start-date="${data.startDate}" data-end-date="${data.endDate}">
-                    <div class="timing-box active-days"><span class="timing-value" id="${id}-aktif-gun">...</span><span class="timing-label">Aktif Gün</span></div>
-                    ${timingBoxHTML}
-                </div>
-                <div class="subscription-actions">
-                    <button class="btn btn-sm ${isActive ? 'btn-outline-warning' : 'btn-outline-success'} btn-toggle-status" data-id="${id}">${isActive ? 'Pasife Al' : 'Aktifleştir'}</button>
-                </div>
-            </div>`;
+
+            </div>
+            <div class="subscription-timing" data-start-date="${data.startDate}" data-end-date="${data.endDate}">
+                <div class="timing-box active-days"><span class="timing-value" id="${id}-aktif-gun">...</span><span class="timing-label">Aktif Gün</span></div>
+                ${timingBoxHTML}
+            </div>
+            <div class="subscription-actions">
+                <button class="btn btn-sm ${isActive ? 'btn-outline-warning' : 'btn-outline-success'} btn-toggle-status" data-id="${id}">${isActive ? 'Pasife Al' : 'Aktifleştir'}</button>
+            </div>
+        </div>`;
 }
 
 function calculateDynamicTimes() {
@@ -3203,7 +3221,7 @@ $('#subscription-list-container').on('click', function (e) {
 			formTitle.text('Aboneliği Düzenle');
 			formIdInput.val(id);
 			$('#sub-form-name').val(data.name);
-			$('#sub-form-price').val(data.price + "₺/Ay");
+			$('#sub-form-price').val(data.price);
 			$('#sub-form-start-date').val(data.startDate);
 			$('#sub-form-icon').val(data.icon);
 			$('#sub-form-color').val(data.color);
@@ -3216,6 +3234,7 @@ $('#subscription-list-container').on('click', function (e) {
 				$('#sub-form-end-date').val(data.endDate);
 			}
 			formContainer.slideDown();
+			$('.modal-content').animate({ scrollTop: 0 }, 1500)
 		}
 	}
 });
