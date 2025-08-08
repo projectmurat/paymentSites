@@ -1623,7 +1623,7 @@ body {
         /* İçerik düzenini ayarla */
         border-radius: 15px;
         /* Radius'u küçült */
-        padding: 8px 5px;
+        padding: 12px 1px;
         /* Ekstil stil ve animasyonlar */
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
         transition: transform 0.3s ease, box-shadow 0.3s;
@@ -2902,6 +2902,7 @@ body {
 #financial-simulation-modal .tab-link.active {
     color: #007bff;
     border-bottom-color: #007bff;
+    background-color: #d4ebff;
 }
 
 /* Form Elemanları */
@@ -2944,7 +2945,7 @@ body {
 
 #financial-simulation-modal .btn-calculate,
 #financial-simulation-modal .btn-history {
-    padding: 12px 25px;
+    padding: 3px 20px;
     font-size: 16px;
     font-weight: 600;
     border-radius: 6px;
