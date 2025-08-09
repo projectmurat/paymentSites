@@ -734,15 +734,27 @@ $('.btn-reCalculate').click(function () {
 })
 
 $(".btn-saveFunds").click(function () {
-	PocketRealtime.setFunds({
-		params: senderFunds,
-		done: (response) => {
-			console.log("Kaydetme Sonucu: " + response);
-		},
-		fail: (error) => {
-			throw new Error(error).stack;
-		}
-	})
+    // Kullanıcıya onay sor
+    const onay = confirm("Fonları son haliyle kaydetmek istediğinize emin misiniz?");
+
+    // Eğer kullanıcı iptal derse çık
+    if (!onay) {
+        alert("Kaydetme işlemi iptal edildi.");
+        return;
+    }
+
+    // Onay verildiyse Firebase işlemini başlat
+    PocketRealtime.setFunds({
+        params: senderFunds,
+        done: (response) => {
+            console.log("Kaydetme Sonucu: " + response);
+            alert("Fonlar başarıyla kaydedildi.");
+        },
+        fail: (error) => {
+            alert("Kaydetme sırasında hata oluştu.");
+            console.error(error);
+        }
+    });
 });
 
 $('#installments').click(function () {

@@ -2761,6 +2761,20 @@ body {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .creditCardInstallmentModal .table-scroll-container {
     overflow-x: auto;
     /* Yatay scroll'u bu element yönetecek! */
@@ -3275,6 +3289,11 @@ body {
     text-align: center;
 }
 
+.subscription-icon .subscription-icon-class {
+    margin-right: 10px;
+    font-size: 40px;
+}
+
 /* Abonelik başlığı ve bilgileri */
 .subscription-details {
     flex: 1 1 300px;
@@ -3447,8 +3466,15 @@ body {
 .subscription-icon {
     font-size: 1.75rem;
     flex-shrink: 0;
-    width: 40px;
     text-align: center;
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.subscription-icon .i {
+    margin-right: 10px;
 }
 
 .subscription-details {
@@ -3460,6 +3486,10 @@ body {
     margin-bottom: 0.25rem;
     font-weight: 600;
     color: #325200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 19px;
 }
 
 .subscription-info {
@@ -3482,7 +3512,7 @@ body {
     -webkit-text-stroke-width: thin;
     justify-content: space-around;
     align-items: normal;
-;
+    ;
     width: 100%;
 }
 
@@ -3538,11 +3568,14 @@ body {
 .subscription-actions {
     margin-left: 0rem;
 }
+
 .subscription-actions {
     display: flex;
-    align-items: center; /* Butonları dikeyde ortalar */
+    align-items: center;
+    /* Butonları dikeyde ortalar */
     flex-direction: column;
-    gap: 6px; /* Butonlar arasına 6px boşluk ekler */
+    gap: 6px;
+    /* Butonlar arasına 6px boşluk ekler */
 }
 
 
@@ -3553,11 +3586,15 @@ body {
     grid-template-columns: auto 1fr;
     /* Sütunlar arasında 10px, satırlar arasında 2px boşluk bırak */
     gap: 2px 10px;
-    margin-top: 5px; /* Başlıkla arasında biraz boşluk bırakmak için */
-    font-size: 0.85rem; /* Yazı boyutunu biraz küçültebiliriz */
+    margin-top: 5px;
+    /* Başlıkla arasında biraz boşluk bırakmak için */
+    font-size: 0.85rem;
+    /* Yazı boyutunu biraz küçültebiliriz */
 }
 
 .subscription-info-grid .info-label {
-    font-weight: 600; /* Etiketleri kalın yap */
-    color: #6c757d; /* Etiket rengini biraz soluklaştır */
+    font-weight: 600;
+    /* Etiketleri kalın yap */
+    color: #6c757d;
+    /* Etiket rengini biraz soluklaştır */
 }

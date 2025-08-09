@@ -3054,9 +3054,8 @@ function createSubscriptionItemHTML(id, data) {
 
 	return `
         <div class="subscription-item ${isActive ? '' : 'inactive'}" id="item-${id}" data-id="${id}">
-            <div class="subscription-icon" style="color:${data.color || '#007bff'}"><i class="${data.icon || 'fas fa-tag'}"></i></div>
+            <div class="subscription-icon" style="color:${data.color || '#007bff'}"><i class="${data.icon || 'fas fa-tag'} subscription-icon-class"></i><h5 class="subscription-title">${data.name}</h5></div>
             <div class="subscription-details">
-                <h5 class="subscription-title">${data.name}</h5>
 			 <h6 class="subscription-title" style="font-size:smaller; color:#bc029d">${data.detailName}</h6>
                 <div class="subscription-info-grid">
                     <span class="info-label">Başlangıç:</span> <span class="info-value">${formatDate(data.startDate)}</span>
