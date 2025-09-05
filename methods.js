@@ -27,6 +27,7 @@ let familyOutObject;
 let isBillPopupClicked = false;
 let aktifSekme = 'Mevduat';
 const KREDI_TAHSIS_ORANI = 0.005;
+let firstLoad = true;
 
 document.getElementById("marketDropdown").addEventListener("change", updateProductDropdown);
 
@@ -2659,15 +2660,19 @@ function triggerNotification() {
 		if (approachingAlert.length === 0) {
 			$('body').append(`
 				<div id="approachingNotificationAlert" class="approaching-notification-alert">
-					<div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between">
+					<div class="d-flex flex-column flex-sm-row align-items-center align-items-sm-center justify-content-between">
 						<div class="text-section">
 						<strong class="d-block mb-2">Yaklaşan Bildirim</strong>
 						<span id="approachingNotificationTitle" class="d-block mb-1"></span>
+						<span id="approachingNotificationContent" class="d-block mb-0" style="font-size:12px;"></span>
 						<small id="approachingNotificationTime" class="d-block text-muted"></small>
 						</div>
-						<div class="mt-3 mt-sm-0 ml-sm-4">
-						<button id="ignoreTodayBtn" class="btn btn-sm btn-outline-dark px-4 py-2 font-weight-semibold rounded-pill shadow-sm">
-							<i class="fas fa-eye-slash mr-1"></i> Bugün Yoksay
+						<div class="mt-3 mt-sm-0 ml-sm-4 style="width: 100%;display: flex;justify-content: center;align-items: center; flex-direction:row;"">
+						<button id="ignoreTodayBtn" class="btn btn-sm btn-outline-dark px-2 py-1 font-weight-semibold rounded-pill shadow-sm" style="font-size: 12px;">
+							<i class="fas fa-eye-slash mr-1"></i>Bugün Yoksay
+						</button>
+						<button id="ignoreThisSessionBtn" class="btn btn-sm btn-outline-dark px-2 py-1 font-weight-semibold rounded-pill shadow-sm" style="font-size: 12px;">
+							<i class="fas fa-eye-slash mr-1"></i>Oturumda Yoksay
 						</button>
 						</div>
 					</div>
@@ -2702,6 +2707,7 @@ function triggerNotification() {
 		if (nearestApproaching) {
 			approachingAlert.data('notification-id', nearestApproaching.firebaseId);
 			approachingAlert.find('#approachingNotificationTitle').text(nearestApproaching.title);
+			approachingAlert.find('#approachingNotificationContent').text(nearestApproaching.content);
 			approachingAlert.find('#approachingNotificationTime').text(`Zamanı: ${fundsLastCallbackTime(nearestApproaching.scheduledTime)}`);
 			approachingAlert.fadeIn();
 		} else {
@@ -2840,15 +2846,42 @@ function triggerNotification() {
 	// Uygulama başladığında ilk yüklemeyi yap ve Firebase'den dinlemeye başla
 	PocketRealtime.getNotifications({
 		done: (notifications) => {
-			renderNotifications(notifications);
-			checkAndTriggerNotifications();
-		},
-		fail: (error) => {
-			console.error("Başlangıç bildirimleri yüklenirken hata:", error);
-			noNotificationsMessage.show();
-			updateNotificationCount(0);
+			if (firstLoad) {
+				const sessionIgnored = notifications.filter(n => n.ignoredUntil === "session");
+
+				const updates = sessionIgnored.map(n => {
+					return new Promise((resolve, reject) => {
+						PocketRealtime.updateNotification({
+							params: {
+								firebaseId: n.firebaseId,
+								data: { ignoredUntil: null }
+							},
+							done: (response) => {
+								resolve();
+							},
+							fail: (err) => {
+								reject(err);
+							}
+						});
+					});
+				});
+
+				Promise.allSettled(updates).then(() => {
+					const cleaned = notifications.map(n =>
+						n.ignoredUntil === "session" ? { ...n, ignoredUntil: null } : n
+					);
+					renderNotifications(cleaned);
+					checkAndTriggerNotifications();
+				});
+
+				firstLoad = false; // sadece ilk çalıştırmada session temizlenir
+			} else {
+				renderNotifications(notifications);
+				checkAndTriggerNotifications();
+			}
 		}
 	});
+
 
 	// Her 10 saniyede bir bildirimleri kontrol et ve tetikle
 	setInterval(checkAndTriggerNotifications, 10 * 1000);
@@ -2895,6 +2928,31 @@ function triggerNotification() {
 				console.error("Yoksayma güncellemesi başarısız:", error);
 			}
 		});
+	});
+
+	$(document).on('click', '#ignoreThisSessionBtn', function () {
+		const notificationId = approachingAlert.data('notification-id');
+		if (!notificationId) return;
+
+		const now = new Date();
+		const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+		PocketRealtime.updateNotification({
+			params: {
+				firebaseId: notificationId,
+				data: {
+					ignoredUntil: "session"
+				}
+			},
+			done: () => {
+				approachingAlert.fadeOut();
+				console.log(`Bildirim ${notificationId} bu oturum için yoksayıldı.`);
+			},
+			fail: (error) => {
+				console.error("Yoksayma güncellemesi başarısız:", error);
+			}
+		});
+
 	});
 
 	function ignoreNotificationForDays(notificationId, dayCount) {
@@ -3017,6 +3075,7 @@ function loadAndDisplaySubscriptions(data) {
 		});
 
 		// Sıralanmış anahtarlara göre HTML'i oluştur
+		document.getElementById('abonelik-sayisi').textContent = sortedKeys.length;
 		sortedKeys.forEach(key => {
 			container.append(createSubscriptionItemHTML(key, subscriptions[key]));
 		});
@@ -3031,6 +3090,17 @@ function loadAndDisplaySubscriptions(data) {
 // Abonelik itemlerinin oluşturulduğu metod
 function createSubscriptionItemHTML(id, data) {
 	// ... (fonksiyonun başındaki tüm kodlarınız aynı kalacak) ...
+	function getPaymentLabel(paymentType) {
+		switch (paymentType) {
+			case 'automatic':
+				return 'Hesap Etkileşimli (Kart) Otomatik';
+			case 'manual':
+				return 'Belirsiz (Manuel)';
+			default:
+				// Beklenmedik bir değer gelirse varsayılan bir metin döndür
+				return 'Geçersiz Ödeme Türü';
+		}
+	}
 	const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 	let endLabel = 'Bitiş:';
 	let endValue = '';
@@ -3061,7 +3131,9 @@ function createSubscriptionItemHTML(id, data) {
                     <span class="info-label">Başlangıç:</span> <span class="info-value">${formatDate(data.startDate)}</span>
                     <span class="info-label">${endLabel}</span> <span class="info-value">${endValue}</span>
                     <span class="info-label">Ücret:</span> <span class="info-value"><span class="price" style="color:#ff002eed; font-weight:bold">${data.price} ₺</span></span>
-                </div>
+				<span class="info-label">Ödeme Tipi:</span> <span style="color: #190c94;" class="info-value">${getPaymentLabel(data.payType)}</span>
+				<span class="info-label">Ödeme Aracı:</span> <span style="color: #00a582;" class="info-value">${data.payImplement ? data.payImplement : "-"}</span>
+			</div>
             </div>
             <div class="subscription-timing" data-start-date="${data.startDate}" data-end-date="${data.endDate}">
                 <div class="timing-box active-days"><span class="timing-value" id="${id}-aktif-gun">...</span><span class="timing-label">Aktif Gün</span></div>
@@ -3173,6 +3245,8 @@ form.on('submit', function (e) {
 		endDate: (endType === 'date') ? $('#sub-form-end-date').val() : endType,
 		icon: $('#sub-form-icon').val(),
 		color: $('#sub-form-color').val(),
+		payType: $('#sub-form-pay-type').val(),
+		payImplement: $('#sub-form-pay-implement').val(),
 		status: id ? subscriptionAllData[id].status : 'active'
 	};
 	if (id != "") {
@@ -3260,6 +3334,8 @@ $('#subscription-list-container').on('click', function (e) {
 			$('#sub-form-start-date').val(data.startDate);
 			$('#sub-form-icon').val(data.icon);
 			$('#sub-form-color').val(data.color);
+			$('#sub-form-pay-type').val(data.payType);
+			$('#sub-form-pay-implement').val(data.payImplement);
 
 			const endTypeSelect = $('#sub-form-end-type');
 			if (data.endDate === 'aylik' || data.endDate === 'süresiz') {
@@ -3389,4 +3465,15 @@ $(document).on('click', '.btn-reactivate', function (e) {
 			console.error("Abonelik aktifleştirme işleminde hata:", error);
 		}
 	});
+});
+
+$('#sub-form-pay-type').on('change', function () {
+	// Eğer seçilen değer 'automatic' ise
+	if ($(this).val() === 'automatic') {
+		// "Ödeme Aracı" alanını yavaşça göster (animasyonlu)
+		$('#odeme-araci-wrapper').show();
+	} else {
+		// Değilse, alanı yavaşça gizle (animasyonlu)
+		$('#odeme-araci-wrapper').hide();
+	}
 });

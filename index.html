@@ -75,7 +75,6 @@
 			data-target="#notificationsModal" id="openNotificationsModal">
 			<i class="fas fa-bell fa-lg"></i>
 			<span class="badge badge-danger badge-pill notification-count" id="notificationCount"></span>
-			<span class="notification-dot" id="notificationDot"></span>
 			<span id="newNotificationLabel" class="ml-1"></span>
 		</button>
 
@@ -1330,7 +1329,10 @@
 					<div class="modal-body">
 						<div id="subscription-header"
 							class="d-flex justify-content-between align-items-center mb-3">
-							<h6 class="mb-0">Aboneliklerim</h6>
+							<h6 class="mb-0 subscription-header">
+								Aboneliklerim
+								<span id="abonelik-sayisi">(5)</span>
+							</h6>
 							<div>
 								<button id="btn-new-subscription" class="btn btn-sm btn-success mr-2"
 									title="Yeni Abonelik Ekle">
@@ -1384,6 +1386,25 @@
 											<option value="infinite">Süresiz</option>
 
 										</select>
+									</div>
+									<div class="form-group col-md-4">
+										<label for="sub-form-pay-type">Ödeme Türü</label>
+										<select id="sub-form-pay-type" class="form-control">
+											<option value="automatic">Otomatik</option>
+											<option value="manual">Manuel</option>
+										</select>
+										<small class="form-text text-muted">
+											<b>Otomatik:</b> Kart bilgilerinizi girdiğinizde, abonelik her
+											ayın 8’inde kartınızdan otomatik tahsil edilir.<br>
+											<b>Manuel:</b> Her ay için bir fatura oluşturulur, ödemeyi
+											dilediğiniz yöntemle (kart, havale vb.) manuel yapabilirsiniz.
+										</small>
+									</div>
+
+									<div class="form-group col-md-4" id="odeme-araci-wrapper">
+										<label for="sub-form-pay-implement">Ödeme Aracı</label>
+										<input type="text" class="form-control" id="sub-form-pay-implement"
+											placeholder="Örn: Murat EnCard">
 									</div>
 								</div>
 								<div class="form-row">
