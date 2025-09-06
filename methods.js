@@ -3077,7 +3077,7 @@ function loadAndDisplaySubscriptions(data) {
 		// Sıralanmış anahtarlara göre HTML'i oluştur
 		document.getElementById('abonelik-sayisi').textContent = sortedKeys.length;
 		sortedKeys.forEach(key => {
-			container.append(createSubscriptionItemHTML(key, subscriptions[key]));
+			container.append(createSubscriptionCardHTML(key, subscriptions[key],'activeList'));
 		});
 
 	} else {
@@ -3377,67 +3377,119 @@ function displaySubscriptionHistory(historyData) {
 	Object.keys(historyData).forEach(key => {
 		const sub = historyData[key];
 		// Her bir pasif abonelik için ana listedeki tasarıma benzer bir HTML elemanı oluşturalım
-		const historyItemHTML = createHistorySubscriptionItemHTML(key, sub);
-		container.append(historyItemHTML);
+		const itemHTML = createSubscriptionCardHTML(key, sub, 'historyList');
+		container.append(itemHTML);
 	});
 }
 
 /**
- * Pasif bir abonelik için ana liste görünümünde bir HTML kartı oluşturur.
- * @param {string} key - Firebase'deki abonelik ID'si.
- * @param {object} sub - Abonelik verisi.
+ * Aktif veya geçmiş listesi için bir abonelik kartı HTML'i oluşturur.
+ * @param {string} id - Abonelik ID'si.
+ * @param {object} data - Abonelik verisi.
+ * @param {string} context - Kartın kullanım amacı ('activeList' veya 'historyList').
  * @returns {string} - Oluşturulan HTML metni.
  */
-function createHistorySubscriptionItemHTML(key, sub) {
-	// Durum kutucuğu için mantık: Bitiş tarihi geçti mi yoksa manuel mi pasif yapıldı?
-	let statusBoxHTML = '';
-	const today = new Date();
-	const endDate = new Date(sub.endDate);
+function createSubscriptionCardHTML(id, data, context = 'activeList') {
+	// --- Yardımcı Fonksiyonlar (Her iki görünüm için de ortak) ---
+	function getPaymentLabel(paymentType) {
+		switch (paymentType) {
+			case 'automatic': return 'Hesap Etkileşimli (Kart) Otomatik';
+			case 'manual': return 'Belirsiz (Manuel)';
+			default: return 'Geçersiz Ödeme Türü';
+		}
+	}
+	const formatDate = (dateStr) => {
+		// Geçersiz tarihleri veya özel stringleri kontrol et
+		if (!dateStr || ['aylik', 'süresiz'].includes(dateStr)) {
+			return dateStr;
+		}
+		return new Date(dateStr).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+	};
 
-	// sub.endDate geçerli bir tarih mi ve geçmişte mi kontrolü
-	if (!isNaN(endDate.getTime()) && endDate < today) {
-		statusBoxHTML = `
-            <div class="subscription-status-box expired">
-                Sona Erdi
-            </div>
-        `;
+	// --- Orta Sütun İçeriği (Her iki görünüm için de ortak) ---
+	let endLabel = 'Bitiş:';
+	let endValue = '';
+	if (data.endDate === 'aylik') {
+		endLabel = 'Yenileme:';
+		endValue = `<span class="renewal-type">Aylık</span>`;
+	} else if (data.endDate === 'süresiz') {
+		endValue = `<span class="end-date">Süresiz</span>`;
 	} else {
-		// Tarih geçmemişse veya "aylik", "süresiz" gibi bir metinse, manuel pasif yapılmıştır.
-		statusBoxHTML = `
-            <div class="subscription-status-box passive">
-                Pasif
-            </div>
-        `;
+		endValue = `<span class="end-date">${formatDate(data.endDate)}</span>`;
 	}
 
-	// Ana HTML yapısı
-	const itemHTML = `
-        <div class="subscription-item">
-            <div class="subscription-item-main">
-                <div class="subscription-icon">
-                    <i class="${sub.icon || 'fas fa-history'}" style="color: ${sub.color || '#6c757d'}"></i>
-                </div>
-                <div class="subscription-details">
-                    <h5 class="subscription-title">${sub.name}</h5>
-                    <p class="subscription-meta">
-                        <span>Başlangıç: ${sub.startDate}</span> |
-                        <span>Bitiş: ${sub.endDate}</span> |
-                        <span>Ücret: ${sub.price}</span>
-                    </p>
-                </div>
-            </div>
-            <div class="subscription-item-info">
-                ${statusBoxHTML}
-            </div>
-            <div class="subscription-item-actions">
-                <button class="btn btn-sm btn-reactivate" data-id="${key}">
-                    <i class="fas fa-undo"></i> Aktifleştir
-                </button>
-            </div>
-        </div>
-    `;
+	// --- Sağ Sütun İçeriği (Görünüme göre değişen kısım) ---
+	let rightColumnHTML = '';
 
-	return itemHTML;
+	if (context === 'activeList') {
+		// AKTİF LİSTE GÖRÜNÜMÜ İÇİN SAĞ SÜTUN
+		let timingBoxHTML = '';
+		if (data.endDate === 'aylik') {
+			timingBoxHTML = `<div class="timing-box renewal-days"><span class="timing-value" id="${id}-kalan-gun">...</span><span class="timing-label">Yenilemeye Kalan</span></div>`;
+		} else if (data.endDate === 'süresiz') {
+			timingBoxHTML = `<div class="timing-box indefinite"><span class="timing-value" id="${id}-kalan-gun">∞</span><span class="timing-label">Süresiz</span></div>`;
+		} else {
+			timingBoxHTML = `<div class="timing-box remaining-days"><span class="timing-value" id="${id}-kalan-gun">...</span><span class="timing-label">Kalan Gün</span></div>`;
+		}
+
+		const isActive = data.status === 'active';
+		rightColumnHTML = `
+            <div class="subscription-timing" data-start-date="${data.startDate}" data-end-date="${data.endDate}">
+                <div class="timing-box active-days"><span class="timing-value" id="${id}-aktif-gun">...</span><span class="timing-label">Aktif Gün</span></div>
+                ${timingBoxHTML}
+                <div class="subscription-actions">
+                    <button class="btn btn-sm ${isActive ? 'btn-outline-warning' : 'btn-outline-success'} btn-toggle-status" data-id="${id}">${isActive ? 'Pasife Al' : 'Aktifleştir'}</button>
+                    <button class="btn btn-sm btn-outline-danger btn-delete-subscription" data-id="${id}" title="Aboneliği Sil">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>`;
+
+	} else { // context === 'historyList'
+		// GEÇMİŞ LİSTESİ GÖRÜNÜMÜ İÇİN SAĞ SÜTUN
+		let statusBoxHTML = '';
+		const today = new Date();
+		const endDate = new Date(data.endDate);
+
+		if (!isNaN(endDate.getTime()) && endDate < today) {
+			statusBoxHTML = `<div class="timing-box status-box expired"><span class="timing-value"><i class="fas fa-calendar-times"></i></span><span class="timing-label">Sona Erdi</span></div>`;
+		} else {
+			statusBoxHTML = `<div class="timing-box status-box passive"><span class="timing-value"><i class="fas fa-pause-circle"></i></span><span class="timing-label">Pasif</span></div>`;
+		}
+
+		rightColumnHTML = `
+            <div class="subscription-timing history-view">
+                 ${statusBoxHTML}
+                 <div class="subscription-actions">
+                     <button class="btn btn-sm btn-outline-success btn-reactivate" data-id="${id}">
+                         <i class="fas fa-undo"></i> Yeniden Aktifleştir
+                     </button>
+                 </div>
+            </div>`;
+	}
+
+	// --- Ana HTML Şablonu (Her iki görünüm için ortak temel yapı) ---
+	const mainClass = context === 'activeList' ? (data.status === 'active' ? '' : 'inactive') : 'historical';
+
+	return `
+        <div class="subscription-item ${mainClass}" id="item-${id}" data-id="${id}">
+            <div class="subscription-icon" style="color:${data.color || '#007bff'}">
+                <i class="${data.icon || 'fas fa-tag'} subscription-icon-class"></i>
+                <h5 class="subscription-title">${data.name}</h5>
+            </div>
+            <div class="subscription-details">
+
+                <div class="subscription-info-grid">
+			 	<span class="info-label">Paket</span><span class="info-value" style="font-weight: bold; font-size:small; color:#bc029d">${data.detailName || ''}</span>
+                    <span class="info-label">Başlangıç</span> <span class="info-value">${formatDate(data.startDate)}</span>
+                    <span class="info-label">${endLabel}</span> <span class="info-value">${endValue}</span>
+                    <span class="info-label">Ücret</span> <span class="info-value"><span class="price" style="color:#ff002eed; font-weight:bold">${data.price} ₺</span></span>
+                    <span class="info-label">Ödeme Tipi</span> <span style="color: #190c94;" class="info-value">${getPaymentLabel(data.payType)}</span>
+                    <span class="info-label">Ödeme Aracı</span> <span style="color: #00a582; text-transform: uppercase;" class="info-value">${data.payImplement ? data.payImplement : "-"}</span>
+                </div>
+            </div>
+            ${rightColumnHTML}
+        </div>`;
 }
 
 $(document).on('click', '.btn-reactivate', function (e) {
