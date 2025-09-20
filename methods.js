@@ -904,64 +904,87 @@ function calistirHesaplama() {
 	}
 }
 
+
 // MEVDUAT HESAPLAMA
 function hesaplaMevduat() {
+	// 1. GİRDİLERİ AL
 	const anaPara = parseFloat(document.getElementById('sim_mevduat_anaPara').value) || 0;
 	const birikim = parseFloat(document.getElementById('sim_mevduat_birikim').value) || 0;
 	const faizOrani = parseFloat(document.getElementById('sim_mevduat_faizOrani').value);
 	const toplamAy = parseInt(document.getElementById('sim_mevduat_toplamAy').value);
 
+	// 2. VALİDASYON
 	if (isNaN(faizOrani) || isNaN(toplamAy) || anaPara <= 0) {
 		alert("Lütfen tüm zorunlu alanları doğru bir şekilde doldurun.");
 		return;
 	}
 
+	// 3. HESAPLAMA MANTIĞI
 	const yillikFaiz = faizOrani / 100;
 	const stopajOrani = 0.15;
-	let tablo = `
-	<thead>
-	<tr>
-		<th style="min-width: 80px;">Ay</th>
-		<th style="min-width: 120px;">Ana Para</th>
-		<th style="min-width: 100px;">Net Faiz</th>
-		<th style="min-width: 100px;">Brüt Faiz</th>
-		<th style="min-width: 120px;">Aylık Birikim</th>
-		<th style="min-width: 80px;">Stopaj</th>
-		<th style="min-width: 140px;">Toplam Bakiye</th>
-	</tr>
-	</thead>
-	<tbody>
-	`;
 
-	let mevcutAnaPara = anaPara;
+	const formatla = (num) => {
+		return num.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
+	};
+
+	let tablo = `
+        <thead>
+            <tr>
+                <th style="min-width: 80px;">Ay</th>
+                <th style="min-width: 120px;">Ay Başı Bakiye</th>
+                <th style="min-width: 100px;">Net Faiz</th>
+                <th style="min-width: 100px;">Brüt Faiz</th>
+                <th style="min-width: 120px;">Aylık Birikim</th>
+                <th style="min-width: 80px;">Stopaj</th>
+                <th style="min-width: 140px;">Ay Sonu Bakiye</th>
+            </tr>
+        </thead>
+        <tbody>
+    `;
+
+	let mevcutBakiye = anaPara;
 
 	for (let i = 1; i <= toplamAy; i++) {
-		const anaParaOnceki = mevcutAnaPara;
+		const ayBasiBakiye = mevcutBakiye;
 
-		mevcutAnaPara += birikim;
-		const brutFaizTutari = (mevcutAnaPara * yillikFaiz) / 12;
-		const stopajTutari = brutFaizTutari * stopajOrani;
-		const netFaiz = brutFaizTutari - stopajTutari;
-		mevcutAnaPara += netFaiz;
+		// --- DEĞİŞİKLİK BURADA BAŞLIYOR ---
+
+		// DÜZELTME: Faiz artık sadece 'ayBasiBakiye' üzerinden hesaplanıyor.
+		// Aylık birikim bu hesaplamaya dahil DEĞİL.
+		const brutFaiz = (ayBasiBakiye * yillikFaiz) / 12;
+		const stopaj = brutFaiz * stopajOrani;
+		const netFaiz = brutFaiz - stopaj;
+
+		// DÜZELTME: Ay sonu bakiyesi, ay başı bakiyesine net faiz ve aylık birikimin eklenmesiyle bulunur.
+		const aySonuBakiye = ayBasiBakiye + netFaiz + birikim;
+
+		// --- DEĞİŞİKLİK BURADA BİTİYOR ---
 
 		tablo += `
-		<tr>
-			<td>${i}. Ay</td>
-			<td>${formatCurrency(anaParaOnceki)}</td>
-			<td class="positive">${formatCurrency(netFaiz)}</td>
-			<td>${formatCurrency(brutFaizTutari)}</td>
-			<td>${formatCurrency(birikim)}</td>
-			<td class="negative">${formatCurrency(stopajTutari)}</td>
-			<td><strong>${formatCurrency(mevcutAnaPara)}</strong></td>
-		</tr>
-		`;
+            <tr>
+                <td>${i}. Ay</td>
+                <td>${formatla(ayBasiBakiye)}</td>
+                <td class="positive">${formatla(netFaiz)}</td>
+                <td>${formatla(brutFaiz)}</td>
+                <td>${formatla(birikim)}</td>
+                <td class="negative">${formatla(stopaj)}</td>
+                <td><strong>${formatla(aySonuBakiye)}</strong></td>
+            </tr>
+        `;
+
+		// Bir sonraki ay için bakiyeyi güncelle
+		mevcutBakiye = aySonuBakiye;
 	}
 
-
 	tablo += '</tbody>';
+
+	// 4. SONUÇLARI YAZDIR
 	document.getElementById('sim_sonucTablosu').innerHTML = tablo;
 
-	kaydetSimulasyon({ type: 'Mevduat', inputs: { anaPara, birikim, faizOrani, toplamAy } });
+	// 5. KAYDETME FONKSİYONUNU ÇAĞIR
+	if (typeof kaydetSimulasyon === 'function') {
+		kaydetSimulasyon({ type: 'Mevduat', inputs: { anaPara, birikim, faizOrani, toplamAy } });
+	}
 }
 
 // KREDİ HESAPLAMA
@@ -3077,7 +3100,7 @@ function loadAndDisplaySubscriptions(data) {
 		// Sıralanmış anahtarlara göre HTML'i oluştur
 		document.getElementById('abonelik-sayisi').textContent = sortedKeys.length;
 		sortedKeys.forEach(key => {
-			container.append(createSubscriptionCardHTML(key, subscriptions[key],'activeList'));
+			container.append(createSubscriptionCardHTML(key, subscriptions[key], 'activeList'));
 		});
 
 	} else {

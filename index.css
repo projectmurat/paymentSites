@@ -2866,6 +2866,12 @@ body {
 
 
 /* Stillerin sadece bu ID'ye sahip modal içinde çalışmasını sağlıyoruz */
+
+#financial-simulation-modal .result-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 #financial-simulation-modal .modal-content,
 #financial-history-modal .modal-content {
     background-color: #f8f9fa;
