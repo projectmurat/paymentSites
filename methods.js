@@ -779,6 +779,8 @@ function collectaNewInstallmentData() {
 	const currentInstallment = document.getElementById("currentInstallment").valueAsNumber;
 	const lastPaidMonth = document.getElementById("lastPaidMonth").value;
 	const totalInstallment = document.getElementById("totalInstallment").value;
+	const bankCode = document.getElementById("bankName").value;
+	const statementCutoffDay = document.getElementById("statementCutoffDay").value;
 
 	// Alanların dolu olup olmadığını kontrol ediyoruz
 	if (!itemName ||
@@ -798,6 +800,8 @@ function collectaNewInstallmentData() {
 		item: itemName,
 		installmentAmount: installmentAmount,
 		currentMonth: currentInstallment,
+		bankCode:bankCode,
+		statementCutoffDay:statementCutoffDay,
 		lastPaidMonth: parseInt(lastPaidMonth),
 		totalMonths: parseInt(totalInstallment),
 		status: "1",
