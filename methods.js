@@ -800,8 +800,8 @@ function collectaNewInstallmentData() {
 		item: itemName,
 		installmentAmount: installmentAmount,
 		currentMonth: currentInstallment,
-		bankCode:bankCode,
-		statementCutoffDay:statementCutoffDay,
+		bankCode: bankCode,
+		statementCutoffDay: statementCutoffDay,
 		lastPaidMonth: parseInt(lastPaidMonth),
 		totalMonths: parseInt(totalInstallment),
 		status: "1",
@@ -2016,58 +2016,94 @@ function setFamilyMoneyOutInformationForInstallmentModal(outMoneyObject) {
 
 
 
+/**
+ * Rutin giderleri alır ve düzenlenebilir bir tablo olarak ekrana basar.
+ * @param {Array} routineInfo - Gider objelerini içeren dizi.
+ */
 function setRoutineMoneyOut(routineInfo) {
 	let sumFamilyMoneyOut = 0;
-	let outMoneyForm = document.getElementById("outMoneyForm");
-	outMoneyForm.innerHTML = "";
-	for (const element of routineInfo) {
-		let labelRoutineName = document.createElement("label");
-		let uniqueFor = "routineName " + element.id;
-		labelRoutineName.setAttribute("for", uniqueFor);
-		labelRoutineName.innerText = element.routineName;
+	const outMoneyForm = document.getElementById("outMoneyForm");
+	outMoneyForm.innerHTML = ""; // Formu temizle
 
-		let inputRoutineAmount = document.createElement("input");
+	// Tablo yapısını oluştur
+	const table = document.createElement("table");
+	table.className = "table table-striped table-hover align-middle editable-table";
+
+	// Tablo başlığını oluştur
+	table.innerHTML = `
+        <thead class="table-dark">
+            <tr>
+                <th>Gider Adı</th>
+                <th style="width: 150px;">Tutar (₺)</th>
+            </tr>
+        </thead>
+    `;
+
+	// Tablo gövdesini oluştur
+	const tbody = document.createElement("tbody");
+	for (const element of routineInfo) {
+		const amountValue = parseFloat(element.amount) || 0;
+		sumFamilyMoneyOut += amountValue;
+
+		const row = document.createElement("tr");
+
+		// Gider adı sütunu (düzenlenemez)
+		const nameCell = document.createElement("td");
+		nameCell.textContent = element.routineName;
+
+		// Tutar sütunu (düzenlenebilir input)
+		const amountCell = document.createElement("td");
+		const inputRoutineAmount = document.createElement("input");
 		inputRoutineAmount.type = "number";
-		inputRoutineAmount.id = uniqueFor;
-		inputRoutineAmount.value = parseInt(element.amount);
+		inputRoutineAmount.className = "form-control-plaintext"; // Şık görünüm için
+		inputRoutineAmount.value = amountValue;
 		inputRoutineAmount.step = "0.01";
 		inputRoutineAmount.placeholder = "0";
+		// Kaydetme işlemi için gerekli verileri data attribute'larında sakla
+		inputRoutineAmount.dataset.id = element.id;
+		inputRoutineAmount.dataset.routineName = element.routineName;
 
-		sumFamilyMoneyOut += parseInt(element.amount);
-
-		outMoneyForm.appendChild(labelRoutineName);
-		outMoneyForm.appendChild(inputRoutineAmount);
-
+		amountCell.appendChild(inputRoutineAmount);
+		row.appendChild(nameCell);
+		row.appendChild(amountCell);
+		tbody.appendChild(row);
 	}
+	table.appendChild(tbody);
+	document.getElementById("totalMoneyOut").innerText  = sumFamilyMoneyOut.toLocaleString('tr-TR') + " ₺"
 
-	document.getElementById("totalMoneyOut").innerText = sumFamilyMoneyOut + " ₺";
+	// Tabloyu forma ekle;
+	outMoneyForm.appendChild(table);
 
-	let outMoneyUpdateSaveButton = document.createElement("button");
-
+	// Kaydet butonunu oluştur ve ekle
+	const outMoneyUpdateSaveButton = document.createElement("button");
 	outMoneyUpdateSaveButton.type = "button";
 	outMoneyUpdateSaveButton.id = "familyRoutinMoneyOutSaveButton";
+	outMoneyUpdateSaveButton.className = "btn btn-primary w-100 mt-3"; // Bootstrap sınıfları
+	outMoneyUpdateSaveButton.innerText = "Değişiklikleri Kaydet";
+	outMoneyForm.appendChild(outMoneyUpdateSaveButton);
 
+	// Kaydet butonu için olay dinleyicisi (yeni ve daha basit mantık)
 	outMoneyUpdateSaveButton.addEventListener('click', function () {
-		const form = document.getElementById('outMoneyForm');
-		const inputs = form.querySelectorAll('input');
-
-		const data = {};
+		const inputs = outMoneyForm.querySelectorAll('tbody input[type="number"]');
+		const newData = [];
 
 		inputs.forEach(input => {
-			const label = form.querySelector(`label[for="${input.id}"]`);
-			if (label) {
-				data[input.id.split(' ')[1]] = {
-					routineName: label.textContent.trim(),
-					amount: input.value.trim(),
-					id: input.id.split(' ')[1]
-				};
-			}
+			newData.push({
+				id: input.dataset.id,
+				routineName: input.dataset.routineName,
+				amount: input.value.trim()
+			});
 		});
-		const difference = findDifference(Object.values(data), familyOutObject);
 
-		let approve = confirm('Güncelleme işlemini yapmak istiyor musunuz?');
+		// Orijinal veri (familyOutObject) ile yeni veri (newData) arasındaki farkı bul
+		const difference = findDifference(newData, familyOutObject);
 
-		if (approve) {
+		if (difference.length === 0) {
+			alert("Herhangi bir değişiklik yapılmadı.");
+			return;
+		}
+
+		if (confirm('Yapılan değişiklikleri kaydetmek istediğinize emin misiniz?')) {
 			difference.forEach(item => {
 				const { routineName, amount, id } = item;
 				firebase.database().ref(`RutinGider/${id}`).update({
@@ -2081,33 +2117,20 @@ function setRoutineMoneyOut(routineInfo) {
 					}
 				});
 			});
+			alert("Değişiklikler başarıyla kaydedildi!");
 		}
-		console.log(difference);
-		//calculateAndSaveFamilyRoutinMoneyOut(element);
 	});
-	outMoneyUpdateSaveButton.innerText = "Toplam Rutin Gider Hesapla/Kaydet";
-
-	outMoneyForm.appendChild(outMoneyUpdateSaveButton);
 }
 
-function calculateAndSaveFamilyRoutinMoneyOut(arg) {
-	console.log(arg);
-}
-
+// Bu fonksiyonu olduğu gibi koruyabilirsiniz
 function findDifference(data1, data2) {
 	const difference = [];
-
-	// data1'deki öğeleri kontrol et
 	data1.forEach(item1 => {
-		// data2'de aynı id'ye sahip öğe var mı kontrol et
 		const item2 = data2.find(item => item.id === item1.id);
-
-		// eğer data2'de yoksa fark olarak ekle
-		if (item1.amount != item2.amount) {
+		if (item2 && item1.amount != item2.amount) { // Sadece amount değişmişse
 			difference.push(item1);
 		}
 	});
-
 	return difference;
 }
 
