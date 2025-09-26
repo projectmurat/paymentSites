@@ -2858,6 +2858,12 @@ body {
 #financial-simulation-modal .result-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    max-height: 325px;
+}
+
+#financial-simulation-modal .result-container thead {
+    position: sticky;
+    top: -5px;
 }
 
 #financial-simulation-modal .modal-content,
@@ -3078,6 +3084,86 @@ body {
     padding: 10px;
     max-height: 70vh;
     overflow-y: auto;
+}
+
+#sim_sonucOzeti {
+    margin-bottom: 10px;
+}
+
+/* Özet Başlığı */
+.ozet-baslik {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e1e8f2;
+}
+
+/* Ana Izgara (Grid) Kapsayıcısı */
+.finansal-ozet-grid {
+    display: grid;
+    gap: 1rem;
+    /* Kutular arası boşluk */
+
+    /* Mobil Öncelikli (2x2 Izgara) */
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Özet Kutularının Genel Stili */
+.ozet-kutu {
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #e1e8f2;
+    border-left-width: 4px;
+    /* Renkli kenarlık için alan */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-left-color: #6c757d;
+    /* Varsayılan kenarlık rengi */
+}
+
+/* Kutulara Özel Renkli Kenarlıklar */
+.ozet-kutu.kar {
+    border-left-color: #28a745;
+}
+
+.ozet-kutu.zarar {
+    border-left-color: #dc3545;
+}
+
+.ozet-kutu.toplam {
+    border-left-color: #007bff;
+}
+
+.ozet-kutu span {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+.ozet-kutu strong {
+    font-size: 1.25rem;
+    /* Rakamları daha belirgin yapar */
+    font-weight: 700;
+}
+
+.ozet-kutu .positive {
+    color: #28a745;
+}
+
+.ozet-kutu .negative {
+    color: #dc3545;
+}
+
+/* Tablet ve üzeri (768px ve daha geniş ekranlar için) */
+@media (min-width: 768px) {
+    .finansal-ozet-grid {
+        /* Izgarayı 4 sütunlu (4x1 Sıra) hale getir */
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 /* Yükleme, Hata ve Boş Durum Stilleri */

@@ -897,6 +897,7 @@ function switchTab(event, sekmeAdi) {
 	document.getElementById('sim-tab-' + sekmeAdi).classList.add("active");
 	event.currentTarget.classList.add("active");
 	document.getElementById('sim_sonucTablosu').innerHTML = "";
+	document.getElementById('sim_sonucOzeti').innerHTML = "";
 }
 
 // ANA HESAPLAMA YÖNLENDİRİCİSİ
@@ -909,7 +910,7 @@ function calistirHesaplama() {
 }
 
 
-// MEVDUAT HESAPLAMA
+//MEVDUAT HESAPLAMA
 function hesaplaMevduat() {
 	// 1. GİRDİLERİ AL
 	const anaPara = parseFloat(document.getElementById('sim_mevduat_anaPara').value) || 0;
@@ -931,19 +932,26 @@ function hesaplaMevduat() {
 		return num.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
 	};
 
+	// --- YENİ EKLENEN KISIM BAŞLANGICI ---
+	// Özet verileri için toplamları tutacak değişkenler
+	let toplamNetFaiz = 0;
+	let toplamBrutFaiz = 0;
+	let toplamStopaj = 0;
+	// --- YENİ EKLENEN KISIM SONU ---
+
 	let tablo = `
-        <thead>
-            <tr>
-                <th style="min-width: 80px;">Ay</th>
-                <th style="min-width: 120px;">Ay Başı Bakiye</th>
-                <th style="min-width: 100px;">Net Faiz</th>
-                <th style="min-width: 100px;">Brüt Faiz</th>
-                <th style="min-width: 120px;">Aylık Birikim</th>
-                <th style="min-width: 80px;">Stopaj</th>
-                <th style="min-width: 140px;">Ay Sonu Bakiye</th>
-            </tr>
-        </thead>
-        <tbody>
+      <thead>
+          <tr>
+              <th style="min-width: 80px;">Ay</th>
+              <th style="min-width: 120px;">Ay Başı Bakiye</th>
+              <th style="min-width: 100px;">Net Faiz</th>
+              <th style="min-width: 100px;">Brüt Faiz</th>
+              <th style="min-width: 120px;">Aylık Birikim</th>
+              <th style="min-width: 80px;">Stopaj</th>
+              <th style="min-width: 140px;">Ay Sonu Bakiye</th>
+          </tr>
+      </thead>
+      <tbody>
     `;
 
 	let mevcutBakiye = anaPara;
@@ -951,44 +959,75 @@ function hesaplaMevduat() {
 	for (let i = 1; i <= toplamAy; i++) {
 		const ayBasiBakiye = mevcutBakiye;
 
-		// --- DEĞİŞİKLİK BURADA BAŞLIYOR ---
-
-		// DÜZELTME: Faiz artık sadece 'ayBasiBakiye' üzerinden hesaplanıyor.
-		// Aylık birikim bu hesaplamaya dahil DEĞİL.
 		const brutFaiz = (ayBasiBakiye * yillikFaiz) / 12;
 		const stopaj = brutFaiz * stopajOrani;
 		const netFaiz = brutFaiz - stopaj;
 
-		// DÜZELTME: Ay sonu bakiyesi, ay başı bakiyesine net faiz ve aylık birikimin eklenmesiyle bulunur.
 		const aySonuBakiye = ayBasiBakiye + netFaiz + birikim;
 
-		// --- DEĞİŞİKLİK BURADA BİTİYOR ---
+		// --- YENİ EKLENEN KISIM BAŞLANGICI ---
+		// Her ay hesaplanan değerleri toplamlara ekle
+		toplamNetFaiz += netFaiz;
+		toplamBrutFaiz += brutFaiz;
+		toplamStopaj += stopaj;
+		// --- YENİ EKLENEN KISIM SONU ---
 
 		tablo += `
-            <tr>
-                <td>${i}. Ay</td>
-                <td>${formatla(ayBasiBakiye)}</td>
-                <td class="positive">${formatla(netFaiz)}</td>
-                <td>${formatla(brutFaiz)}</td>
-                <td>${formatla(birikim)}</td>
-                <td class="negative">${formatla(stopaj)}</td>
-                <td><strong>${formatla(aySonuBakiye)}</strong></td>
-            </tr>
+          <tr>
+              <td>${i}. Ay</td>
+              <td>${formatla(ayBasiBakiye)}</td>
+              <td class="positive">${formatla(netFaiz)}</td>
+              <td>${formatla(brutFaiz)}</td>
+              <td>${formatla(birikim)}</td>
+              <td class="negative">${formatla(stopaj)}</td>
+              <td><strong>${formatla(aySonuBakiye)}</strong></td>
+          </tr>
         `;
 
-		// Bir sonraki ay için bakiyeyi güncelle
 		mevcutBakiye = aySonuBakiye;
 	}
 
 	tablo += '</tbody>';
 
+	// --- YENİ EKLENEN KISIM BAŞLANGICI ---
+	// Döngü bittikten sonra özet alanını oluştur
+	const toplamYatirilan = anaPara + (birikim * toplamAy);
+	const vadeSonuBakiye = mevcutBakiye; // Döngüden sonraki son bakiye
+
+	// --- SADECE BU BÖLÜMÜ GÜNCELLEYİN ---
+	let ozetHTML = `
+		<h4 class="ozet-baslik">Vade Sonu Özeti</h4>
+		<div class="finansal-ozet-grid">
+			<div class="ozet-kutu">
+				<span>Toplam Yatırılan Tutar</span>
+				<strong>${formatla(toplamYatirilan)}</strong>
+			</div>
+			<div class="ozet-kutu kar">
+				<span>Toplam Net Faiz Kazancı</span>
+				<strong class="positive">${formatla(toplamNetFaiz)}</strong>
+			</div>
+			<div class="ozet-kutu zarar">
+				<span>Toplam Stopaj Kesintisi</span>
+				<strong class="negative">${formatla(toplamStopaj)}</strong>
+			</div>
+			<div class="ozet-kutu toplam">
+				<span>Vade Sonu Net Bakiye</span>
+				<strong>${formatla(vadeSonuBakiye)}</strong>
+			</div>
+		</div>
+		`;
+	// --- YENİ EKLENEN KISIM SONU ---
+
 	// 4. SONUÇLARI YAZDIR
+	document.getElementById('sim_sonucOzeti').innerHTML = ozetHTML; // Yeni özet alanı
 	document.getElementById('sim_sonucTablosu').innerHTML = tablo;
 
-	// 5. KAYDETME FONKSİYONUNU ÇAĞIR
+	// 5. KAYDETME FONKSİYONUNU ÇAĞIR (Deaktif)
+	/*
 	if (typeof kaydetSimulasyon === 'function') {
-		kaydetSimulasyon({ type: 'Mevduat', inputs: { anaPara, birikim, faizOrani, toplamAy } });
+	    kaydetSimulasyon({ type: 'Mevduat', inputs: { anaPara, birikim, faizOrani, toplamAy } });
 	}
+	*/
 }
 
 // KREDİ HESAPLAMA
@@ -2069,7 +2108,7 @@ function setRoutineMoneyOut(routineInfo) {
 		tbody.appendChild(row);
 	}
 	table.appendChild(tbody);
-	document.getElementById("totalMoneyOut").innerText  = sumFamilyMoneyOut.toLocaleString('tr-TR') + " ₺"
+	document.getElementById("totalMoneyOut").innerText = sumFamilyMoneyOut.toLocaleString('tr-TR') + " ₺"
 
 	// Tabloyu forma ekle;
 	outMoneyForm.appendChild(table);
