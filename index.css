@@ -1611,7 +1611,7 @@ body {
         /* İçerik düzenini ayarla */
         border-radius: 15px;
         /* Radius'u küçült */
-        padding: 12px 1px;
+        padding: 10px 1px;
         /* Ekstil stil ve animasyonlar */
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
         transition: transform 0.3s ease, box-shadow 0.3s;
@@ -2147,7 +2147,7 @@ body {
 /* --- Bildirim Öğesi (Modal İçindeki Her Bir Bildirim Kartı) --- */
 /* Bu bölüm de finansal temaya uygun şekilde güncellendi */
 .notification-item {
-    background-color: #75b9724f;
+    background-color: #aa7a7a26;
     ;
     /* Temiz beyaz arka plan */
     border-radius: 14px;
@@ -4500,3 +4500,207 @@ input:checked+.slider:before {
     padding-left: 72px;
     /* Altın ikonu genişliği kadar boşluk */
 }
+
+/* --- Sadece #settingsPanel ID'li Ayarlar Modalı için Özel Tasarım --- */
+
+/* Modal Body için temel ayarlar (isteğe bağlı, genel de olabilir) */
+.modal-body {
+    background-color: #f4f7f9;
+    padding: 1.5rem 2rem;
+}
+
+#settingsPanel {
+    width: 100%;
+}
+
+/* Her bir ayar bölümü (Genel, Bildirimler vb.) */
+#settingsPanel .settings-section {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
+}
+
+#settingsPanel .settings-section:last-child {
+    margin-bottom: 0;
+}
+
+#settingsPanel .settings-section .section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+#settingsPanel .settings-section .section-title i {
+    margin-right: 0.75rem;
+    color: #3498db;
+}
+
+/* Her bir ayar satırı (Label + Kontrol) */
+#settingsPanel .settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+#settingsPanel .settings-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+#settingsPanel .settings-item:first-of-type {
+    padding-top: 0;
+}
+
+/* Ayar açıklaması (sol taraf) */
+#settingsPanel .item-label {
+    flex: 2;
+    padding-right: 1rem;
+}
+
+#settingsPanel .item-label label {
+    font-weight: 500;
+    color: #34495e;
+    margin: 0;
+}
+
+#settingsPanel .item-label small {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    display: block;
+}
+
+/* Ayar kontrolü (sağ taraf - select, switch vb.) */
+#settingsPanel .item-control {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* --- Form Elemanları için Özel Stiller --- */
+
+/* Modern Switch Button */
+#settingsPanel .form-check.form-switch .form-check-input {
+    width: 48px;
+    height: 24px;
+    cursor: pointer;
+}
+
+/* Tema Seçici (Radio Button) */
+#settingsPanel .theme-switcher {
+    display: flex;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+#settingsPanel .theme-switcher input[type="radio"] {
+    display: none;
+}
+
+#settingsPanel .theme-switcher label {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    color: #495057;
+    font-weight: 500;
+}
+
+#settingsPanel .theme-switcher label i {
+    margin-right: 0.5rem;
+}
+
+#settingsPanel .theme-switcher input[type="radio"]:checked+label {
+    background-color: #3498db;
+    color: #ffffff;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobil Cihazlar için Responsive Ayar */
+@media (max-width: 576px) {
+    #settingsPanel .settings-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #settingsPanel .item-control {
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 1rem;
+    }
+
+    .modal-body {
+        padding: 1rem;
+        /* Zaten genel olduğu için ID'siz kalabilir */
+    }
+}
+
+#settingsPanel .form-check.form-switch .form-check-input {
+    width: 48px;
+    height: 24px;
+    cursor: pointer;
+}
+
+/* --- Özel CSS ile Modern Switch Tasarımı --- */
+
+/* ID'li alana özel olması için #settingsPanel ekliyoruz */
+#settingsPanel .form-check.form-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+#settingsPanel .form-switch .form-check-input {
+    opacity: 0;
+    /* Orijinal checkbox'ı tamamen gizle */
+    width: 0;
+    height: 0;
+}
+
+/* Switch'in arka planı (slider) */
+#settingsPanel .form-switch .form-check-label {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 24px;
+    transition: .4s;
+    height: inherit;
+}
+
+/* Switch'in üzerindeki top (thumb) */
+#settingsPanel .form-switch .form-check-label:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .4s;
+}
+
+/* Checkbox seçili olduğunda (aktif olduğunda) stiller */
+#settingsPanel .form-switch input:checked+.form-check-label {
+    background-color: #28a745;
+    height: inherit;
+    /* Aktif renk (yeşil) */
+}
+
+#settingsPanel .form-switch input:checked+.form-check-label:before {
+    /* Topu sağa kaydır */
+    transform: translateX(24px);
+}
+

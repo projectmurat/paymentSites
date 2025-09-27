@@ -3903,3 +3903,19 @@ $('#sub-form-pay-type').on('change', function () {
 		$('#odeme-araci-wrapper').hide();
 	}
 });
+
+function getCurrencyApi(callback) {
+	let currencyData={}
+	fetch('https://finans.truncgil.com/today.json')
+		.then(response => response.json())
+		.then(apiData => {
+			currencyData["data"] = apiData;
+			currencyData["error"] = false;
+			callback(currencyData);
+		})
+		.catch(error => {
+			currencyData["data"] = {};
+			currencyData["error"] = true;
+			callback(currencyData);
+		});
+}
