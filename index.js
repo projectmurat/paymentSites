@@ -1237,6 +1237,27 @@ $('#sim_tarihceButton').click(function () {
 	gosterTarihce();
 })
 
+$('#currency-ticker-container').click(function () {
+	// Hedef modal'ı ID ile seçiyoruz
+	const targetModal = $('#currencyTickerModal');
+
+	fetch('https://finans.truncgil.com/today.json')
+		.then(response => response.json())
+		.then(apiData => {
+			const processedData = parseApiData(apiData);
+			const cardsHTML = createCurrencyTickerFinancialTableHTML(processedData);
+
+			// Modal body'sini ID'li ana element üzerinden seçiyoruz
+			targetModal.find('.modal-body').html(cardsHTML);
+			targetModal.find('.modal-header .modal-title').text('Anlık Döviz Kurları');
+			targetModal.find('.modal-footer .update-time').text(`Son Güncelleme: ${apiData.Update_Date}`);
+		})
+		.catch(error => {
+			console.error("Finans verileri getirilirken hata oluştu:", error);
+			targetModal.find('.modal-body').html('<p class="text-danger">Veriler yüklenirken bir hata oluştu.</p>');
+		});
+})
+
 $('.btn-openFundsStatistics').click(function () {
 	PocketRealtime.getFundStatistic({
 		done: function (fundStatisticInfo) {

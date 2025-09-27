@@ -1015,7 +1015,7 @@ h2 {
 }
 
 .data-item span {
-    flex-basis: 65%;
+    flex-basis: 100%;
     padding: 8px;
     background-color: #f9f9f9;
     border-radius: 4px;
@@ -4039,10 +4039,6 @@ input:checked+.slider:before {
     animation: ticker-scroll 30s linear infinite;
 }
 
-/* 3. Fare ile üzerine gelindiğinde animasyonu durdur (Kullanıcı deneyimi için) */
-.ticker-wrap:hover .ticker {
-    animation-play-state: paused;
-}
 
 /* 4. Şeridin içindeki her bir kur bilgisi öğesi */
 .ticker-item {
@@ -4074,4 +4070,433 @@ input:checked+.slider:before {
         /* Bitiş pozisyonu: İçeriğin bir kopyası kadar sola kaydırır */
         transform: translateX(-50%);
     }
+}
+
+
+
+
+
+
+/* --- Sadece #currencyTickerModal ID'li modal içindeki stiller (MOBİL ÖNCELİKLİ) --- */
+
+/* Modal'ın genel görünümü (Değişiklik yok) */
+#currencyTickerModal .modal-content {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    background: #f8f9fa;
+    /* Daha sade bir arka plan */
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+}
+
+#currencyTickerModal .modal-header {
+    background-color: #ffffff;
+    color: #2c3e50;
+    /* Başlık rengi değişti */
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 15px 15px 0 0;
+    padding: 1.2rem 1.5rem;
+}
+
+#currencyTickerModal .modal-header .modal-title {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #2c3e50;
+}
+
+#currencyTickerModal .modal-header .btn-close {
+    filter: none;
+    /* Kapatma butonu orijinal renginde */
+}
+
+/* Modal Body - Esas İçerik Alanı */
+#currencyTickerModal .modal-body {
+    padding: 1rem;
+    background-color: #f0f2f5;
+    /* Body için hafif farklı bir ton */
+}
+
+#currencyTickerModal .modal-footer {
+    border-top: 1px solid #dee2e6;
+    background-color: #ffffff;
+    border-radius: 0 0 15px 15px;
+    padding: 0.8rem 1.5rem;
+}
+
+/* --- Genel Bölüm Stili (Döviz ve Altın için) --- */
+#currencyTickerModal .currency-section,
+#currencyTickerModal .gold-section {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+    padding: 1rem;
+}
+
+/* İki bölüm arasında boşluk */
+#currencyTickerModal .currency-section {
+    margin-bottom: 1rem;
+}
+
+#currencyTickerModal .section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* --- Liste ve Öğe Stilleri (YENİ DÜZEN) --- */
+#currencyTickerModal .data-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#currencyTickerModal .data-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0.5rem;
+    border-bottom: 1px solid #f0f2f5;
+    flex-wrap: wrap;
+    /* Gerekirse alt satıra indir */
+}
+
+#currencyTickerModal .data-item:last-child {
+    border-bottom: none;
+}
+
+/* Öğe Bilgisi (İkon ve İsim) */
+#currencyTickerModal .item-info {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    /* Mümkün olduğunca yer kapla */
+}
+
+#currencyTickerModal .item-icon {
+    font-size: 1.8rem;
+    margin-right: 1rem;
+    width: 35px;
+    /* Hizalama için sabit genişlik */
+    text-align: center;
+}
+
+#currencyTickerModal .gold-icon {
+    color: #d4af37;
+}
+
+#currencyTickerModal .item-name-group .item-name {
+    font-weight: 500;
+    font-size: 1rem;
+    color: #343a40;
+}
+
+#currencyTickerModal .item-name-group .item-pair {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+/* Fiyat Bölümü (SAĞ TARAF - YENİ DÜZEN) */
+#currencyTickerModal .item-pricing {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    /* Fiyatlar ve değişim arası boşluk */
+    margin-left: 1rem;
+    /* Sol taraftaki isimden ayır */
+}
+
+#currencyTickerModal .price-group {
+    text-align: right;
+}
+
+#currencyTickerModal .price-group .price-label {
+    font-size: 0.7rem;
+    color: #888;
+    text-transform: uppercase;
+}
+
+#currencyTickerModal .price-group .price-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #212529;
+    letter-spacing: -0.5px;
+}
+
+/* Değişim Göstergesi (Hap Stili) */
+#currencyTickerModal .item-change {
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
+    /* Hizalamayı korumak için */
+}
+
+#currencyTickerModal .item-change.positive {
+    background-color: #e9f9ee;
+    color: #28a745;
+}
+
+#currencyTickerModal .item-change.negative {
+    background-color: #fdeeee;
+    color: #dc3545;
+}
+
+#currencyTickerModal .item-change.neutral {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+#currencyTickerModal .item-change i {
+    margin-right: 4px;
+}
+
+
+/* !!!!!!! RESPONSIVE KISIM !!!!!!! */
+/* Geniş Ekranlar (Tablet ve Masaüstü - 576px'den büyük) */
+@media (min-width: 576px) {
+    #currencyTickerModal .modal-body {
+        padding: 1.5rem;
+        /* Daha fazla boşluk */
+    }
+
+    /* Ana öğe düzenini daha geniş hale getir */
+    #currencyTickerModal .data-item {
+        flex-wrap: nowrap;
+        /* Artık alt satıra indirme */
+    }
+
+    #currencyTickerModal .item-pricing {
+        gap: 1.5rem;
+        /* Fiyatlar arası boşluğu artır */
+    }
+
+    #currencyTickerModal .price-group .price-value {
+        font-size: 1.1rem;
+        /* Fiyatları biraz büyüt */
+    }
+}
+
+/* Döviz ikonlarına özel renk */
+#currencyTickerModal .currency-icon {
+    color: #4a5568;
+    /* Profesyonel, koyu bir antrasit tonu */
+}
+
+/* Altın ikon rengi (Zaten vardı, burada tekrar belirtelim) */
+#currencyTickerModal .gold-icon {
+    color: #d4af37;
+}
+
+/* Bayrak ikonlarına özel stil dokunuşları */
+#currencyTickerModal .item-icon.fi {
+    border-radius: 4px;
+    /* Hafif yuvarlak köşeler */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    /* İnce bir gölge */
+    line-height: 1;
+    /* Dikey hizalamayı garantilemek için */
+}
+
+/* Mevcut item-icon boyutunu bayraklar için biraz ayarlayalım */
+#currencyTickerModal .item-icon {
+    font-size: 1.5rem;
+    /* Bayrakların yüksekliği için */
+    width: 38px;
+    /* Bayrakların genişliği ve hizası için */
+    height: 28px;
+    /* Bayrakların en-boy oranını korumak için */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* --- YENİ KART TASARIMI İÇİN GEREKLİ CSS --- */
+
+#currencyTickerModal .currency-section {
+    background-color: transparent;
+    /* Arka planı kaldır, ana body'nin rengi görünsün */
+    box-shadow: none;
+    padding: 0;
+}
+
+/* Her bir döviz kartının ana taşıyıcısı */
+.currency-card-new {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e9ecef;
+}
+
+.currency-card-new:last-child {
+    margin-bottom: 0;
+}
+
+/* Üst Satır: Bayrak, İsim, Değişim */
+.card-top-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* BAYRAK KONTEYNERİ (Sola yaslı) */
+.flag-container {
+    padding: 0.5rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-right: 1rem;
+    display: flex;
+    /* İçindeki bayrağı ortalamak için */
+    align-items: center;
+    justify-content: center;
+}
+
+.flag-container span {
+    display: block;
+    width: 40px;
+    /* Bayrak genişliği */
+    height: 30px;
+    /* Bayrak yüksekliği */
+    background-size: cover;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Para Birimi Sembolü ($, €, £) */
+.symbol-container {
+    font-size: 1.5rem;
+    color: #6c757d;
+    margin-right: 1rem;
+}
+
+/* İsim ve Parite (USD/TRY) Grubu */
+.name-container {
+    flex-grow: 1;
+    /* Kalan tüm boşluğu kapla */
+    text-align: left;
+}
+
+.currency-name {
+    font-weight: 500;
+    font-size: 1rem;
+    color: #212529;
+}
+
+.currency-pair {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* Değişim Oranı (Sağda) */
+.change-container {
+    /* flex-grow: 1 ile bu otomatik olarak sağa itilecek */
+}
+
+/* Alt Satır: Alış, Satış Fiyatları */
+.card-bottom-row {
+    display: flex;
+    align-items: center;
+    /* Fiyatları sola yaslamak için baştan bir boşluk verelim */
+    padding-left: 88px;
+    /* Bayrak + sembol genişliği kadar yaklaşık boşluk */
+}
+
+.card-bottom-row .price-group {
+    margin-right: 2rem;
+    /* Fiyat grupları arası boşluk */
+    text-align: left;
+}
+
+.price-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+}
+
+.price-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+
+/* --- GENEL YARDIMCI STILLER --- */
+/* Değişim hapı için mevcut stilleriniz harika, onları koruyoruz. */
+.item-change {
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
+}
+
+.item-change.positive {
+    background-color: #e9f9ee;
+    color: #28a745;
+}
+
+.item-change.negative {
+    background-color: #fdeeee;
+    color: #dc3545;
+}
+
+.item-change i {
+    margin-right: 4px;
+}
+
+/* --- ALTIN KARTI TASARIMI İÇİN GEREKLİ CSS --- */
+
+/* Döviz kartı ile aynı temel stile sahip olsun */
+.gold-card-new {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e9ecef;
+}
+
+.gold-card-new:last-child {
+    margin-bottom: 0;
+}
+
+/* Altın ikonu için konteyner */
+.icon-container-gold {
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-right: 1rem;
+    width: 56px;
+    /* Sabit genişlik */
+    height: 46px;
+    /* Sabit yükseklik */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: #d4af37;
+    /* Altın rengi */
+}
+
+/* Altın fiyatlarını sola hizalamak için boşluk */
+.card-bottom-row.gold-prices {
+    padding-left: 72px;
+    /* Altın ikonu genişliği kadar boşluk */
 }

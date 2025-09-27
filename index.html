@@ -57,7 +57,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
 		crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+	<link href="css/flag-icons.min.css" rel="stylesheet">
 
 </head>
 
@@ -1478,7 +1478,26 @@
 			</div>
 		</div>
 
-		<div id="currency-ticker-container"></div>
+		<!-- Kur Verileri Animasyonu Modalı-->
+		<div class="modal fade" id="currencyTickerModal" tabindex="-1" aria-labelledby="currencyTickerModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="currencyTickerModalLabel">Piyasa Verileri</h5>
+					</div>
+					<div class="modal-body">
+						<span class="update-time me-auto"></span>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-close" id="CloseCurrencyTickerModal"
+							data-dismiss="modal">Kapat</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="currency-ticker-container" data-toggle="modal" data-target="#currencyTickerModal"></div>
 
 	</div>
 	<!-- Load the Icon Picker's JavaScript -->

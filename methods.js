@@ -404,10 +404,194 @@ function fundsHistoryTableCallback(data, callback) {
 	callback(historyFundsTable)
 }
 
+/**
+ * Yeni: API'den gelen ham veriyi işler ve istenen döviz ve altın kurlarını formatlar.
+ * @param {object} apiData - API'den gelen JSON objesi.
+ * @returns {object} - İşlenmiş ve formatlanmış döviz ve altın veri objesi.
+ */
+function parseApiData(apiData) {
+	const formattedCurrencies = [];
+	const formattedGolds = [];
+
+	const currencyKeys = ['USD', 'EUR', 'GBP']; // Sadece bu dövizleri al
+	const goldKeys = ['gram-altin', 'ceyrek-altin', 'yarim-altin', 'tam-altin', 'ons']; // Sadece bu altınları al
+
+	// Döviz kodlarını daha okunaklı isimlere ve bayraklara çeviren harita
+	// YENİ HALİ
+	const currencyNameMap = {
+		"USD": { fullName: "ABD Doları", country_flag: "fi fi-us", icon: "fas fa-dollar-sign", pair: "USD/TRY" },
+		"EUR": { fullName: "Euro", country_flag: "fi fi-eu", icon: "fas fa-euro-sign", pair: "EUR/TRY" },
+		"GBP": { fullName: "İngiliz Sterlini", country_flag: "fi fi-gb", icon: "fas fa-pound-sign", pair: "GBP/TRY" }
+	};
+
+	// Altın türlerini daha okunaklı isimlere ve ikonlara çeviren harita
+	const goldNameMap = {
+		"ons": { fullName: "ONS", icon: "fas fa-coins" }, // Altın ikonu
+		"gram-altin": { fullName: "Gram Altın", icon: "fas fa-weight-hanging" },
+		"ceyrek-altin": { fullName: "Çeyrek Altın", icon: "fas fa-medal" },
+		"yarim-altin": { fullName: "Yarım Altın", icon: "fas fa-award" },
+		"tam-altin": { fullName: "Tam Altın", icon: "fas fa-trophy" }
+	};
+
+	// Döviz Kurlarını İşle
+	for (const key of currencyKeys) {
+		if (apiData[key]) {
+			const item = apiData[key];
+			let changeType = 'neutral';
+			const changeValue = parseFloat(item['Değişim'].replace('%', '').replace(',', '.'));
+
+			if (changeValue > 0) {
+				changeType = 'positive';
+			} else if (changeValue < 0) {
+				changeType = 'negative';
+			}
+
+			formattedCurrencies.push({
+				name: currencyNameMap[key].fullName,
+				symbolOrFlag: currencyNameMap[key].icon, // Bayrak burada
+				country_flag: currencyNameMap[key].country_flag, // Bayrak burada
+				buy: item['Alış'],
+				sell: item['Satış'],
+				change: item['Değişim'],
+				changeType: changeType,
+				type: 'currency',
+				pair: currencyNameMap[key].pair
+			});
+		}
+	}
+
+	// Altın Fiyatlarını İşle
+	for (const key of goldKeys) {
+		if (apiData[key]) {
+			const item = apiData[key];
+			let changeType = 'neutral';
+			const changeValue = parseFloat(item['Değişim'].replace('%', '').replace(',', '.'));
+
+			if (changeValue > 0) {
+				changeType = 'positive';
+			} else if (changeValue < 0) {
+				changeType = 'negative';
+			}
+
+			formattedGolds.push({
+				name: goldNameMap[key].fullName,
+				symbolOrFlag: goldNameMap[key].icon, // İkon burada
+				buy: item['Alış'],
+				sell: item['Satış'], // Altında alış-satış farklı olabilir, api'den gelen değerlere göre ayarlayın.
+				change: item['Değişim'],
+				changeType: changeType,
+				type: 'gold'
+			});
+		}
+	}
+
+	return { currencies: formattedCurrencies, golds: formattedGolds };
+}
+
+/**
+ * SON HALİ: Hem döviz hem de altın için modern kart tasarımını oluşturur.
+ * @param {object} processedData - parseApiData fonksiyonundan dönen işlenmiş veri objesi.
+ * @returns {string} - Oluşturulmuş HTML.
+ */
+function createCurrencyTickerFinancialTableHTML(processedData) {
+
+	// --- DÖVİZ KARTI OLUŞTURUCU ---
+	const createCurrencyItemHTML = (item) => {
+		let changeIcon = item.changeType === 'positive' ? 'fa-arrow-up' : 'fa-arrow-down';
+		return `
+            <div class="currency-card-new">
+                <div class="card-top-row">
+                    <div class="flag-container">
+                        <span class="${item.country_flag}"></span>
+                    </div>
+                    <div class="symbol-container">
+                        <i class="${item.symbolOrFlag}"></i>
+                    </div>
+                    <div class="name-container">
+                        <div class="currency-name">${item.name}</div>
+                        <div class="currency-pair">${item.pair}</div>
+                    </div>
+                    <div class="change-container">
+                        <div class="item-change ${item.changeType}">
+                            ${item.changeType !== 'neutral' ? `<i class="fas ${changeIcon}"></i>` : ''}
+                            <span>${item.change}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-bottom-row">
+                    <div class="price-group">
+                        <div class="price-label">ALIŞ</div>
+                        <div class="price-value">${item.buy}</div>
+                    </div>
+                    <div class="price-group">
+                        <div class="price-label">SATIŞ</div>
+                        <div class="price-value">${item.sell}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+	};
+
+	// --- YENİ: ALTIN KARTI OLUŞTURUCU ---
+	const createGoldItemHTML = (item) => {
+		let changeIcon = item.changeType === 'positive' ? 'fa-arrow-up' : 'fa-arrow-down';
+		return `
+            <div class="gold-card-new">
+                <div class="card-top-row">
+                    <div class="icon-container-gold">
+                        <i class="${item.symbolOrFlag}"></i>
+                    </div>
+                    <div class="name-container">
+                        <div class="currency-name">${item.name}</div>
+                    </div>
+                    <div class="change-container">
+                        <div class="item-change ${item.changeType}">
+                            ${item.changeType !== 'neutral' ? `<i class="fas ${changeIcon}"></i>` : ''}
+                            <span>${item.change}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-bottom-row gold-prices">
+                    <div class="price-group">
+                        <div class="price-label">ALIŞ</div>
+                        <div class="price-value">${item.buy}</div>
+                    </div>
+                    <div class="price-group">
+                        <div class="price-label">SATIŞ</div>
+                        <div class="price-value">${item.sell}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+	};
+
+	// --- HTML'i OLUŞTURMA BÖLÜMÜ ---
+	let currencyHTML = '';
+	if (processedData.currencies && processedData.currencies.length > 0) {
+		currencyHTML = `
+            <div class="currency-section">
+                <h4 class="section-title">Döviz Kurları</h4>
+                ${processedData.currencies.map(createCurrencyItemHTML).join('')}
+            </div>
+        `;
+	}
+
+	let goldHTML = '';
+	if (processedData.golds && processedData.golds.length > 0) {
+		goldHTML = `
+            <div class="gold-section">
+                <h4 class="section-title">Altın Fiyatları</h4>
+                ${processedData.golds.map(createGoldItemHTML).join('')}
+            </div>
+        `;
+	}
+
+	return currencyHTML + goldHTML;
+}
+
 function fundsClickEventFunction(whereIsTrigger, callback) {
 	PocketRealtime.getFunds({
 		done: (response) => {
-
 			fetch('https://finans.truncgil.com/today.json')
 				.then(response => response.json())
 				.then(data => {
