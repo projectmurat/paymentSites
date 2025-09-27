@@ -971,6 +971,15 @@
 								<input type="number" id="sim_mevduat_faizOrani"
 									placeholder="Yıllık Faiz Oranı (%)" />
 								<input type="number" id="sim_mevduat_toplamAy" placeholder="Toplam Ay" />
+
+								<div class="toggle-wrapper">
+									<label for="sim_mevduat_birikimDahilEt" class="toggle-label">Güncel
+										Birikimi Dahil Et</label>
+									<label class="checkbox-switch">
+										<input type="checkbox" id="sim_mevduat_birikimDahilEt" checked>
+										<span class="slider round"></span>
+									</label>
+								</div>
 							</div>
 						</div>
 
@@ -1469,6 +1478,7 @@
 			</div>
 		</div>
 
+		<div id="currency-ticker-container"></div>
 
 	</div>
 	<!-- Load the Icon Picker's JavaScript -->

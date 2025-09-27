@@ -404,7 +404,43 @@ function fundsHistoryTableCallback(data, callback) {
 	callback(historyFundsTable)
 }
 
-function calculateFunds(params) {
+function fundsClickEventFunction(whereIsTrigger, callback) {
+	PocketRealtime.getFunds({
+		done: (response) => {
+
+			fetch('https://finans.truncgil.com/today.json')
+				.then(response => response.json())
+				.then(data => {
+					dropdownData = data;
+					lastFundsCallbackTime = fundsLastCallbackTime(data["Update_Date"]);
+					document.getElementById("lastFundsEndexCallbackTimeDiv").innerHTML = "Endexlerin Son Güncellenme Tarihi" + "<br>" + '<p style="text-decoration:underline">' + lastFundsCallbackTime + '</p>';
+					if (response != null) {
+						fundsData = response;
+						fundsData.forEach(item => {
+							if (data[item.currencyType] && data[item.currencyType].Alış) {
+								item.endex = data[item.currencyType].Alış;
+							}
+						});
+						callback(calculateFunds(response, whereIsTrigger));
+					}
+					else {
+						callback(calculateFunds([], whereIsTrigger));
+					}
+
+				})
+				.catch(error => {
+					throw new Error("Birikim verileri getirilirken hata oluştu. Ayrıntısı: \n", error);
+				});
+
+
+		},
+		fail: (error) => {
+			throw new Error(error).stack;
+		}
+	})
+}
+
+function calculateFunds(params, whereIsTrigger) {
 	let fundsTableData = [];
 	if (params.length != 0) {
 
@@ -413,8 +449,10 @@ function calculateFunds(params) {
 				let endexValue = parseFloat(item.endex.replace('.', '').replace(',', '.'));
 				item.forTl = parseFloat(item.amount) * endexValue;
 			}
-
 		});
+		if (whereIsTrigger != "menu") {
+			return Object.values(params);
+		}
 		fundsTableData.push(Object.values(params));
 		if (isClickReCalculate) {
 			fundsTable.loadData(fundsTableData[0]);
@@ -909,6 +947,72 @@ function calistirHesaplama() {
 	}
 }
 
+/**
+ * Hesaplama sonuçlarını alıp özet ve tablo HTML'ini oluşturan ve ekrana yazdıran GÜNCELLENMİŞ fonksiyon.
+ * Artık "dovizToplami" 0'dan büyükse, bunu özette ayrı bir kalem olarak gösteriyor.
+ */
+function sonuclariYazdir(data) {
+	const dovizToplami = data.dovizToplami || 0;
+	const genelToplamVarlik = data.vadeSonuBakiye + dovizToplami;
+
+	// Yeni: Diğer varlıklar için HTML bloğunu tutacak değişken
+	let digerVarliklarHtml = '';
+
+	// Koşul: Sadece döviz toplamı 0'dan büyükse bu kutuyu oluştur
+	if (dovizToplami > 0) {
+		digerVarliklarHtml = `
+            <div class="ozet-kutu varlik">
+                <span>Diğer Varlıklardan Gelen</span>
+                <strong class="positive">${formatla(dovizToplami)}</strong>
+            </div>
+
+		  <div class="ozet-kutu toplam">
+                <span>Genel Toplam Varlık</span>
+                <strong>${formatla(genelToplamVarlik)}</strong>
+            </div>
+        `;
+	}
+
+	let ozetHTML = `
+        <h4 class="ozet-baslik">Vade Sonu Özeti</h4>
+        <div class="finansal-ozet-grid">
+            <div class="ozet-kutu">
+                <span>Toplam Yatırılan Tutar</span>
+                <strong>${formatla(data.toplamYatirilan)}</strong>
+            </div>
+            <div class="ozet-kutu kar">
+                <span>Toplam Net Faiz Kazancı</span>
+                <strong class="positive">${formatla(data.toplamNetFaiz)}</strong>
+            </div>
+            <div class="ozet-kutu zarar">
+                <span>Toplam Stopaj Kesintisi</span>
+                <strong class="negative">${formatla(data.toplamStopaj)}</strong>
+            </div>
+
+            <div class="ozet-kutu">
+                <span>Vade Sonu Mevduat Bakiyesi</span>
+                <strong>${formatla(data.vadeSonuBakiye)}</strong>
+            </div>
+
+            ${digerVarliklarHtml}
+        </div>
+    `;
+
+	// SONUÇLARI YAZDIRMA KISMI AYNI KALIYOR
+	document.getElementById('sim_sonucOzeti').innerHTML = ozetHTML;
+	document.getElementById('sim_sonucTablosu').innerHTML = data.tabloHTML;
+}
+
+/**
+ * Bir sayıyı Türk Lirası para birimi formatına çevirir.
+ * @param {number} num - Biçimlendirilecek sayı.
+ * @returns {string} - Para birimi formatında metin (örn: "1.234,56 ₺").
+ */
+const formatla = (num) => {
+	if (typeof num !== 'number') return ''; // Hatalı veri gelirse boş döndür
+	return num.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
+};
+
 
 //MEVDUAT HESAPLAMA
 function hesaplaMevduat() {
@@ -917,6 +1021,9 @@ function hesaplaMevduat() {
 	const birikim = parseFloat(document.getElementById('sim_mevduat_birikim').value) || 0;
 	const faizOrani = parseFloat(document.getElementById('sim_mevduat_faizOrani').value);
 	const toplamAy = parseInt(document.getElementById('sim_mevduat_toplamAy').value);
+	const birikimDahilEtSwitch = document.getElementById('sim_mevduat_birikimDahilEt');
+
+	const isBirikimDahil = birikimDahilEtSwitch.checked;
 
 	// 2. VALİDASYON
 	if (isNaN(faizOrani) || isNaN(toplamAy) || anaPara <= 0) {
@@ -994,33 +1101,40 @@ function hesaplaMevduat() {
 	const toplamYatirilan = anaPara + (birikim * toplamAy);
 	const vadeSonuBakiye = mevcutBakiye; // Döngüden sonraki son bakiye
 
-	// --- SADECE BU BÖLÜMÜ GÜNCELLEYİN ---
-	let ozetHTML = `
-		<h4 class="ozet-baslik">Vade Sonu Özeti</h4>
-		<div class="finansal-ozet-grid">
-			<div class="ozet-kutu">
-				<span>Toplam Yatırılan Tutar</span>
-				<strong>${formatla(toplamYatirilan)}</strong>
-			</div>
-			<div class="ozet-kutu kar">
-				<span>Toplam Net Faiz Kazancı</span>
-				<strong class="positive">${formatla(toplamNetFaiz)}</strong>
-			</div>
-			<div class="ozet-kutu zarar">
-				<span>Toplam Stopaj Kesintisi</span>
-				<strong class="negative">${formatla(toplamStopaj)}</strong>
-			</div>
-			<div class="ozet-kutu toplam">
-				<span>Vade Sonu Net Bakiye</span>
-				<strong>${formatla(vadeSonuBakiye)}</strong>
-			</div>
-		</div>
-		`;
-	// --- YENİ EKLENEN KISIM SONU ---
+	// ... hesaplaMevduat fonksiyonunuzun başındaki tüm hesaplamalar aynı kalacak ...
+	// for döngüsü, toplamNetFaiz, vadeSonuBakiye, tablo vb. hepsi hesaplandıktan sonra...
 
-	// 4. SONUÇLARI YAZDIR
-	document.getElementById('sim_sonucOzeti').innerHTML = ozetHTML; // Yeni özet alanı
-	document.getElementById('sim_sonucTablosu').innerHTML = tablo;
+	if (isBirikimDahil) {
+		// Anahtar AÇIK ise: Varlıkları al ve sonuçları yazdır.
+		fundsClickEventFunction("nonMenu", (response) => {
+			const toplamDovizTutar = response
+				.filter(oge => oge.currencyType !== 'TL')
+				.reduce((toplam, mevcutOge) => toplam + mevcutOge.forTl, 0);
+
+			// Verileri bir obje içinde toplayıp merkezi fonksiyona gönder
+			sonuclariYazdir({
+				toplamYatirilan: toplamYatirilan,
+				toplamNetFaiz: toplamNetFaiz,
+				toplamStopaj: toplamStopaj,
+				vadeSonuBakiye: vadeSonuBakiye,
+				tabloHTML: tablo, // for döngüsünde oluşturulan tablo HTML'i
+				dovizToplami: toplamDovizTutar // Ek olarak döviz toplamını gönder
+			});
+		});
+	}
+	else {
+		// Anahtar KAPALI ise: Varlıkları almadan direkt sonuçları yazdır.
+		sonuclariYazdir({
+			toplamYatirilan: toplamYatirilan,
+			toplamNetFaiz: toplamNetFaiz,
+			toplamStopaj: toplamStopaj,
+			vadeSonuBakiye: vadeSonuBakiye,
+			tabloHTML: tablo,
+			dovizToplami: 0 // Döviz toplamını 0 olarak gönder
+		});
+	}
+
+
 
 	// 5. KAYDETME FONKSİYONUNU ÇAĞIR (Deaktif)
 	/*
@@ -1031,19 +1145,6 @@ function hesaplaMevduat() {
 }
 
 // KREDİ HESAPLAMA
-/**
- * Bu fonksiyon, kullanıcıdan alınan kredi bilgileriyle
- * tüm vergi ve kesintileri dahil ederek detaylı bir ödeme planı oluşturur.
- */
-/**
- * Kullanıcıdan alınan kredi bilgileriyle, tüm güncel vergi ve kesintileri
- * dahil ederek detaylı ve hatasız bir geri ödeme planı oluşturan ana fonksiyon.
- * Son aylardaki birikim hatasını düzelten mantığı içerir.
- */
-/**
- * Kullanıcıdan alınan kredi bilgileriyle, seçilen kredi türüne göre
- * doğru vergi ve formülleri kullanarak detaylı bir geri ödeme planı oluşturur.
- */
 function hesaplaKredi() {
 	// --- SABİT ORANLAR ---
 	const TAHSIS_UCRETI_ORANI = 0.005;      // Binde 5 (%0.5)

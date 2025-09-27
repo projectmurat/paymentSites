@@ -557,7 +557,7 @@ tbody tr:hover {
     font-size: 32px;
     color: rgb(201, 197, 197);
     text-align: center;
-    padding: 20px 0;
+    padding: 10px 0;
     background-color: transparent;
     /* Eğer bir arka plan rengi isterseniz */
     border-radius: 10px;
@@ -3138,6 +3138,11 @@ body {
     border-left-color: #007bff;
 }
 
+.ozet-kutu.varlik {
+    border-left-color: #ffc107;
+    /* Sarı/altın rengi */
+}
+
 .ozet-kutu span {
     font-size: 0.85rem;
     color: #555;
@@ -3163,6 +3168,95 @@ body {
     .finansal-ozet-grid {
         /* Izgarayı 4 sütunlu (4x1 Sıra) hale getir */
         grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+
+/* Anahtar ve etiketini hizalayan kapsayıcı */
+.toggle-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Etiketi sola, anahtarı sağa yaslar */
+    width: 100%;
+    padding: 10px 0;
+    /* Yukarıdan ve aşağıdan boşluk */
+    font-family: sans-serif;
+    color: #333;
+}
+
+.toggle-label {
+    font-size: 16px;
+}
+
+/* Anahtarın (Switch) kendisi */
+.checkbox-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    /* Genişliği biraz küçülttük */
+    height: 28px;
+    /* Yüksekliği biraz küçülttük */
+}
+
+/* Arkaplandaki gerçek checkbox'ı tamamen gizliyoruz */
+.checkbox-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Anahtarın arkaplanı (kaydırma yolu) */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+/* Hareketli topuz */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    /* Topuz boyutu */
+    width: 20px;
+    /* Topuz boyutu */
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+/* AÇIK (CHECKED) DURUMU */
+input:checked+.slider {
+    background-color: #28a745;
+    /* Yeşil renk */
+}
+
+input:checked+.slider:before {
+    transform: translateX(22px);
+    /* Topuzun sağa kayma mesafesi */
+}
+
+/* Yuvarlak kenarlar */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Tablet ve üzeri (768px ve daha geniş ekranlar için) */
+@media (min-width: 768px) {
+    .finansal-ozet-grid {
+        /* Izgarayı 4 yerine 3 sütunlu hale getiriyoruz ki 6 kutu sığabilsin */
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
@@ -3905,4 +3999,79 @@ body {
 #outMoneyForm #familyRoutinMoneyOutSaveButton:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+
+
+
+
+
+
+
+
+
+/* --- Kayan Yazı Şeridi (Ticker) Stilleri --- */
+
+/* 1. Şeridin sayfanın en üstündeki ana kutusu */
+.ticker-wrap {
+    position: fixed;
+    bottom: 0;
+    /* <<< DEĞİŞTİ */
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    background-color: #2b0820c7;
+    padding: 15px 0;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+    transition: transform 0.3s ease, box-shadow 0.3s;
+    /* <<< DEĞİŞTİ */
+    z-index: 1000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 2. Animasyonun uygulanacağı, içeriği taşıyan iç kutu */
+.ticker {
+    display: inline-flex;
+    /* Öğeleri yan yana dizer */
+    white-space: nowrap;
+    /* Yazıların alt satıra inmesini engeller */
+    /* Animasyon tanımı: adı, süresi, hızı, tekrar sayısı */
+    animation: ticker-scroll 30s linear infinite;
+}
+
+/* 3. Fare ile üzerine gelindiğinde animasyonu durdur (Kullanıcı deneyimi için) */
+.ticker-wrap:hover .ticker {
+    animation-play-state: paused;
+}
+
+/* 4. Şeridin içindeki her bir kur bilgisi öğesi */
+.ticker-item {
+    padding: 0 15px;
+    font-size: 1.0rem;
+    display: flex;
+    align-items: center;
+}
+
+.ticker-item .currency-name {
+    color: #ffc107;
+    /* Altın sarısı bir renk */
+    margin-right: 8px;
+    font-weight: bold;
+}
+
+.ticker-item .currency-value {
+    color: #00ffd5;
+}
+
+/* 5. Animasyonun kendisi (Keyframes) */
+@keyframes ticker-scroll {
+    0% {
+        /* Başlangıç pozisyonu */
+        transform: translateX(0);
+    }
+
+    100% {
+        /* Bitiş pozisyonu: İçeriğin bir kopyası kadar sola kaydırır */
+        transform: translateX(-50%);
+    }
 }

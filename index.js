@@ -1,25 +1,40 @@
 const dropdown = document.getElementById('userActivityDropdown');
 const isDeveloperMode = true;
 window.addEventListener('DOMContentLoaded', event => {
-
-	/*
-	firebase.auth().sendPasswordResetEmail('imuratony@gmail.com').then(function() {
-		alert("mail gönderildi")
-	  })
-	  .catch(function(error) {
-		alert("smtp hatası")
-	  });
-	  */
-
-
 	init((initData) => {
 		jQuery(document).ready(function ($) {
 			triggerNotification();
+			const currencyData = [
+				{ name: 'Gram Altın', value: '5.100 ₺' },
+				{ name: 'Çeyrek Altın', value: '8.650 ₺' },
+				{ name: 'Dolar', value: '52,00 ₺' },
+				{ name: 'Euro', value: '60,00 ₺' },
+				{ name: 'Sterlin', value: '68,50 ₺' },
+				{ name: 'Gümüş (gr)', value: '61,52 ₺' }
+			];
+			function setupCurrencyTicker(data) {
+				const container = document.getElementById('currency-ticker-container');
+				if (!container) return;
+				const tickerItemsHtml = data.map(item => `
+					<div class="ticker-item">
+						<span class="currency-name">${item.name}:</span>
+						<span class="currency-value">${item.value}</span>
+					</div>
+				`).join('');
+				const tickerContent = tickerItemsHtml + tickerItemsHtml;
+				const tickerHTML = `
+					<div class="ticker-wrap">
+
+						<div class="ticker">
+							${tickerContent}
+						</div>
+					</div>
+				`;
+				container.innerHTML = tickerHTML;
+			}
+			setupCurrencyTicker(currencyData);
 		});
-
 	})
-
-
 });
 
 setTimeout(() => {
@@ -678,39 +693,7 @@ $('#statistics').click(function () {
 })
 
 $('#funds').click(function () {
-	PocketRealtime.getFunds({
-		done: (response) => {
-
-			fetch('https://finans.truncgil.com/today.json')
-				.then(response => response.json())
-				.then(data => {
-					dropdownData = data;
-					lastFundsCallbackTime = fundsLastCallbackTime(data["Update_Date"]);
-					document.getElementById("lastFundsEndexCallbackTimeDiv").innerHTML = "Endexlerin Son Güncellenme Tarihi" + "<br>" + '<p style="text-decoration:underline">' + lastFundsCallbackTime + '</p>';
-					if (response != null) {
-						fundsData = response;
-						fundsData.forEach(item => {
-							if (data[item.currencyType] && data[item.currencyType].Alış) {
-								item.endex = data[item.currencyType].Alış;
-							}
-						});
-						calculateFunds(response);
-					}
-					else {
-						calculateFunds([]);
-					}
-
-				})
-				.catch(error => {
-					throw new Error("Birikim verileri getirilirken hata oluştu. Ayrıntısı: \n", error);
-				});
-
-
-		},
-		fail: (error) => {
-			throw new Error(error).stack;
-		}
-	})
+	fundsClickEventFunction("menu", (response) => { });
 })
 
 $('.btn-reCalculate').click(function () {
@@ -730,31 +713,31 @@ $('.btn-reCalculate').click(function () {
 		}
 		senderFunds.push(rowData);
 	}
-	calculateFunds(senderFunds);
+	calculateFunds(senderFunds, "menu");
 })
 
 $(".btn-saveFunds").click(function () {
-    // Kullanıcıya onay sor
-    const onay = confirm("Fonları son haliyle kaydetmek istediğinize emin misiniz?");
+	// Kullanıcıya onay sor
+	const onay = confirm("Fonları son haliyle kaydetmek istediğinize emin misiniz?");
 
-    // Eğer kullanıcı iptal derse çık
-    if (!onay) {
-        alert("Kaydetme işlemi iptal edildi.");
-        return;
-    }
+	// Eğer kullanıcı iptal derse çık
+	if (!onay) {
+		alert("Kaydetme işlemi iptal edildi.");
+		return;
+	}
 
-    // Onay verildiyse Firebase işlemini başlat
-    PocketRealtime.setFunds({
-        params: senderFunds,
-        done: (response) => {
-            console.log("Kaydetme Sonucu: " + response);
-            alert("Fonlar başarıyla kaydedildi.");
-        },
-        fail: (error) => {
-            alert("Kaydetme sırasında hata oluştu.");
-            console.error(error);
-        }
-    });
+	// Onay verildiyse Firebase işlemini başlat
+	PocketRealtime.setFunds({
+		params: senderFunds,
+		done: (response) => {
+			console.log("Kaydetme Sonucu: " + response);
+			alert("Fonlar başarıyla kaydedildi.");
+		},
+		fail: (error) => {
+			alert("Kaydetme sırasında hata oluştu.");
+			console.error(error);
+		}
+	});
 });
 
 $('#installments').click(function () {
