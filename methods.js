@@ -3905,7 +3905,7 @@ $('#sub-form-pay-type').on('change', function () {
 });
 
 function getCurrencyApi(callback) {
-	let currencyData={}
+	let currencyData = {}
 	fetch('https://finans.truncgil.com/today.json')
 		.then(response => response.json())
 		.then(apiData => {
@@ -3918,4 +3918,53 @@ function getCurrencyApi(callback) {
 			currencyData["error"] = true;
 			callback(currencyData);
 		});
+}
+
+function setMaintenanceDiv(className, message = "ÇALIŞMALAR DEVAM EDİYOR. KULLANILAMAZ") {
+	// CSS’i tek seferde eklemek için
+	const styleId = `disable-style-${className}`;
+	if (!document.getElementById(styleId)) {
+		const style = document.createElement("style");
+		style.id = styleId;
+		style.textContent = `
+      .${className} {
+        position: relative !important;
+        opacity: 0.4;
+        pointer-events: none;
+      }
+      .${className}::after {
+        content: "${message}";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-15deg);
+        font-size: clamp(12px, 4vw, 20px);
+        font-weight: bold;
+        color: red;
+        background: rgba(255,255,255,0.8);
+        padding: clamp(5px, 2vw, 10px) clamp(10px, 4vw, 20px);
+        border: 2px dashed red;
+        white-space: normal;
+        text-align: center;
+        max-width: 90%;
+        box-sizing: border-box;
+        pointer-events: none;
+      }
+    `;
+		document.head.appendChild(style);
+	}
+}
+
+function removeMaintenanceDiv(className) {
+	const styleId = `disable-style-${className}`;
+	const styleEl = document.getElementById(styleId);
+	if (styleEl) {
+		styleEl.remove();
+	}
+
+	const elements = document.querySelectorAll(`.${className}`);
+	elements.forEach(el => {
+		el.style.opacity = "";
+		el.style.pointerEvents = "";
+	});
 }

@@ -1242,7 +1242,7 @@ $('#currency-ticker-container').click(function () {
 	const targetModal = $('#currencyTickerModal');
 
 	getCurrencyApi((apiData) => {
-		if(apiData.error){
+		if (apiData.error) {
 			console.error("Finans verileri getirilirken hata oluştu:", apiData.error);
 			targetModal.find('.modal-body').html('<p class="text-danger">Veriler yüklenirken bir hata oluştu.</p>');
 			return;
