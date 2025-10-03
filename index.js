@@ -1,38 +1,11 @@
 const dropdown = document.getElementById('userActivityDropdown');
 const isDeveloperMode = true;
+const validCurrencyTickers = ["gram-altin","ceyrek-altin","usd","eur","sterlin","silver"];
 window.addEventListener('DOMContentLoaded', event => {
 	init((initData) => {
 		jQuery(document).ready(function ($) {
 			triggerNotification();
-			const currencyData = [
-				{ name: 'Gram Altın', value: '5.100 ₺' },
-				{ name: 'Çeyrek Altın', value: '8.650 ₺' },
-				{ name: 'Dolar', value: '52,00 ₺' },
-				{ name: 'Euro', value: '60,00 ₺' },
-				{ name: 'Sterlin', value: '68,50 ₺' },
-				{ name: 'Gümüş (gr)', value: '61,52 ₺' }
-			];
-			function setupCurrencyTicker(data) {
-				const container = document.getElementById('currency-ticker-container');
-				if (!container) return;
-				const tickerItemsHtml = data.map(item => `
-					<div class="ticker-item">
-						<span class="currency-name">${item.name}:</span>
-						<span class="currency-value">${item.value}</span>
-					</div>
-				`).join('');
-				const tickerContent = tickerItemsHtml + tickerItemsHtml;
-				const tickerHTML = `
-					<div class="ticker-wrap">
-
-						<div class="ticker">
-							${tickerContent}
-						</div>
-					</div>
-				`;
-				container.innerHTML = tickerHTML;
-			}
-			setupCurrencyTicker(currencyData);
+			setCurrencyTickerWithRealtimeCurrency()
 		});
 	})
 });

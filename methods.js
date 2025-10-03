@@ -3968,3 +3968,98 @@ function removeMaintenanceDiv(className) {
 		el.style.pointerEvents = "";
 	});
 }
+
+// Bu fonksiyon gelen veriye göre HTML ticker'ını oluşturur (Sizin sağladığınız fonksiyon)
+function setupCurrencyTicker(data, updateDate) {
+	const container = document.getElementById('currency-ticker-container');
+	if (!container) {
+		console.error("'currency-ticker-container' ID'li element bulunamadı.");
+		return;
+	}
+	const dateHtml = updateDate ? `<p class="ticker-update-date">Son Güncelleme: ${updateDate}</p>` : '';
+	const tickerItemsHtml = data.map(item => `
+        <div class="ticker-item">
+            <span class="currency-name">${item.name}:</span>
+            <span class="currency-value">${item.value}</span>
+        </div>
+    `).join('');
+	const tickerContent = tickerItemsHtml + tickerItemsHtml; // Akıcı bir döngü için içeriği kopyala
+	const tickerHTML = `
+        <div class="ticker-wrap">
+            <div class="ticker">
+                ${tickerContent}
+            </div>
+		  ${dateHtml}
+        </div>
+    `;
+	container.innerHTML = tickerHTML;
+}
+
+/**
+ * Ana Fonksiyon: API'den veriyi alır, işler ve ticker'ı ayarlar.
+ */
+function setCurrencyTickerWithRealtimeCurrency() {
+	function formatTurkishDate(dateString) {
+		if (!dateString) return '';
+		try {
+			const dateObj = new Date(dateString.replace(' ', 'T'));
+			const timePart = dateString.split(' ')[1] || '';
+			const options = {
+				weekday: 'long',
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric'
+			};
+			const formattedDate = new Intl.DateTimeFormat('tr-TR', options).format(dateObj);
+			return `${formattedDate}, ${timePart}`;
+		} catch (error) {
+			console.error("Tarih formatlanırken hata oluştu:", error);
+			return dateString;
+		}
+	}
+	// 1. Ticker'da göstermek istediğimiz para birimleri ve emtialar
+	const validCurrencyTickers = ["gram-altin", "ceyrek-altin", "usd", "eur", "sterlin", "silver"];
+
+	// 2. Bizim anahtarlarımız ile API'deki anahtarlar ve gösterilecek isimler arasındaki ilişkiyi kuran harita
+	const currencyMap = {
+		"gram-altin": { api_key: "gram-altin", name: "Gram Altın" },
+		"ceyrek-altin": { api_key: "ceyrek-altin", name: "Çeyrek Altın" },
+		"usd": { api_key: "USD", name: "Dolar" },
+		"eur": { api_key: "EUR", name: "Euro" },
+		"sterlin": { api_key: "GBP", name: "Sterlin" }, // "sterlin" -> API'deki "GBP"
+		"silver": { api_key: "gumus", name: "Gümüş (gr)" } // "silver" -> API'deki "gumus"
+	};
+
+	// 3. API'yi çağır
+	getCurrencyApi((responseCurrency) => {
+		// API'den hata dönerse işlemi durdur
+		if (responseCurrency.error) {
+			console.error("API verisi alınamadı, ticker oluşturulamıyor.");
+			return;
+		}
+
+		const apiData = responseCurrency.data;
+
+		const formattedUpdateDate = formatTurkishDate(apiData.Update_Date);
+
+		// 4. API verisini istediğimiz formata dönüştür
+		const tickerData = validCurrencyTickers.map(tickerKey => {
+			const mapping = currencyMap[tickerKey]; // Haritadan ilgili objeyi bul (örn: {api_key: "USD", name: "Dolar"})
+
+			// Eğer haritada bir karşılık varsa ve API'den o veri geldiyse
+			if (mapping && apiData[mapping.api_key]) {
+				const apiItem = apiData[mapping.api_key];
+
+				// İstenen formatta yeni bir obje oluştur ve geri döndür
+				return {
+					name: mapping.name, // "Dolar"
+					value: `${apiItem.Satış} ₺` // "41,7158 ₺"
+				};
+			}
+			return null; // Eğer veri bulunamazsa null döndür
+		}).filter(item => item !== null); // Dizideki null değerleri temizle
+
+		// 5. Oluşturulan yeni veriyle ticker'ı HTML'e yazdır
+		setupCurrencyTicker(tickerData, formattedUpdateDate);
+	});
+}

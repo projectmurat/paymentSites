@@ -564,6 +564,9 @@ tbody tr:hover {
     /* Kenarları yumuşatmak için */
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     /* Hafif bir gölge ekleyerek derinlik hissi katalım */
+
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 .generalTitle,
@@ -4020,8 +4023,8 @@ input:checked+.slider:before {
     left: 0;
     width: 100%;
     overflow: hidden;
-    background-color: #2b0820c7;
-    padding: 15px 0;
+    background-color: #2b0820b8;
+    padding: 5px 0;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
     transition: transform 0.3s ease, box-shadow 0.3s;
     /* <<< DEĞİŞTİ */
@@ -4704,3 +4707,10 @@ input:checked+.slider:before {
     transform: translateX(24px);
 }
 
+
+.ticker-update-date {
+    color: #beff6e91;
+    text-align: center;
+    font-size: smaller;
+    margin: 0;
+}
