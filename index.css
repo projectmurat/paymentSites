@@ -4030,6 +4030,7 @@ input:checked+.slider:before {
     /* <<< DEĞİŞTİ */
     z-index: 1000;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
 }
 
 /* 2. Animasyonun uygulanacağı, içeriği taşıyan iç kutu */
@@ -4039,7 +4040,9 @@ input:checked+.slider:before {
     white-space: nowrap;
     /* Yazıların alt satıra inmesini engeller */
     /* Animasyon tanımı: adı, süresi, hızı, tekrar sayısı */
-    animation: ticker-scroll 30s linear infinite;
+    animation: ticker-scroll 20s linear infinite;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 
@@ -4709,8 +4712,8 @@ input:checked+.slider:before {
 
 
 .ticker-update-date {
-    color: #beff6e91;
+    color: #76f3ff;
     text-align: center;
-    font-size: smaller;
+    font-size: xx-small;
     margin: 0;
 }

@@ -1199,8 +1199,7 @@ const formatla = (num) => {
 
 
 //MEVDUAT HESAPLAMA
-function hesaplaMevduat() {
-	// 1. GİRDİLERİ AL
+async function hesaplaMevduat() {
 	const anaPara = parseFloat(document.getElementById('sim_mevduat_anaPara').value) || 0;
 	const birikim = parseFloat(document.getElementById('sim_mevduat_birikim').value) || 0;
 	const faizOrani = parseFloat(document.getElementById('sim_mevduat_faizOrani').value);
@@ -1209,13 +1208,10 @@ function hesaplaMevduat() {
 
 	const isBirikimDahil = birikimDahilEtSwitch.checked;
 
-	// 2. VALİDASYON
 	if (isNaN(faizOrani) || isNaN(toplamAy) || anaPara <= 0) {
 		alert("Lütfen tüm zorunlu alanları doğru bir şekilde doldurun.");
 		return;
 	}
-
-	// 3. HESAPLAMA MANTIĞI
 	const yillikFaiz = faizOrani / 100;
 	const stopajOrani = 0.15;
 
@@ -1223,12 +1219,10 @@ function hesaplaMevduat() {
 		return num.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
 	};
 
-	// --- YENİ EKLENEN KISIM BAŞLANGICI ---
-	// Özet verileri için toplamları tutacak değişkenler
 	let toplamNetFaiz = 0;
 	let toplamBrutFaiz = 0;
 	let toplamStopaj = 0;
-	// --- YENİ EKLENEN KISIM SONU ---
+	let dovizToplami = 0;
 
 	let tablo = `
       <thead>
@@ -1240,12 +1234,16 @@ function hesaplaMevduat() {
               <th style="min-width: 120px;">Aylık Birikim</th>
               <th style="min-width: 80px;">Stopaj</th>
               <th style="min-width: 140px;">Ay Sonu Bakiye</th>
+		    ${isBirikimDahil ? '<th style="min-width: 160px;">Ay Sonu Genel Bakiye</th>' : ''}
           </tr>
       </thead>
       <tbody>
     `;
 
 	let mevcutBakiye = anaPara;
+	if (isBirikimDahil) {
+		dovizToplami = await getDovizToplami();
+	}
 
 	for (let i = 1; i <= toplamAy; i++) {
 		const ayBasiBakiye = mevcutBakiye;
@@ -1256,12 +1254,11 @@ function hesaplaMevduat() {
 
 		const aySonuBakiye = ayBasiBakiye + netFaiz + birikim;
 
-		// --- YENİ EKLENEN KISIM BAŞLANGICI ---
-		// Her ay hesaplanan değerleri toplamlara ekle
+		const aySonuBirikimli = isBirikimDahil ? (aySonuBakiye + dovizToplami) : aySonuBakiye;
+
 		toplamNetFaiz += netFaiz;
 		toplamBrutFaiz += brutFaiz;
 		toplamStopaj += stopaj;
-		// --- YENİ EKLENEN KISIM SONU ---
 
 		tablo += `
           <tr>
@@ -1272,6 +1269,7 @@ function hesaplaMevduat() {
               <td>${formatla(birikim)}</td>
               <td class="negative">${formatla(stopaj)}</td>
               <td><strong>${formatla(aySonuBakiye)}</strong></td>
+		    ${isBirikimDahil ? `<td><strong>${formatla(aySonuBirikimli)}</strong></td>` : ''}
           </tr>
         `;
 
@@ -1280,52 +1278,33 @@ function hesaplaMevduat() {
 
 	tablo += '</tbody>';
 
-	// --- YENİ EKLENEN KISIM BAŞLANGICI ---
-	// Döngü bittikten sonra özet alanını oluştur
 	const toplamYatirilan = anaPara + (birikim * toplamAy);
 	const vadeSonuBakiye = mevcutBakiye; // Döngüden sonraki son bakiye
 
-	// ... hesaplaMevduat fonksiyonunuzun başındaki tüm hesaplamalar aynı kalacak ...
-	// for döngüsü, toplamNetFaiz, vadeSonuBakiye, tablo vb. hepsi hesaplandıktan sonra...
-
-	if (isBirikimDahil) {
-		// Anahtar AÇIK ise: Varlıkları al ve sonuçları yazdır.
-		fundsClickEventFunction("nonMenu", (response) => {
-			const toplamDovizTutar = response
-				.filter(oge => oge.currencyType !== 'TL')
-				.reduce((toplam, mevcutOge) => toplam + mevcutOge.forTl, 0);
-
-			// Verileri bir obje içinde toplayıp merkezi fonksiyona gönder
-			sonuclariYazdir({
-				toplamYatirilan: toplamYatirilan,
-				toplamNetFaiz: toplamNetFaiz,
-				toplamStopaj: toplamStopaj,
-				vadeSonuBakiye: vadeSonuBakiye,
-				tabloHTML: tablo, // for döngüsünde oluşturulan tablo HTML'i
-				dovizToplami: toplamDovizTutar // Ek olarak döviz toplamını gönder
-			});
-		});
-	}
-	else {
-		// Anahtar KAPALI ise: Varlıkları almadan direkt sonuçları yazdır.
-		sonuclariYazdir({
-			toplamYatirilan: toplamYatirilan,
-			toplamNetFaiz: toplamNetFaiz,
-			toplamStopaj: toplamStopaj,
-			vadeSonuBakiye: vadeSonuBakiye,
-			tabloHTML: tablo,
-			dovizToplami: 0 // Döviz toplamını 0 olarak gönder
-		});
-	}
-
-
-
-	// 5. KAYDETME FONKSİYONUNU ÇAĞIR (Deaktif)
+	sonuclariYazdir({
+		toplamYatirilan: toplamYatirilan,
+		toplamNetFaiz: toplamNetFaiz,
+		toplamStopaj: toplamStopaj,
+		vadeSonuBakiye: vadeSonuBakiye,
+		tabloHTML: tablo,
+		dovizToplami: dovizToplami
+	});
+	// KAYDETME FONKSİYONUNU (Deaktif)
 	/*
 	if (typeof kaydetSimulasyon === 'function') {
 	    kaydetSimulasyon({ type: 'Mevduat', inputs: { anaPara, birikim, faizOrani, toplamAy } });
 	}
 	*/
+}
+function getDovizToplami() {
+	return new Promise((resolve) => {
+		fundsClickEventFunction("nonMenu", (response) => {
+			const toplamDovizTutar = response
+				.filter(oge => oge.currencyType !== 'TL')
+				.reduce((toplam, mevcutOge) => toplam + mevcutOge.forTl, 0);
+			resolve(toplamDovizTutar);
+		});
+	});
 }
 
 // KREDİ HESAPLAMA
@@ -3993,6 +3972,28 @@ function setupCurrencyTicker(data, updateDate) {
         </div>
     `;
 	container.innerHTML = tickerHTML;
+
+	// --- YENİ EKLENEN KISIM ---
+	// Ticker'ı ve sarmalayıcısını bul
+	const tickerWrap = container.querySelector('.ticker');
+
+	// Eğer tickerWrap bulunduysa olay dinleyicilerini ekle
+	if (tickerWrap) {
+		// Parmağıyla dokunduğu an
+		tickerWrap.addEventListener('touchstart', () => {
+			tickerWrap.classList.add('is-scrolling');
+		}, { passive: true }); // 'passive: true' kaydırma performansını artırır
+
+		// Parmağını çektiği an
+		tickerWrap.addEventListener('touchend', () => {
+			tickerWrap.classList.remove('is-scrolling');
+		});
+
+		// Dokunma işlemi iptal olursa (örn: bir arama gelirse)
+		tickerWrap.addEventListener('touchcancel', () => {
+			tickerWrap.classList.remove('is-scrolling');
+		});
+	}
 }
 
 /**
