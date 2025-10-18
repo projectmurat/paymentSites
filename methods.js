@@ -642,7 +642,8 @@ function calculateFunds(params, whereIsTrigger) {
 			fundsTable.loadData(fundsTableData[0]);
 			let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
 			sumFundsAmount = formatCurrency(sumFunds);
-			document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
+			//document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
+			document.getElementById("anaTutar").innerHTML = formatCurrency(sumFunds) + ' ₺';
 			isClickReCalculate = false;
 		}
 		else {
@@ -651,7 +652,7 @@ function calculateFunds(params, whereIsTrigger) {
 
 					let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
 					sumFundsAmount = formatCurrency(sumFunds);
-					document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
+					document.getElementById("anaTutar").innerHTML = formatCurrency(sumFunds) + ' ₺';
 
 					let historyData = {
 						"fundsList": fundsTableData,
@@ -678,7 +679,7 @@ function calculateFunds(params, whereIsTrigger) {
 			if (fundsTableData.length != 0) {
 				let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
 				sumFundsAmount = formatCurrency(sumFunds);
-				document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
+				document.getElementById("anaTutar").innerHTML = formatCurrency(sumFunds) + ' ₺';
 
 				let historyData = {
 					"fundsList": fundsTableData,
@@ -697,7 +698,7 @@ function calculateFunds(params, whereIsTrigger) {
 				})
 			}
 			else {
-				document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + 0 + ' ₺' + '</b>';
+				document.getElementById("anaTutar").innerHTML = formatCurrency(sumFunds) + ' ₺';
 			}
 		})
 	}
