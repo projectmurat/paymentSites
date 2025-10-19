@@ -630,7 +630,7 @@ tbody tr:hover {
     text-align: center;
 
     /* İç boşlukları artıralım */
-    padding: 24px 32px;
+    padding: 15px 0px;
 
     /* Daha yumuşak, modern bir gölge */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
@@ -661,13 +661,11 @@ tbody tr:hover {
     font-weight: 400;
     color: rgba(255, 255, 255, 0.7);
     /* Hafif soluk beyaz */
-    margin-bottom: 8px;
-    /* Tutar ile arasına boşluk */
 }
 
 /* "707.593,92 ₺" TUTARI */
 #sumFundsInfo .tutar-miktar {
-    font-size: 40px;
+    font-size: 30px;
     /* Çok büyük ve dikkat çekici */
     font-weight: 700;
     /* Kalın */
@@ -675,6 +673,8 @@ tbody tr:hover {
     /* Tam beyaz */
     letter-spacing: -1px;
     /* Rakamların arasını hafifçe sıkıştırır */
+
+    font-family: system-ui;
 }
 #sumFundsInfo b {
     font-family: SANS-SERIF;
