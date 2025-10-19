@@ -624,6 +624,38 @@ function fundsClickEventFunction(whereIsTrigger, callback) {
 	})
 }
 
+function calculateAndDisplayAssetTotals(data) {
+	let totalTL = 0;
+	let totalDoviz = 0; // "Döviz" burada "TL olmayan her şey" (altın, gümüş vb.)
+
+	data.forEach(item => {
+		// 'forTl' değerinin bir sayı olduğundan emin olalım
+		const value = parseFloat(item.forTl);
+		if (isNaN(value)) {
+			return; // Geçerli bir sayı değilse bu veriyi atla
+		}
+
+		if (item.currencyType === "TL") {
+			totalTL += value;
+		} else {
+			// "TL" dışındaki (yarim-altin, ceyrek-altin, gumus vb.)
+			// her şeyi "Döviz & Diğer Varlıklar" toplamına ekliyoruz.
+			totalDoviz += value;
+		}
+	});
+
+	// 4. SONUÇLARI YENİ VE BENZERSİZ ID'LERE SAHİP ELEMENTLERE YAZDIRMA
+	const tlElement = document.getElementById('tlAmount');
+	const dovizElement = document.getElementById('dovizAmount');
+
+	if (tlElement) {
+		tlElement.innerHTML = formatCurrency(totalTL) + ' ₺';
+	}
+	if (dovizElement) {
+		dovizElement.innerHTML = formatCurrency(totalDoviz) + ' ₺';
+	}
+}
+
 function calculateFunds(params, whereIsTrigger) {
 	let fundsTableData = [];
 	if (params.length != 0) {
@@ -644,6 +676,7 @@ function calculateFunds(params, whereIsTrigger) {
 			sumFundsAmount = formatCurrency(sumFunds);
 			//document.getElementById("sumFundsInfo").innerHTML = 'Toplam Birikim Tutarı: ' + '<b>' + formatCurrency(sumFunds) + ' ₺' + '</b>';
 			document.getElementById("anaTutar").innerHTML = formatCurrency(sumFunds) + ' ₺';
+			calculateAndDisplayAssetTotals(fundsTableData[0]);
 			isClickReCalculate = false;
 		}
 		else {
@@ -653,6 +686,7 @@ function calculateFunds(params, whereIsTrigger) {
 					let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
 					sumFundsAmount = formatCurrency(sumFunds);
 					document.getElementById("anaTutar").innerHTML = formatCurrency(sumFunds) + ' ₺';
+					calculateAndDisplayAssetTotals(fundsTableData[0]);
 
 					let historyData = {
 						"fundsList": fundsTableData,
@@ -680,6 +714,7 @@ function calculateFunds(params, whereIsTrigger) {
 				let sumFunds = fundsTableData[0].map(i => i.forTl).reduce((acc, currentValue) => acc + currentValue, 0);
 				sumFundsAmount = formatCurrency(sumFunds);
 				document.getElementById("anaTutar").innerHTML = formatCurrency(sumFunds) + ' ₺';
+				calculateAndDisplayAssetTotals(fundsTableData[0]);
 
 				let historyData = {
 					"fundsList": fundsTableData,
@@ -699,6 +734,7 @@ function calculateFunds(params, whereIsTrigger) {
 			}
 			else {
 				document.getElementById("anaTutar").innerHTML = formatCurrency(sumFunds) + ' ₺';
+				calculateAndDisplayAssetTotals(fundsTableData[0]);
 			}
 		})
 	}

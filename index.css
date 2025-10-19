@@ -650,6 +650,11 @@ tbody tr:hover {
     flex-direction: column;
 }
 
+#sumFundsInfo .card-icon {
+    font-size: 2rem;
+    margin-bottom: 0px !important;
+}
+
 #sumFundsInfo:hover {
     transform: scale(1.03);
     /* 1.05 biraz fazla olabilir */
@@ -660,6 +665,8 @@ tbody tr:hover {
     font-size: 16px;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    flex-direction: column;
     /* Hafif soluk beyaz */
 }
 
@@ -676,11 +683,69 @@ tbody tr:hover {
 
     font-family: system-ui;
 }
+
 #sumFundsInfo b {
     font-family: SANS-SERIF;
     font-size: x-large;
 }
 
+
+/* YENİ TASARIM: TL ve DÖVİZ KARTLARI
+  (Önceki #sumFundsInfo stilinden tamamen bağımsız)
+*/
+
+/* İki kartı yan yana getiren ve ortalayan ana konteyner */
+#assetTotalsContainer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 820px;
+}
+
+#assetTotalsContainer .card-icon {
+    font-size: 1.6rem;
+    margin-bottom: 0px;
+}
+
+/* TL ve Döviz kartlarının ortak stili */
+.asset-card {
+    background: linear-gradient(135deg, #274d83 0%, #002659 100%);
+    color: #FFF;
+    border-radius: 16px;
+    text-align: center;
+    padding: 15px 0px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    font-family: 'Inter', 'Arial', sans-serif;
+    max-width: 400px;
+    margin: 10px auto;
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.asset-card:hover {
+    transform: scale(1.03);
+}
+
+/* YENİ KARTLARIN BAŞLIĞI (Benzersiz Sınıf) */
+/* (Örn: "TL Varlık Toplamı") */
+.asset-title {
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    flex-direction: column;
+}
+
+/* YENİ KARTLARIN MİKTARI (Benzersiz Sınıf) */
+/* (Örn: "535.677,80 ₺") */
+.asset-amount {
+    font-size: 21px;
+    font-weight: 400;
+    color: #FFFFFF;
+    letter-spacing: 0px;
+    font-family: system-ui;
+}
 
 .info-box {
     border-radius: 10px;
@@ -2791,6 +2856,19 @@ body {
 
     .asset-card {
         padding: 16px;
+        background: linear-gradient(135deg, #274d83 0%, #002659 100%);
+        color: #FFF;
+        border-radius: 16px;
+        text-align: center;
+        padding: 10px 19px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        font-family: 'Inter', 'Arial', sans-serif;
+        max-width: 400px;
+        margin: 10px auto;
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+
         /* Kart içi boşluğu azalt */
     }
 
@@ -4766,4 +4844,8 @@ input:checked+.slider:before {
     text-align: center;
     font-size: xx-small;
     margin: 0;
+}
+
+.modal-footer {
+    overflow-y: hidden;
 }
