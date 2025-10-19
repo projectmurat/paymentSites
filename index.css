@@ -630,7 +630,7 @@ tbody tr:hover {
     text-align: center;
 
     /* İç boşlukları artıralım */
-    padding: 15px 0px;
+    padding: 10px 0px;
 
     /* Daha yumuşak, modern bir gölge */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
@@ -703,7 +703,7 @@ tbody tr:hover {
 }
 
 #assetTotalsContainer .card-icon {
-    font-size: 1.6rem;
+    font-size: 2rem;
     margin-bottom: 0px;
 }
 
@@ -749,15 +749,13 @@ tbody tr:hover {
 
 .info-box {
     border-radius: 10px;
-    padding: 15px 25px;
+    padding: 10px 25px;
     background-color: #2c3e50;
-    /* Koyu mavi ton */
     color: #ecf0f1;
-    /* Açık gri ton */
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     font-family: 'Arial', sans-serif;
     max-width: 400px;
-    margin: 20px auto;
+    margin: 10px auto;
     display: flex;
     align-items: center;
 }
@@ -2855,7 +2853,7 @@ body {
     }
 
     .asset-card {
-        background: linear-gradient(135deg, #274d83 0%, #002659 100%);
+        background: linear-gradient(135deg, #051833 0%, #001b40 100%);
         color: #FFF;
         border-radius: 16px;
         text-align: center;
@@ -2896,6 +2894,10 @@ body {
         /* Bilgi metnini küçült */
     }
 }
+
+
+
+
 
 
 
@@ -4862,4 +4864,92 @@ input:checked+.slider:before {
 
 .modal-footer {
     overflow-y: hidden;
+}
+
+
+/* 'xenon-blue' adında yeni bir tema oluşturuyoruz */
+.tippy-box[data-tippy-theme~='xenon-blue'] {
+    font-family: 'Inter', 'Arial', sans-serif;
+    border-radius: 40px;
+    /* Yumuşak kenarlar */
+
+    /* Zemin: Çok koyu, doygun bir lacivert */
+    background: #00114e;
+
+    /* Kenar: Parlak, neon "Xenon" mavisi */
+    border: 1px solid #00bfff;
+    /* Deep Sky Blue */
+
+    /* * 3D DERİNLİK VE GLOW EFEKTİ (Katmanlı Gölge)
+     * 4 bölümden oluşur:
+    */
+    box-shadow:
+        /* 1. Üstten iç aydınlatma (Bevel/3D hissi) */
+        inset 0 1px 1px rgba(0, 191, 255, 0.5),
+
+        /* 2. Alttan iç gölge (Bevel/3D hissi) */
+        inset 0 -1px 1px rgba(0, 0, 0, 0.3),
+
+        /* 3. XENON GLOW (Neon parlama) */
+        0 0 25px 5px rgba(0, 191, 255, 0.3),
+
+        /* 4. DERİNLİK (Sayfadan ne kadar "yüksekte" durduğunu belirler) */
+        0 12px 24px rgba(0, 0, 0, 0.5);
+
+    color: #FFFFFF;
+}
+
+/* --- 2. Tippy Oku (Zemin rengiyle eşleşiyor) --- */
+.tippy-box[data-tippy-theme~='xenon-blue'] .tippy-arrow {
+    color: #00114e;
+}
+
+/* --- 3. Tippy İçeriği (Gereksiz dolguları sıfırla) --- */
+.tippy-box[data-tippy-theme~='xenon-blue'] .tippy-content {
+    padding: 0;
+}
+
+
+/* --- 4. Tooltip İçindeki Dinamik HTML'imizin Stilleri (Xenon Uyumlu) --- */
+/* (Bu class'ları JS içinde kullanıyoruz) */
+
+.financial-tooltip-content {
+    padding: 12px 16px;
+    min-width: 240px;
+}
+
+.financial-tooltip-content .tooltip-title {
+    font-size: 1.1em;
+    font-weight: 700;
+    /* Başlık için parlak beyaz */
+    color: #ffffff;
+}
+
+.financial-tooltip-content hr {
+    border: 0;
+    /* Neon mavi ayırıcı */
+    border-top: 1px solid rgba(0, 191, 255, 0.4);
+    margin: 8px 0;
+}
+
+.financial-tooltip-content .tooltip-body {
+    font-size: 0.95em;
+}
+
+.financial-tooltip-content .tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    padding: 2px 0;
+}
+
+.financial-tooltip-content .tooltip-row span {
+    /* Etiketler (Altın:, Gümüş:) için hafif parlak mavi */
+    color: #a0dfff;
+}
+
+.financial-tooltip-content .tooltip-row strong {
+    /* Rakamlar için parlak beyaz */
+    color: #ffffff;
+    font-weight: 700;
 }

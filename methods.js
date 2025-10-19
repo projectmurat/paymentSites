@@ -625,6 +625,84 @@ function fundsClickEventFunction(whereIsTrigger, callback) {
 }
 
 function calculateAndDisplayAssetTotals(data) {
+	// (data ve formatCurrency fonksiyonlarınızın var olduğunu varsayıyoruz)
+
+	// (data ve formatCurrency fonksiyonlarınızın var olduğunu varsayıyoruz)
+
+	tippy('#dovizTotalCard', {
+		trigger: 'click',
+		theme: 'xenon-blue',     // <-- DEĞİŞTİ: Yeni özel temamız
+		interactive: true,
+		allowHTML: true,
+		placement: 'top',
+		animation: 'scale-subtle', // <-- EKLENDİ: 3D "Pop" efekti
+
+		// DÖVİZ KARTI İÇİN DİNAMİK İÇERİK FONKSİYONU:
+		content: function (reference) {
+
+			// ----- HESAPLAMA KISMI (DEĞİŞMEDİ) -----
+			const altinTlKarsiligi = data
+				.filter(i => i.currencyType.includes("altin"))
+				.reduce((total, item) => total + parseFloat(item.forTl || 0), 0);
+
+			const gumusTlKarsiligi = data
+				.filter(i => i.currencyType === "gumus")
+				.reduce((total, item) => total + parseFloat(item.forTl || 0), 0);
+
+			const digerDovizTlKarsiligi = data
+				.filter(i =>
+					i.currencyType !== "TL" &&
+					!i.currencyType.includes("altin") &&
+					i.currencyType !== "gumus"
+				)
+				.reduce((total, item) => total + parseFloat(item.forTl || 0), 0);
+
+			// ----- TOOLTIP İÇİN HTML OLUŞTURMA (DEĞİŞMEDİ) -----
+			// (Artık stil etiketleri yok, hepsi CSS'den geliyor)
+			let tooltipHtml = `
+				<div class="financial-tooltip-content">
+					<strong class="tooltip-title">Varlık Dökümü (TL Karşılığı)</strong>
+					<hr>
+				<div class="tooltip-body">
+        		`;
+
+			if (altinTlKarsiligi > 0) {
+				tooltipHtml += `
+					<div class="tooltip-row">
+						<span>Altın:</span>
+						<strong>${formatCurrency(altinTlKarsiligi)} ₺</strong>
+					</div>
+            		`;
+			}
+			if (gumusTlKarsiligi > 0) {
+				tooltipHtml += `
+					<div class="tooltip-row">
+						<span>Gümüş:</span>
+						<strong>${formatCurrency(gumusTlKarsiligi)} ₺</strong>
+					</div>
+            		`;
+			}
+			if (digerDovizTlKarsiligi > 0) {
+				tooltipHtml += `
+					<div class="tooltip-row">
+						<span>Döviz (Diğer):</span>
+						<strong>${formatCurrency(digerDovizTlKarsiligi)} ₺</strong>
+					</div>
+            		`;
+			}
+
+			if (altinTlKarsiligi === 0 && gumusTlKarsiligi === 0 && digerDovizTlKarsiligi === 0) {
+				tooltipHtml += '<span>TL dışında varlık bulunmamaktadır.</span>';
+			}
+
+			tooltipHtml += `
+                </div>
+            </div>
+        `;
+
+			return tooltipHtml;
+		}
+	});
 	let totalTL = 0;
 	let totalDoviz = 0; // "Döviz" burada "TL olmayan her şey" (altın, gümüş vb.)
 
