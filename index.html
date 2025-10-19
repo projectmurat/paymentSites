@@ -555,24 +555,37 @@
 						</div>
 
 						<div class="text-center mt-4">
-							<button type="button" class="btn btn-primary btn-addFundType"
-								data-toggle="dropdown">Fon
-								Ekle</button>
+
 							<div class="dropdown-menu dropdown-menu-center" id="dropdownFunds">
 								<!-- Diğer döviz kurlarını buraya ekleyebilirsiniz -->
 							</div>
 						</div>
 					</div>
 
-					<div class="modal-footer"
+					<div class="modal-footer" id="modal-footer-fundsModal"
 						style="display: flex; align-items: center; justify-content: flex-start; padding: 1rem; border-top: 1px solid #dee2e6; border-bottom-right-radius: .3rem; border-bottom-left-radius: .3rem; overflow-x: auto; white-space: nowrap; flex-wrap: nowrap; min-height: 60px;">
-						<button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
-						<button type="button" class="btn btn-openFundsStatistics"
-							data-target="#fundsStatisticsModal" data-toggle="modal">FonStat</button>
+
+						<button type="button" class="btn btn-reCalculate"
+							style="background-color: #3498db; color: #ffffff; border: none; margin-right: 8px;">Hesapla</button>
+
 						<button type="button" class="btn btn-openFundsSnapshots" data-target="#fundsHistoryModal"
-							data-toggle="modal">Tarihçe</button>
-						<button type="button" class="btn btn-reCalculate">Hesapla</button>
-						<button type="button" class="btn btn-saveFunds">Kaydet</button>
+							data-toggle="modal"
+							style="background-color: #3498db; color: #ffffff; border: none; margin-right: 8px;">Tarihçe</button>
+
+						<button type="button" class="btn btn-openFundsStatistics"
+							data-target="#fundsStatisticsModal" data-toggle="modal"
+							style="background-color: #3498db; color: #ffffff; border: none; margin-right: 8px;">Fon
+							Maliyeti</button>
+
+						<button type="button" class="btn btn-primary btn-addFundType" data-toggle="dropdown"
+							style="background-color: #ff9400; color: #ffffff; border: none; font-weight: bold;">
+							Fon Ekle
+						</button>
+
+						<button type="button" class="btn btn-saveFunds"
+							style="background-color: #27ae60; color: #ffffff; border: none; margin-right: 8px; font-weight: bold;">Kaydet</button>
+
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
 					</div>
 
 				</div>
@@ -799,13 +812,13 @@
 					</div>
 
 					<div class="modal-footer">
-						<button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
 						<button type="button" class="btn btn-installments installments openNewAddInstallments"
 							data-target="#addNewInstallment" data-toggle="modal">Taksit Ekle</button>
 						<button type="button" class="btn btn-installments installmentsHistory"
 							data-target="#creditCardInstallmentHistoryModal" data-toggle="modal">Taksit
 							Tarihçe</button>
 						<button type="button" class="btn" id="deleteButton" style="display:none;">Sil</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
 					</div>
 				</div>
 			</div>
@@ -1168,7 +1181,7 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" onclick="startNewSimulation()">Yeni
-							Simülasyon</button>
+							Oluştur</button>
 						<button type="button" class="btn btn-info" onclick="populateHistoryModal()"
 							data-target="#marketingSimulationHistoryModal"
 							data-toggle="modal">Taslaklar/Geçmiş</button>

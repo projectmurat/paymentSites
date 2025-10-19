@@ -3259,17 +3259,16 @@ body {
 
 /* Özet Kutularının Genel Stili */
 .ozet-kutu {
-    background-color: #fff;
+    background-color: #002534;
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #e1e8f2;
     border-left-width: 4px;
-    /* Renkli kenarlık için alan */
     display: flex;
     flex-direction: column;
     justify-content: center;
     border-left-color: #6c757d;
-    /* Varsayılan kenarlık rengi */
+    color: #ffeb00;
 }
 
 /* Kutulara Özel Renkli Kenarlıklar */
@@ -3291,8 +3290,8 @@ body {
 }
 
 .ozet-kutu span {
-    font-size: 0.85rem;
-    color: #555;
+    font-size: 0.89rem;
+    color: #ffffff;
     margin-bottom: 0.5rem;
 }
 
@@ -4862,7 +4861,8 @@ input:checked+.slider:before {
     margin: 0;
 }
 
-.modal-footer {
+
+#modal-footer-fundsModal {
     overflow-y: hidden;
 }
 

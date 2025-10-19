@@ -319,6 +319,37 @@ function statisticTableCallback(data, callback) {
 }
 
 function fundsTableCallback(data, callback) {
+	const currencyNameMap = {
+		"TL": "TL",
+		"yarim-altin": "Yarım Altın",
+		"ceyrek-altin": "Çeyrek Altın",
+		"gumus": "Gümüş",
+
+		"USD": "ABD Doları",
+		"EUR": "Euro",
+		"gram-altin": "Gram Altın",
+		"tam-altin": "Tam Altın",
+		"cumhuriyet-altini": "Cumhuriyet Altını",
+		// ... istedikçe ekleyebilirsiniz
+	};
+	function getFriendlyCurrencyName(technicalName) {
+		if (!technicalName) {
+			return "Bilinmeyen Varlık";
+		}
+
+		const friendlyName = currencyNameMap[technicalName];
+		if (friendlyName) {
+			return friendlyName;
+		}
+		try {
+			return technicalName
+				.split('-')
+				.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+				.join(' ');
+		} catch (e) {
+			return technicalName.toUpperCase();
+		}
+	}
 	let container = document.querySelector(".handsontable-container-funds");
 	data = data.length == 1 ? data[0] : data
 	fundsTable = new Handsontable(container, {
@@ -334,7 +365,18 @@ function fundsTableCallback(data, callback) {
 			if (width > 250) return 250;
 		},
 		columns: [
-			{ data: "currencyType", className: "htCenter", readOnly: true },
+			{
+				data: "currencyType",
+				className: "htCenter",
+				readOnly: true,
+				renderer: function (instance, td, row, col, prop, value, cellProperties) {
+					// "value" (örn: "ceyrek-altin") değerini al
+					const friendlyName = getFriendlyCurrencyName(value);
+
+					// Hücreye "friendlyName" (örn: "Çeyrek Altın") olarak yazdır
+					Handsontable.renderers.TextRenderer(instance, td, row, col, prop, friendlyName, cellProperties);
+				}
+			},
 			{
 				data: "amount",
 				type: "numeric",
