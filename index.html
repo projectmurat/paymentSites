@@ -554,12 +554,7 @@
 							</div>
 						</div>
 
-						<div class="text-center mt-4">
 
-							<div class="dropdown-menu dropdown-menu-center" id="dropdownFunds">
-								<!-- Diğer döviz kurlarını buraya ekleyebilirsiniz -->
-							</div>
-						</div>
 					</div>
 
 					<div class="modal-footer" id="modal-footer-fundsModal"
@@ -577,10 +572,15 @@
 							style="background-color: #3498db; color: #ffffff; border: none; margin-right: 8px;">Fon
 							Maliyeti</button>
 
-						<button type="button" class="btn btn-primary btn-addFundType" data-toggle="dropdown"
-							style="background-color: #ff9400; color: #ffffff; border: none; font-weight: bold;">
-							Fon Ekle
-						</button>
+						<div class="text-center mt-4" id="dropdown-menu-button-div">
+							<button type="button" class="btn btn-primary btn-addFundType" data-toggle="dropdown"
+								style="background-color: #ff9400; color: #ffffff; border: none; font-weight: bold;">
+								Fon Ekle
+							</button>
+							<div class="dropdown-menu dropdown-menu-center" id="dropdownFunds">
+								<!-- Diğer döviz kurlarını buraya ekleyebilirsiniz -->
+							</div>
+						</div>
 
 						<button type="button" class="btn btn-saveFunds"
 							style="background-color: #27ae60; color: #ffffff; border: none; margin-right: 8px; font-weight: bold;">Kaydet</button>

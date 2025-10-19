@@ -416,11 +416,16 @@ tbody tr:hover {
     /* Dikeyde ekranın ortasını belirtir */
     left: 50%;
     /* Yatayda ekranın ortasını belirtir */
-    transform: translate(-50%, -50%);
     /* Bu, menüyü tam olarak ekranın ortasına yerleştirir */
     max-height: 400px;
     bottom: 15px;
     width: -webkit-fill-available !important;
+
+    position: absolute;
+    will-change: transform;
+    top: 0px;
+    left: 0px;
+    transform: translate3d(0px, 339px, 0px);
 }
 
 
@@ -439,6 +444,10 @@ tbody tr:hover {
     ;
 
     /* Koyu gri metin rengi */
+}
+
+#dropdown-menu-button-div {
+    margin-top: 0 !important;
 }
 
 .dropdown-menu button:last-child {
@@ -4952,4 +4961,12 @@ input:checked+.slider:before {
     /* Rakamlar için parlak beyaz */
     color: #ffffff;
     font-weight: 700;
+}
+
+#dropdownFunds {
+    position: absolute !important;
+    will-change: transform !important;
+    top: 0px !important;
+    left: 0px !important;
+    transform: translate3d(0px, 339px, 0px) !important;
 }
