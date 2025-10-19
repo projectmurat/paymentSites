@@ -2855,12 +2855,11 @@ body {
     }
 
     .asset-card {
-        padding: 16px;
         background: linear-gradient(135deg, #274d83 0%, #002659 100%);
         color: #FFF;
         border-radius: 16px;
         text-align: center;
-        padding: 10px 19px;
+        padding: 12px 5px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         font-family: 'Inter', 'Arial', sans-serif;
         max-width: 400px;
@@ -2868,8 +2867,23 @@ body {
         transition: transform 0.3s ease;
         display: flex;
         flex-direction: column;
+        width: 49%;
+    }
 
-        /* Kart içi boşluğu azalt */
+    #physicalAssetsList .asset-card {
+        background: linear-gradient(135deg, #274d83 0%, #002659 100%);
+        color: #FFF;
+        border-radius: 16px;
+        text-align: center;
+        padding: 12px 5px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        font-family: 'Inter', 'Arial', sans-serif;
+        max-width: 400px;
+        margin: 10px auto;
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
     }
 
     .card-value {
