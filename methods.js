@@ -634,17 +634,23 @@ function createCurrencyTickerFinancialTableHTML(processedData) {
 function fundsClickEventFunction(whereIsTrigger, callback) {
 	PocketRealtime.getFunds({
 		done: (response) => {
-			fetch('https://finans.truncgil.com/today.json')
+			fetch('https://api.muratonay.com.tr/api/currencyToday', {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					'x-user-token': '64fa9c82b17e4e3c9a7f52d1' // buraya kendi tokenını koy
+				}
+			})
 				.then(response => response.json())
 				.then(data => {
-					dropdownData = data;
-					lastFundsCallbackTime = fundsLastCallbackTime(data["Update_Date"]);
+					dropdownData = data.data;
+					lastFundsCallbackTime = fundsLastCallbackTime(data.data["Update_Date"]);
 					document.getElementById("lastFundsEndexCallbackTimeDiv").innerHTML = "Endexlerin Son Güncellenme Tarihi" + "<br>" + '<p style="text-decoration:underline">' + lastFundsCallbackTime + '</p>';
 					if (response != null) {
 						fundsData = response;
 						fundsData.forEach(item => {
-							if (data[item.currencyType] && data[item.currencyType].Alış) {
-								item.endex = data[item.currencyType].Alış;
+							if (data.data[item.currencyType] && data.data[item.currencyType].Alış) {
+								item.endex = data.data[item.currencyType].Alış;
 							}
 						});
 						callback(calculateFunds(response, whereIsTrigger));
@@ -4042,10 +4048,16 @@ $('#sub-form-pay-type').on('change', function () {
 
 function getCurrencyApi(callback) {
 	let currencyData = {}
-	fetch('https://finans.truncgil.com/today.json')
+	fetch('https://api.muratonay.com.tr/api/currencyToday', {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'x-user-token': '64fa9c82b17e4e3c9a7f52d1' // buraya kendi tokenını koy
+		}
+	})
 		.then(response => response.json())
 		.then(apiData => {
-			currencyData["data"] = apiData;
+			currencyData["data"] = apiData.data;
 			currencyData["error"] = false;
 			callback(currencyData);
 		})
