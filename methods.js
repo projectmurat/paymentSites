@@ -4048,24 +4048,29 @@ $('#sub-form-pay-type').on('change', function () {
 
 function getCurrencyApi(callback) {
 	let currencyData = {}
-	fetch('https://api.muratonay.com.tr/api/currencyToday', {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			'x-user-token': '64fa9c82b17e4e3c9a7f52d1' // buraya kendi tokenını koy
-		}
-	})
-		.then(response => response.json())
-		.then(apiData => {
-			currencyData["data"] = apiData.data;
-			currencyData["error"] = false;
-			callback(currencyData);
+	try {
+		fetch('https://api.muratonay.com.tr/api/currencyToday', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'x-user-token': '64fa9c82b17e4e3c9a7f52d1' // buraya kendi tokenını koy
+			}
 		})
-		.catch(error => {
-			currencyData["data"] = {};
-			currencyData["error"] = true;
-			callback(currencyData);
-		});
+			.then(response => response.json())
+			.then(apiData => {
+				currencyData["data"] = apiData.data;
+				currencyData["error"] = false;
+				callback(currencyData);
+			})
+			.catch((error) => {
+				currencyData["data"] = {};
+				currencyData["error"] = true;
+				callback(currencyData);
+			});
+	} catch (error) {
+		alert(error);
+	}
+
 }
 
 function setMaintenanceDiv(className, message = "ÇALIŞMALAR DEVAM EDİYOR. KULLANILAMAZ") {
@@ -4223,7 +4228,7 @@ function setCurrencyTickerWithRealtimeCurrency() {
 				// İstenen formatta yeni bir obje oluştur ve geri döndür
 				return {
 					name: mapping.name, // "Dolar"
-					value: `${apiItem.Satış} ₺` // "41,7158 ₺"
+					value: `${apiItem.Alış} ₺` // "41,7158 ₺"
 				};
 			}
 			return null; // Eğer veri bulunamazsa null döndür
