@@ -1,6 +1,6 @@
 const dropdown = document.getElementById('userActivityDropdown');
 const isDeveloperMode = true;
-const validCurrencyTickers = ["gram-altin","ceyrek-altin","usd","eur","sterlin","silver"];
+const validCurrencyTickers = ["gram-altin", "ceyrek-altin", "usd", "eur", "sterlin", "silver"];
 window.addEventListener('DOMContentLoaded', event => {
 	init((initData) => {
 		jQuery(document).ready(function ($) {
@@ -64,121 +64,119 @@ $('#notesCard').on('click', function (event) {
 
 
 $('#physicalAssets').on('click', function (event) {
+	let globalAssetData = null; // Veriyi filtrelemek için saklıyoruz
 
-	/**
-	 * Bitiş tarihine kalan gün sayısını hesaplar.
-	 * @param {string} endDateString - 'YYYY-MM-DD' formatında tarih.
-	 * @returns {number|null} Kalan gün sayısı veya tarih geçmişse null.
-	 */
 	function calculateDaysLeft(endDateString) {
 		if (!endDateString) return null;
 		const endDate = new Date(endDateString);
 		const today = new Date();
-		// Saat, dakika, saniye farklarını sıfırlayarak sadece gün bazlı hesaplama yap
 		endDate.setHours(0, 0, 0, 0);
 		today.setHours(0, 0, 0, 0);
-
 		const differenceInTime = endDate.getTime() - today.getTime();
-		if (differenceInTime < 0) return -1; // Geçmiş tarih
-
+		if (differenceInTime < 0) return -1;
 		return Math.ceil(differenceInTime / (1000 * 3600 * 24));
 	}
 
-	/**
-	 * Kalan gün sayısına göre durum rozeti (badge) oluşturur.
-	 * @param {number} daysLeft - Kalan gün sayısı.
-	 * @param {string} label - Rozet etiketi (örn: "Kasko Bitişine").
-	 * @returns {string} HTML olarak formatlanmış rozet.
-	 */
-	function createStatusBadge(daysLeft, label) {
-		if (daysLeft === null || daysLeft === undefined) return `<div><span class="status-badge-none">${label}: Yok</span></div>`;
-		if (daysLeft < 0) return `<div><span class="status-badge danger">${label}: Süresi Doldu</span></div>`;
-
+	function createStatusBadge(daysLeft, label, extraInfo = "") {
+		if (daysLeft === null || daysLeft === undefined) return `<div><span class="status-badge-none">${label}: Belirtilmedi</span></div>`;
+		const infoSuffix = extraInfo ? ` <small>(${extraInfo})</small>` : "";
+		if (daysLeft < 0) return `<div><span class="status-badge danger">${label}: Süresi Doldu${infoSuffix}</span></div>`;
 		let badgeClass = 'safe';
-		if (daysLeft <= 30) {
-			badgeClass = 'danger';
-		} else if (daysLeft <= 90) {
-			badgeClass = 'warning';
-		}
-		return `<div><span class="status-badge ${badgeClass}">${label}: <strong>${daysLeft} gün</strong> kaldı</span></div>`;
+		if (daysLeft <= 30) badgeClass = 'danger';
+		else if (daysLeft <= 90) badgeClass = 'warning';
+		return `<div><span class="status-badge ${badgeClass}">${label}: <strong>${daysLeft} gün</strong> kaldı${infoSuffix}</span></div>`;
 	}
 
-	function renderAssets(data) {
+	function renderAssets(data, ownerFilter = "me") {
 		const container = document.getElementById("physicalAssetsList");
 		let htmlContent = "";
-		let total = 0;
+		let totalValue = 0;
 
-		// DÜZELTME: Firebase'den gelen 'vehicles' nesnesini bir diziye çeviriyoruz.
-		// data.vehicles varsa Object.values() kullan, yoksa boş bir dizi ata.
-		const vehicleList = data.vehicles ? Object.values(data.vehicles) : [];
-
-		// Araçlar
-		vehicleList.forEach(v => { // Artık dizi üzerinde güvenle forEach kullanabiliriz.
-			total += v.estimatedValue;
-			const insuranceDaysLeft = calculateDaysLeft(v.insuranceEndDate);
-
-			htmlContent += `
-        <div class="asset-card">
-            <div class="card-header">🚗 ${v.brand} ${v.model} (${v.year})</div>
-            <div class="card-value-wrapper">
-                <span class="card-value-label">Tahmini Piyasa Değeri</span>
-                <div class="card-value">₺${v.estimatedValue.toLocaleString('tr-TR')}</div>
-            </div>
-            <div class="card-details">
-                <span>Plaka</span>         <strong>${v.licensePlate}</strong>
-                <span>Alım Tarihi</span>    <span>${new Date(v.purchaseDate).toLocaleDateString('tr-TR')}</span>
-                <span>Alım Fiyatı</span>    <span>₺${v.purchasePrice.toLocaleString('tr-TR')}</span>
-                <span>Notlar</span>         <span>${v.notes}</span>
-            </div>
-            <div class="card-status">
-                ${createStatusBadge(insuranceDaysLeft, 'Sigorta Bitişine')}
-            </div>
-        </div>`;
-		});
-
-		// DÜZELTME: Firebase'den gelen 'estates' nesnesini bir diziye çeviriyoruz.
-		const estateList = data.estates ? Object.values(data.estates) : [];
-
-		// Gayrimenkuller
-		estateList.forEach(p => { // Artık dizi üzerinde güvenle forEach kullanabiliriz.
-			total += p.estimatedValue;
-			const daskDaysLeft = calculateDaysLeft(p.daskEndDate);
-			const insuranceDaysLeft = calculateDaysLeft(p.homeInsuranceEndDate);
+		// Araçlar Filtreleme
+		const vehicleList = data.vehicles ? Object.values(data.vehicles).filter(v => (v.owner || 'me') === ownerFilter) : [];
+		vehicleList.forEach(v => {
+			totalValue += v.estimatedValue;
+			const insuranceDays = calculateDaysLeft(v.insuranceEndDate);
+			const inspectionDays = calculateDaysLeft(v.inspectionEndDate);
+			const mtv1Days = calculateDaysLeft(v.mtv1EndDate);
+			const mtv2Days = calculateDaysLeft(v.mtv2EndDate);
 
 			htmlContent += `
-        <div class="asset-card">
-            <div class="card-header">🏠 ${p.type} - ${p.location}</div>
-            <div class="card-value-wrapper">
-                <span class="card-value-label">Tahmini Piyasa Değeri</span>
-                <div class="card-value">₺${p.estimatedValue.toLocaleString('tr-TR')}</div>
-            </div>
-            <div class="card-details">
-                <span>Oda Sayısı</span>     <strong>${p.rooms}</strong>
-                <span>Büyüklük</span>       <span>${p.size} m²</span>
-                <span>Alım Tarihi</span>      <span>${new Date(p.purchaseDate).toLocaleDateString('tr-TR')}</span>
-                <span>Alım Fiyatı</span>      <span>₺${p.purchasePrice.toLocaleString('tr-TR')}</span>
-                <span>İpotek Durumu</span>  <strong>${p.mortgage ? "Var" : "Yok"}</strong>
-                <span>Notlar</span>         <span>${p.notes}</span>
-            </div>
-            <div class="card-status">
-                ${createStatusBadge(daskDaysLeft, 'DASK Bitişine')}
-                ${createStatusBadge(insuranceDaysLeft, 'Konut Sigortası')}
-            </div>
-        </div>`;
+            <div class="asset-card">
+                <div class="card-header">🚗 ${v.brand} ${v.model} - ${v.licensePlate}</div>
+                <div class="card-value-wrapper">
+                    <span class="card-value-label">Tahmini Değer</span>
+                    <div class="card-value">₺${v.estimatedValue.toLocaleString('tr-TR')}</div>
+                </div>
+                <div class="card-details">
+                    <div class="detail-section-title">Genel Bilgiler</div>
+                    <span>Alım Tarihi</span>    <span>${new Date(v.purchaseDate).toLocaleDateString('tr-TR')}</span>
+                    <span>Alım Fiyatı</span>    <span>₺${v.purchasePrice.toLocaleString('tr-TR')}</span>
+                    <div class="detail-section-title">Sigorta & Poliçe</div>
+                    <span>Sigorta Şirketi</span> <strong>${v.insuranceCompany || '-'}</strong>
+                    <span>Poliçe Tutarı</span>  <span>₺${(v.insurancePrice || 0).toLocaleString('tr-TR')}</span>
+                    <div class="detail-section-title">Vergi & Muayene</div>
+                    <span>MTV (1. Taksit)</span> <span>₺${(v.mtv1Price || 0).toLocaleString('tr-TR')}</span>
+                    <span>MTV (2. Taksit)</span> <span>₺${(v.mtv2Price || 0).toLocaleString('tr-TR')}</span>
+                    <span>Muayene Ücreti</span> <span>₺${(v.inspectionPrice || 0).toLocaleString('tr-TR')}</span>
+                </div>
+                <div class="card-status">
+                    ${createStatusBadge(insuranceDays, 'Sigorta Bitiş', v.insuranceCompany)}
+                    ${createStatusBadge(inspectionDays, 'Muayene Tarihi')}
+                    ${createStatusBadge(mtv1Days, 'MTV 1. Taksit')}
+                    ${createStatusBadge(mtv2Days, 'MTV 2. Taksit')}
+                </div>
+            </div>`;
 		});
 
-		container.innerHTML = htmlContent;
-		document.getElementById("totalPhysicalAssetsValue").innerText = `₺${total.toLocaleString('tr-TR')}`;
+		// Gayrimenkuller Filtreleme
+		const estateList = data.estates ? Object.values(data.estates).filter(e => (e.owner || 'me') === ownerFilter) : [];
+		estateList.forEach(p => {
+			totalValue += p.estimatedValue;
+			htmlContent += `
+            <div class="asset-card">
+                <div class="card-header">🏠 ${p.type} - ${p.location}</div>
+                <div class="card-value-wrapper">
+                    <span class="card-value-label">Tahmini Değer</span>
+                    <div class="card-value">₺${p.estimatedValue.toLocaleString('tr-TR')}</div>
+                </div>
+                <div class="card-details">
+                    <span>Özellikler</span>      <strong>${p.rooms} / ${p.size} m²</strong>
+                    <span>İpotek</span>         <strong>${p.mortgage ? "VAR" : "YOK"}</strong>
+                    <span>1. Emlak Vergisi</span> <span>₺${p.realEstateTaxPrice1.toLocaleString('tr-TR')}</span>
+                    <span>2. Emlak Vergisi</span> <span>₺${p.realEstateTaxPrice2.toLocaleString('tr-TR')}</span>
+                    <span>Notlar</span>          <small>${p.notes || '-'}</small>
+                </div>
+                <div class="card-status">
+                    ${createStatusBadge(calculateDaysLeft(p.daskEndDate), 'DASK')}
+                    ${createStatusBadge(calculateDaysLeft(p.homeInsuranceEndDate), 'Konut Sigortası')}
+                    ${createStatusBadge(calculateDaysLeft(p.realEstateTax1), '1. Emlak Vergisi')}
+                    ${createStatusBadge(calculateDaysLeft(p.realEstateTax2), '2. Emlak Vergisi')}
+                </div>
+            </div>`;
+		});
+
+		container.innerHTML = htmlContent || '<div class="text-center text-muted mt-5">Henüz varlık eklenmemiş.</div>';
+		document.getElementById("totalPhysicalAssetsValue").innerText = `₺${totalValue.toLocaleString('tr-TR')}`;
 	}
 
+	// Filtreleme Butonlarını Dinle
+	$(document).off('click', '.asset-filter-btn').on('click', '.asset-filter-btn', function () {
+		$('.asset-filter-btn').css({ 'background': 'transparent', 'color': '#888', 'font-weight': 'normal' }).removeClass('active');
+		$(this).css({ 'background': '#28a745', 'color': '#fff', 'font-weight': 'bold' }).addClass('active');
+
+		const owner = $(this).data('owner');
+		if (globalAssetData) renderAssets(globalAssetData, owner);
+	});
+
+	// İlk Veri Yükleme
 	PocketRealtime.getRealEstatesAndVehicles({
 		done: (response) => {
-			renderAssets(response);
+			globalAssetData = response;
+			renderAssets(response, "me");
 		},
-		fail: (error) => {
-			throw new Error(error);
-		}
-	})
+		fail: (error) => console.error("Hata:", error)
+	});
 });
 
 

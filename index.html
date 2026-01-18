@@ -603,25 +603,41 @@
 						<p id="popup-info-period-msg"></p>
 					</div>
 
-					<div class="modal-body physicalAssetsModal-modal-body">
-						<div class="summary-box text-center mb-4">
-							<h5 class="text-light">Toplam Fiziksel Varlık Değeri</h5>
-							<h3 id="totalPhysicalAssetsValue" class="text-success">₺0,00</h3>
+					<div class="modal-body physicalAssetsModal-modal-body"
+						style="background-color: #252525 !important; overflow-y: hidden; display: flex; flex-direction: column;">
+
+						<div class="asset-tab-wrapper mb-3"
+							style="display: flex; background: #1a1a1a; padding: 4px; border-radius: 10px; border: 1px solid #333; flex-shrink: 0;">
+							<button type="button" class="asset-filter-btn active" data-owner="me"
+								style="flex: 1; border: none; background: #28a745; color: #fff; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;">Varlıklarım</button>
+							<button type="button" class="asset-filter-btn" data-owner="family"
+								style="flex: 1; border: none; background: transparent; color: #888; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.3s;">Ailemin
+								Varlıkları</button>
 						</div>
 
-						<div class="info-box-assets mt-2 mb-4">
-							<div class="info-icon-assets">ⓘ</div>
-							<div class="info-text-assets">Varlıklarınızın detaylı dökümünü ve yaklaşan son ödeme
-								tarihlerini aşağıda bulabilirsiniz.</div>
-						</div>
+						<div style="overflow-y: auto; flex-grow: 1; padding-right: 5px;">
+							<div class="summary-box text-center mb-4">
+								<h5 class="text-light">Toplam Fiziksel Varlık Değeri</h5>
+								<h3 id="totalPhysicalAssetsValue" class="text-success">₺0,00</h3>
+							</div>
 
-						<div id="physicalAssetsList">
+							<div class="info-box-assets mt-2 mb-4">
+								<div class="info-icon-assets">ⓘ</div>
+								<div class="info-text-assets">Seçili kategoriye ait detaylı dökümü aşağıda
+									bulabilirsiniz.</div>
+							</div>
+
+							<div id="physicalAssetsList">
+							</div>
 						</div>
 					</div>
+
 					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" id="btn-add-physicalAssets"
+							data-target="#addNewPhysicalAssets" data-toggle="modal">Gayrimenkul/Taşıt
+							Ekle</button>
 						<button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
 					</div>
-
 				</div>
 			</div>
 		</div>

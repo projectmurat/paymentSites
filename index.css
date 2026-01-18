@@ -4966,3 +4966,13 @@ input:checked+.slider:before {
     left: 0px !important;
     transform: translate3d(0px, 339px, 0px) !important;
 }
+
+.detail-section-title {
+    grid-column: 1 / span 2;
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: #bcbcbc;
+    border-bottom: 1px solid #eee;
+    margin-top: 10px;
+    padding-bottom: 2px;
+}
