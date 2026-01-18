@@ -1023,50 +1023,78 @@ function renderInstallmentsTable(installmentData) {
 		row.insertCell(5).innerText = `${formatCurrency(data.installmentAmount.toFixed(2))}₺`;
 		row.insertCell(6).innerText = `${formatCurrency(remainingAmount.toFixed(2))}₺`;
 
-
 		// Ödeme butonunu oluşturma
+		// Şu anki zamanın puanı (Örn: 2026 * 12 + 1 = 24313)
 		const currentYear = new Date().getFullYear();
-		const currentMonthIndex = new Date().getMonth(); // Ay 0'dan başladığı için ekstra +1'e gerek yok
+		const currentMonth = new Date().getMonth() + 1; // 1-12 arası
+		const currentTimeScore = (currentYear * 12) + currentMonth;
 
-		// Ödeme butonunu oluşturma
+		// Son ödenen zamanın puanı (Örn: 2025 * 12 + 12 = 24312)
+		const lastPaidTimeScore = (data.lastPaidYear * 12) + data.lastPaidMonth;
+
+		// Buton Ayarları
 		const paymentButton = document.createElement('button');
 		paymentButton.classList.add('payment-button');
-		paymentButton.innerText = `Ödendi olarak İşaretle`;
-		paymentButton.dataset.key = key; // Tıklama olayında hangi taksitin güncellendiğini belirlemek için
+		paymentButton.dataset.key = key;
 
-		let adjustedLastPaidMonth = (data.lastPaidMonth % 12 === 0) ? 12 : data.lastPaidMonth % 12;
-
-		if ((adjustedLastPaidMonth >= currentMonthIndex + 1 || data.lastPaidYear < currentYear)) { // Ay 0'dan başladığı için +1 eklememiz gerekiyor
+		// EĞER son ödenen zaman puanı, şu anki puandan büyük veya eşitse: ÖDENMİŞTİR
+		if (lastPaidTimeScore >= currentTimeScore) {
 			paymentButton.disabled = true;
-			paymentButton.innerText = `${monthsInTurkish[currentMonthIndex]}-${currentYear} Ödendi`;
-			notPayableList = notPayableList.filter(i => i.item != data.item)
+			paymentButton.innerText = `${monthsInTurkish[currentMonth - 1]}-${currentYear} Ödendi`;
+			notPayableList = notPayableList.filter(i => i.item != data.item);
+		} else {
+			// Ödeme zamanı gelmiş veya geçmiş
+			paymentButton.disabled = false;
+			paymentButton.innerText = `Ödendi olarak İşaretle`;
 		}
 
 		// Taksit ekle eventi
 		paymentButton.addEventListener('click', function () {
 			const itemKey = this.dataset.key;
-			installmentData[itemKey].lastPaidMonth++;
-			installmentData[itemKey].currentMonth++;
-			installmentData[itemKey].lastPaidYear = currentYear;
-			const selectedInstallment = { ...installmentData[itemKey] };
+			const now = new Date();
+			const currentYear = now.getFullYear();
+			const currentMonthIndex = now.getMonth(); // Hata buradaydı, içeriye de tanımladık
+
+			// Veriyi referans al
+			let selectedInstallment = { ...installmentData[itemKey] };
+
+			// 1. Ay ve Yıl Güncelleme Mantığı (Aralık'tan Ocak'a geçiş kontrolü)
+			selectedInstallment.lastPaidMonth++;
+			if (selectedInstallment.lastPaidMonth > 12) {
+				selectedInstallment.lastPaidMonth = 1;
+				selectedInstallment.lastPaidYear++;
+			} else {
+				selectedInstallment.lastPaidYear = currentYear;
+			}
+
+			// 2. Taksit Sayacı Güncelleme
+			selectedInstallment.currentMonth++;
+
+			// 3. Durum Kontrolü (Taksitler bitti mi?)
+			if (parseInt(selectedInstallment.currentMonth) >= parseInt(selectedInstallment.totalMonths)) {
+				selectedInstallment.status = "0";
+			}
+
+			// 4. UI Güncelleme (Hızlı geri bildirim için)
 			this.innerText = `${monthsInTurkish[currentMonthIndex]}-${currentYear} Ödendi`;
 			this.disabled = true;
-			tbody.innerHTML = '';
-			if (selectedInstallment.totalMonths == selectedInstallment.currentMonth) {
-				selectedInstallment["status"] = "0";
-			}
+
+			// 5. Firebase / DB Güncelleme
 			PocketRealtime.updateInstallments({
 				params: selectedInstallment,
 				where: { "key": itemKey },
 				done: (response) => {
 					if (response) {
+						// Tabloyu yeniden render etmeden önce yerel veriyi güncelle
+						installmentData[itemKey] = selectedInstallment;
 						renderInstallmentsTable(installmentData);
 					}
 				},
 				fail: (error) => {
-					throw new Error(error);
+					console.error("Ödeme güncelleme hatası:", error);
+					alert("Ödeme kaydedilemedi!");
 				}
-			})
+			});
 		});
 		const paymentCell = row.insertCell(7);
 		paymentCell.appendChild(paymentButton);
