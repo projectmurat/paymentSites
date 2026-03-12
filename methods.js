@@ -1219,7 +1219,8 @@ function collectaNewInstallmentData() {
 		totalMonths: parseInt(totalInstallment),
 		status: "1",
 		insertMonth: currentMonthName,
-		insertYear: currentYear
+		insertYear: currentYear,
+		lastPaidYear:currentYear
 
 	};
 	PocketRealtime.pushInstallments({
