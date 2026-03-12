@@ -1,1 +1,2 @@
 setMaintenanceDiv("settingAppTheme")
+setMaintenanceDiv("mainSettings")
